@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachers Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="teacher-dashboard.css">
+</head>
+<body>
+    <!-- Notification Bell -->
+    <div class="notification-bell">
+        <button id="notification-toggle" class="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+        </button>
+        <div class="notification-dropdown">
+            <div class="notification-header">
+                <h3>Notifications</h3>
+                <button class="mark-read">Mark all as read</button>
+            </div>
+            <div class="notification-list">
+                <div class="notification-item unread">
+                    <div class="notification-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">New student enrolled</div>
+                        <div class="notification-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Assignment submitted</div>
+                        <div class="notification-time">1 hour ago</div>
+                    </div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-icon">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">New message from parent</div>
+                        <div class="notification-time">3 hours ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="logo-text">TeacherDash</span>
+            </div>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active" data-section="dashboard">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="analytics">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="students">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Students</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="settings">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img src="https://api.dicebear.com/7.x/initials/svg?seed=teacher&backgroundColor=4e73df,7e57c2,1cc88a,36b9cc,f6c23e,e74a3b" alt="User Avatar">
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Loading...</div>
+                    <div class="user-role">Loading...</div>
+                </div>
+            </div>
+            <button id="logout-btn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Teacher Profile Section -->
+        <div class="teacher-profile-section">
+            <div class="teacher-profile-header">
+                <div class="teacher-profile-avatar">
+                    <img src="https://api.dicebear.com/7.x/initials/svg?seed=teacher&backgroundColor=4e73df,7e57c2,1cc88a,36b9cc,f6c23e,e74a3b" alt="Teacher Avatar">
+                </div>
+                <div class="teacher-profile-info">
+                    <h2 id="teacher-name">Loading...</h2>
+                    <p id="teacher-institution"><span class="institution-badge">Loading...</span></p>
+                    <p id="teacher-email">Loading...</p>
+                </div>
+            </div>
+            <div class="teacher-profile-stats">
+                <div class="teacher-profile-stat">
+                    <div class="teacher-profile-stat-value" id="teacher-students-count">0</div>
+                    <div class="teacher-profile-stat-label">Students</div>
+                </div>
+                <div class="teacher-profile-stat">
+                    <div class="teacher-profile-stat-value" id="teacher-classes-count">0</div>
+                    <div class="teacher-profile-stat-label">Classes</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1 class="section-title">Dashboard Overview</h1>
+                <p class="section-description">Welcome back! Here's what's happening with your classes today.</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <!-- KPI Cards -->
+                <div class="kpi-card flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="kpi-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <div class="kpi-value" data-target="0">0</div>
+                                <div class="kpi-label">Total Students</div>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="kpi-insight">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Add students to get started</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                
+                <div class="kpi-card flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="kpi-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <div class="kpi-value" data-target="0">0</div>
+                                <div class="kpi-label">Average Score (%)</div>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="kpi-insight">
+                                <i class="fas fa-chart-line"></i>
+                                <span>No data available</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-card flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="kpi-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <div class="kpi-value" data-target="0">0</div>
+                                <div class="kpi-label">Attendance (%)</div>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="kpi-insight">
+                                <i class="fas fa-percentage"></i>
+                                <span>No data available</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Activity</h2>
+                    <button class="card-action">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="activity-list">
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Analytics Section -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Analytics</h1>
+                <p class="section-description">Detailed insights about your students' performance.</p>
+                
+                <div class="analytics-controls">
+                    <div class="filter-group">
+                        <label for="class-filter">Class:</label>
+                        <select id="class-filter" class="filter-select">
+                            <option value="all">All Classes</option>
+                            <option value="math-101">Math 101</option>
+                            <option value="math-201">Math 201</option>
+                            <option value="math-301">Math 301</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="date-filter">Date Range:</label>
+                        <select id="date-filter" class="filter-select">
+                            <option value="week">Last Week</option>
+                            <option value="month">Last Month</option>
+                            <option value="quarter">Last Quarter</option>
+                            <option value="year">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analytics-grid" id="analytics-grid">
+                <div class="no-data-message" id="no-data-message">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>No Analytics Data Available</h3>
+                    <p>There is currently no data to display in the analytics section.</p>
+                </div>
+            </div>
+            
+            <!-- Attendance Heatmap -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Attendance Heatmap</h2>
+                    <button class="card-action">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="heatmap-container">
+                        <div class="heatmap-legend">
+                            <div class="legend-item">
+                                <div class="legend-color low"></div>
+                                <span>Low (0-60%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color medium"></div>
+                                <span>Medium (61-80%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color high"></div>
+                                <span>High (81-100%)</span>
+                            </div>
+                        </div>
+                        <div class="heatmap-grid">
+                            <div class="heatmap-month">
+                                <h3>January</h3>
+                                <div class="heatmap-days">
+                                    <div class="heatmap-day low" data-date="2023-01-01"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-02"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-03"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-04"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-05"></div>
+                                    <div class="heatmap-day low" data-date="2023-01-06"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-07"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-08"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-09"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-10"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-11"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-12"></div>
+                                    <div class="heatmap-day low" data-date="2023-01-13"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-14"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-15"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-16"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-17"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-18"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-19"></div>
+                                    <div class="heatmap-day low" data-date="2023-01-20"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-21"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-22"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-23"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-24"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-25"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-26"></div>
+                                    <div class="heatmap-day low" data-date="2023-01-27"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-28"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-29"></div>
+                                    <div class="heatmap-day medium" data-date="2023-01-30"></div>
+                                    <div class="heatmap-day high" data-date="2023-01-31"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Students Section -->
+        <section id="students" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Student Management</h1>
+                <p class="section-description">Manage your students and track their progress.</p>
+            </div>
+            
+            <div class="students-controls">
+                <div class="search-container">
+                    <input type="text" id="student-search" class="search-input" placeholder="Search students...">
+                    <button class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="filter-container">
+                    <select id="class-filter-students" class="filter-select">
+                        <option value="all">All Classes</option>
+                        <option value="math-101">Math 101</option>
+                        <option value="math-201">Math 201</option>
+                        <option value="math-301">Math 301</option>
+                    </select>
+                </div>
+                
+                <div class="action-container">
+                    <button id="add-student-btn" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Add Student
+                    </button>
+                    <button id="export-students-btn" class="btn btn-outline">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="students-table-container">
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="name">Name <i class="fas fa-sort"></i></th>
+                            <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                            <th data-sort="class">Class <i class="fas fa-sort"></i></th>
+                            <th data-sort="grade">Grade <i class="fas fa-sort"></i></th>
+                            <th data-sort="attendance">Attendance <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-tbody">
+                        <!-- Table rows will be dynamically generated -->
+                    </tbody>
+                </table>
+                
+                <div class="pagination">
+                    <button class="pagination-btn" id="prev-page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="pagination-numbers">
+                        <button class="pagination-number active">1</button>
+                        <button class="pagination-number">2</button>
+                        <button class="pagination-number">3</button>
+                        <span class="pagination-ellipsis">...</span>
+                        <button class="pagination-number">8</button>
+                    </div>
+                    <button class="pagination-btn" id="next-page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Settings Section -->
+        <section id="settings" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Settings</h1>
+                <p class="section-description">Customize your dashboard experience.</p>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Appearance</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="setting-item">
+                            <div class="setting-label">Theme</div>
+                            <div class="setting-control">
+                                <select id="theme-selector" class="theme-selector">
+                                    <option value="pink-purple">Pink/Purple</option>
+                                    <option value="blue-cyan">Blue/Cyan</option>
+                                    <option value="green-lime">Green/Lime</option>
+                                    <option value="orange-yellow">Orange/Yellow</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Dark Mode</div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="dark-mode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Compact Mode</div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="compact-mode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Notifications</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="setting-item">
+                            <div class="setting-label">Email Notifications</div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="email-notifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Push Notifications</div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="push-notifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Assignment Reminders</div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="assignment-reminders" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Account</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="setting-item">
+                            <div class="setting-label">Profile Information</div>
+                            <div class="setting-control">
+                                <button class="btn btn-outline">Edit</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Change Password</div>
+                            <div class="setting-control">
+                                <button class="btn btn-outline">Change</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Connected Accounts</div>
+                            <div class="setting-control">
+                                <button class="btn btn-outline">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Chart Preferences</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="setting-item">
+                            <div class="setting-label">Default Chart Type</div>
+                            <div class="setting-control">
+                                <select id="default-chart-type" class="theme-selector">
+                                    <option value="line">Line Chart</option>
+                                    <option value="bar">Bar Chart</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">Animation Duration</div>
+                            <div class="setting-control">
+                                <select id="animation-duration" class="theme-selector">
+                                    <option value="fast">Fast</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="slow">Slow</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-actions">
+                <button id="save-settings" class="btn btn-primary">Save Changes</button>
+                <button class="btn btn-outline">Reset to Default</button>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button id="fab-toggle" class="fab">
+            <i class="fas fa-plus"></i>
+        </button>
+        
+        <div class="fab-menu">
+            <button class="fab-item" data-action="add-student">
+                <i class="fas fa-user-plus"></i>
+                <span class="fab-tooltip">Add Student</span>
+            </button>
+            <button class="fab-item" data-action="switch-theme">
+                <i class="fas fa-palette"></i>
+                <span class="fab-tooltip">Switch Theme</span>
+            </button>
+            <button class="fab-item" data-action="logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="fab-tooltip">Logout</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Modal Container -->
+    <div id="modal-container" class="modal-container"></div>
+    
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
