@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Classification of Triangles - Space Adventure</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #000000, #0d0d2a);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 900px;
+      padding: 16px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+    }
+    h2 { margin: 8px 0; }
+    .caption {
+      margin-top: 12px;
+      font-size: 1.2rem;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      display: inline-block;
+    }
+    button, select {
+      margin: 10px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn:hover { background: #2e7d32; }
+    #replayBtn:hover { background: #ff5722; }
+
+    svg { width: 100%; height: 400px; margin-top: 20px; }
+
+    /* Triangles */
+    .triangle { stroke-width: 4; fill: none; }
+    #equilateral { stroke: #53cdcd; } /* Neon cyan */
+    #isosceles { stroke: #ffeb3b; }   /* Neon yellow */
+    #scalene { stroke: #ff00ff; }     /* Neon magenta */
+    .highlight { stroke-width: 6; filter: drop-shadow(0 0 12px currentColor); }
+
+    /* Stars */
+    .star { fill: white; opacity: 0.8; }
+    @keyframes twinkle { from {opacity:0.2;} to {opacity:1;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Classification of Triangles</h2>
+    <label for="langSelect">🌐 Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 900 400" preserveAspectRatio="xMidYMid meet">
+      <g id="stars"></g>
+      <!-- Equilateral Triangle -->
+      <polygon id="equilateral" class="triangle" points="200,150 300,50 400,150"/>
+      <!-- Isosceles Triangle -->
+      <polygon id="isosceles" class="triangle" points="500,150 600,70 700,150"/>
+      <!-- Scalene Triangle -->
+      <polygon id="scalene" class="triangle" points="300,300 400,230 520,320"/>
+    </svg>
+
+    <div id="caption" class="caption"></div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+    const starsGroup = document.getElementById("stars");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    // Generate stars
+    for(let i=0;i<100;i++){
+      const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      star.setAttribute("cx", Math.random()*900);
+      star.setAttribute("cy", Math.random()*400);
+      star.setAttribute("r", Math.random()*2+0.5);
+      star.setAttribute("class","star");
+      star.style.animation = `twinkle ${1+Math.random()*2}s infinite alternate`;
+      starsGroup.appendChild(star);
+    }
+
+    const captions = {
+      en: [
+        "Let's learn the types of triangles.",
+        "Equilateral Triangle: all sides equal, all angles 60°.",
+        "Isosceles Triangle: two sides equal, two angles equal.",
+        "Scalene Triangle: all sides and angles different."
+      ],
+      hi: [
+        "आइए त्रिभुजों के प्रकार सीखें।",
+        "समबाहु त्रिभुज: सभी भुजाएँ समान, सभी कोण 60°।",
+        "समद्विबाहु त्रिभुज: दो भुजाएँ समान, दो कोण समान।",
+        "विषमभुज त्रिभुज: सभी भुजाएँ और कोण अलग।"
+      ],
+      ta: [
+        "வரிவகை கோணங்களை கற்றுக்கொள்வோம்.",
+        "சமபக்க கோணம்: அனைத்து பக்கங்களும் சமம், அனைத்து கோணங்களும் 60°.",
+        "சமதர கோணம்: இரண்டு பக்கங்கள் சமம், இரண்டு கோணங்கள் சமம்.",
+        "விதவிதமான கோணம்: அனைத்து பக்கங்களும் மற்றும் கோணங்களும் வேறுபாடு."
+      ],
+      te: [
+        "త్రిభుజాల రకాలను నేర్చుకుందాం.",
+        "సమభుజ త్రిభుజం: అన్ని వైపులు సమానంగా, అన్ని కోణాలు 60°.",
+        "సమద్విబాహువుల త్రిభుజం: రెండు వైపులు సమానంగా, రెండు కోణాలు సమానంగా.",
+        "విభిన్న త్రిభుజం: అన్ని వైపులు మరియు కోణాలు భిన్నంగా."
+      ],
+      or: [
+        "ତ୍ରିଭୁଜର ପ୍ରକାର ଶିଖିବା.",
+        "ସମପାର୍ଶ୍ୱ ତ୍ରିଭୁଜ: ସମସ୍ତ ପାର୍ଶ୍ୱ ସମାନ, ସମସ୍ତ କୋଣ 60°।",
+        "ସମଦ୍ୱିପାର୍ଶ୍ୱ ତ୍ରିଭୁଜ: ଦୁଇ ପାର୍ଶ୍ୱ ସମାନ, ଦୁଇ କୋଣ ସମାନ।",
+        "ବିବିଧପାର୍ଶ୍ୱ ତ୍ରିଭୁଜ: ସମସ୍ତ ପାର୍ଶ୍ୱ ଏବଂ କୋଣ ଭିନ୍ନ।"
+      ]
+    };
+
+    const voicesMap = { en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN" };
+
+    function speak(text, lang, callback){
+      if(paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if(!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function highlightTriangle(id){
+      document.querySelectorAll(".triangle").forEach(t => t.classList.remove("highlight"));
+      if(id) document.getElementById(id).classList.add("highlight");
+    }
+
+    function nextStep(){
+      if(stepIndex >= captions[currentLang].length){
+        replayBtn.style.display = "inline-block";
+        highlightTriangle(null);
+        return;
+      }
+      caption.textContent = captions[currentLang][stepIndex];
+
+      if(stepIndex === 1) highlightTriangle("equilateral");
+      if(stepIndex === 2) highlightTriangle("isosceles");
+      if(stepIndex === 3) highlightTriangle("scalene");
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        if(!paused) nextStep();
+      });
+    }
+
+    function startAnimation(){
+      paused=false;
+      stepIndex=0;
+      currentLang = langSelect.value;
+      replayBtn.style.display = "none";
+      highlightTriangle(null);
+      nextStep();
+    }
+
+    pauseBtn.addEventListener("click",()=>{
+      if(!paused){
+        paused=true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent="▶ Play";
+      }else{
+        paused=false;
+        pauseBtn.textContent="⏸ Pause";
+        nextStep();
+      }
+    });
+
+    replayBtn.addEventListener("click",startAnimation);
+    langSelect.addEventListener("change", ()=>{ startAnimation(); });
+
+    startAnimation();
+  </script>
+</body>
+</html>

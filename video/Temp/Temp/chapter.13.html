@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chapter 13: Symmetry - More Models</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0a0f2c, #000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      width: 95%;
+      max-width: 950px;
+      padding: 16px;
+      text-align: center;
+      color: white;
+    }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #fff;
+    }
+    select, button {
+      margin: 8px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select { background: #1b1b1b; color: #fff; border: 1px solid #555; }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+
+    .star {
+      fill: white;
+      opacity: 0.6;
+      filter: drop-shadow(0 0 3px white);
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+    @media(max-width:600px){
+      .caption { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Chapter 13: Symmetry</h2>
+    <h3>Lines of Symmetry</h3>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 950 420" preserveAspectRatio="xMidYMid meet">
+      <!-- Space Background -->
+      <g id="stars">
+        <circle class="star" cx="50" cy="50" r="1.5"/>
+        <circle class="star" cx="200" cy="90" r="2"/>
+        <circle class="star" cx="400" cy="40" r="1.8"/>
+        <circle class="star" cx="600" cy="100" r="2.2"/>
+        <circle class="star" cx="800" cy="60" r="1.5"/>
+        <circle class="star" cx="120" cy="320" r="1.8"/>
+        <circle class="star" cx="360" cy="300" r="1.5"/>
+        <circle class="star" cx="700" cy="320" r="1.7"/>
+        <circle class="star" cx="850" cy="250" r="2"/>
+        <circle class="star" cx="450" cy="350" r="1.4"/>
+      </g>
+
+      <!-- Circle -->
+      <g id="circle" opacity="0">
+        <circle cx="120" cy="180" r="50" fill="url(#gradCircle)" stroke="white" stroke-width="2"/>
+        <line x1="120" y1="120" x2="120" y2="240" stroke="yellow" stroke-width="3" opacity="0" class="circleLine"/>
+        <line x1="70" y1="180" x2="170" y2="180" stroke="yellow" stroke-width="3" opacity="0" class="circleLine"/>
+      </g>
+
+      <!-- Rectangle -->
+      <g id="rectangle" opacity="0">
+        <rect x="250" y="130" width="100" height="80" fill="url(#gradRectangle)" stroke="white" stroke-width="2"/>
+        <line x1="300" y1="130" x2="300" y2="210" stroke="yellow" stroke-width="3" opacity="0" class="rectLine"/>
+        <line x1="250" y1="170" x2="350" y2="170" stroke="yellow" stroke-width="3" opacity="0" class="rectLine"/>
+      </g>
+
+      <!-- Pentagon -->
+      <g id="pentagon" opacity="0">
+        <polygon points="460,200 490,150 540,150 570,200 515,250" fill="url(#gradPentagon)" stroke="white" stroke-width="2"/>
+        <line x1="515" y1="140" x2="515" y2="250" stroke="yellow" stroke-width="3" opacity="0" class="pentaLine"/>
+      </g>
+
+      <!-- Triangle -->
+      <g id="triangle" opacity="0">
+        <polygon points="250,350 200,250 300,250" fill="url(#gradTriangle)" stroke="white" stroke-width="2"/>
+        <line x1="250" y1="250" x2="250" y2="350" stroke="yellow" stroke-width="3" opacity="0" class="triLine"/>
+      </g>
+
+      <!-- Letter A -->
+      <g id="letterA" opacity="0">
+        <text x="520" y="380" font-size="110" font-weight="bold" fill="url(#gradA)">A</text>
+        <line x1="520" y1="300" x2="520" y2="400" stroke="yellow" stroke-width="3" opacity="0" class="aLine"/>
+      </g>
+
+      <!-- Letter H -->
+      <g id="alphabet" opacity="0">
+        <text x="650" y="190" font-size="100" font-weight="bold" fill="url(#gradAlphabet)">H</text>
+        <line x1="700" y1="110" x2="700" y2="200" stroke="yellow" stroke-width="3" opacity="0" class="alphaLine"/>
+      </g>
+
+      <!-- Heart -->
+      <g id="heart" opacity="0">
+        <path d="M780 300 
+           C760 260, 720 260, 720 300
+           C720 340, 750 370, 780 400
+           C810 370, 840 340, 840 300
+           C840 260, 800 260, 780 300 Z"
+        fill="url(#gradHeart)" stroke="white" stroke-width="2"/>
+        <line x1="780" y1="260" x2="780" y2="400" stroke="yellow" stroke-width="3" opacity="0" class="heartLine"/>
+      </g>
+
+      <!-- Butterfly -->
+      <g id="butterfly" opacity="0">
+        <path d="M850 180 Q820 140 850 100 Q880 140 850 180 M850 180 Q820 220 850 260 Q880 220 850 180" 
+              stroke="white" stroke-width="2" fill="url(#gradButterfly)"/>
+        <line x1="850" y1="90" x2="850" y2="270" stroke="yellow" stroke-width="3" opacity="0" class="butterLine"/>
+      </g>
+
+      <defs>
+        <linearGradient id="gradCircle" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#42a5f5"/>
+          <stop offset="100%" stop-color="#1e88e5"/>
+        </linearGradient>
+        <linearGradient id="gradRectangle" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff9800"/>
+          <stop offset="100%" stop-color="#ef6c00"/>
+        </linearGradient>
+        <linearGradient id="gradPentagon" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#81c784"/>
+          <stop offset="100%" stop-color="#388e3c"/>
+        </linearGradient>
+        <linearGradient id="gradTriangle" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#29B6F6"/>
+          <stop offset="100%" stop-color="#0288D1"/>
+        </linearGradient>
+        <linearGradient id="gradA" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFEB3B"/>
+          <stop offset="100%" stop-color="#FFC107"/>
+        </linearGradient>
+        <linearGradient id="gradAlphabet" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ab47bc"/>
+          <stop offset="100%" stop-color="#6a1b9a"/>
+        </linearGradient>
+        <linearGradient id="gradHeart" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F44336"/>
+          <stop offset="100%" stop-color="#C62828"/>
+        </linearGradient>
+        <linearGradient id="gradButterfly" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f06292"/>
+          <stop offset="100%" stop-color="#ec407a"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div id="caption" class="caption">Let's explore more lines of symmetry!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Let's explore more lines of symmetry!",
+        "A circle has infinite lines of symmetry. Here we show two: vertical and horizontal.",
+        "A rectangle has two lines of symmetry: vertical and horizontal.",
+        "A regular pentagon has 5 lines of symmetry. Here we show one of them.",
+        "An isosceles triangle also has vertical symmetry.",
+        "Letter A also has vertical symmetry.",
+        "Letter H also has vertical symmetry.",
+        "A heart shape is also symmetric about the vertical line.",
+        "Even in nature, like this butterfly, we find symmetry!"
+      ],
+      hi: [
+        "आइए अधिक सममिति रेखाओं का अध्ययन करें!",
+        "वृत्त में अनंत सममिति रेखाएँ होती हैं। यहाँ हमने दो दिखाई हैं।",
+        "आयत में दो सममिति रेखाएँ होती हैं: ऊर्ध्वाधर और क्षैतिज।",
+        "नियमित पंचभुज में 5 सममिति रेखाएँ होती हैं। यहाँ हमने एक दिखाई है।",
+        "समद्विबाहु त्रिभुज में भी ऊर्ध्वाधर सममिति होती है।",
+        "अक्षर A में भी ऊर्ध्वाधर सममिति होती है।",
+        "अक्षर H में भी ऊर्ध्वाधर सममिति होती है।",
+        "दिल के आकार में भी ऊर्ध्वाधर सममिति होती है।",
+        "प्रकृति में भी, जैसे तितली में, सममिति होती है!"
+      ],
+      ta: [
+        "மேலும் சமச்சீர் கோடுகளை கற்போம்!",
+        "ஒரு வட்டத்தில் எண்ணற்ற சமச்சீர் கோடுகள் உள்ளன. இங்கு இரண்டு மட்டும் காட்டப்பட்டுள்ளது.",
+        "ஒரு செவ்வகத்தில் இரண்டு சமச்சீர் கோடுகள் உள்ளன: செங்குத்து மற்றும் கிடைமட்ட.",
+        "ஒரு ஐம்பக்க பாகத்தில் 5 சமச்சீர் கோடுகள் உள்ளன. இங்கு ஒன்றைக் காட்டுகிறோம்.",
+        "சமசீர்க்கோண முக்கோணத்திலும் செங்குத்து சமச்சீர் உள்ளது.",
+        "A என்ற எழுத்திலும் செங்குத்து சமச்சீர் உள்ளது.",
+        "H என்ற எழுத்திலும் செங்குத்து சமச்சீர் உள்ளது.",
+        "இதய வடிவத்திலும் செங்குத்து சமச்சீர் உள்ளது.",
+        "இயற்கையிலும், இந்த பட்டாம்பூச்சியில் சமச்சீர் உள்ளது!"
+      ],
+      te: [
+        "మరిన్ని సమమితి గీతలను నేర్చుకుందాం!",
+        "వృత్తానికి అనేక సమమితి గీతలు ఉంటాయి. ఇక్కడ రెండు మాత్రమే చూపిస్తున్నాం.",
+        "చతురస్రానికి రెండు సమమితి గీతలు ఉంటాయి: నిలువు మరియు అడ్డం.",
+        "పంచభుజానికి 5 సమమితి గీతలు ఉంటాయి. ఇక్కడ ఒకదానిని చూపిస్తున్నాం.",
+        "సమద్విబాహు త్రిభుజానికి కూడా నిలువు సమమితి ఉంటుంది.",
+        "A అనే అక్షరానికి కూడా నిలువు సమమితి ఉంటుంది.",
+        "H అనే అక్షరానికి కూడా నిలువు సమమితి ఉంటుంది.",
+        "హృదయ ఆకారానికి కూడా నిలువు సమమితి ఉంటుంది.",
+        "ప్రకృతిలో కూడా, ఈ సీతాకోకచిలుకలో సమమితి ఉంది!"
+      ],
+      or: [
+        "ଆସନ୍ତୁ ଅଧିକ ସମମିତି ରେଖା ବିଷୟରେ ଜାଣିବା!",
+        "ବୃତ୍ତରେ ଅସୀମ ସମମିତି ରେଖା ଥାଏ। ଏଠି ଆମେ ଦୁଇଟି ଦେଖାଇଛୁ।",
+        "ଆୟତରେ ଦୁଇଟି ସମମିତି ରେଖା ଥାଏ: ଉର୍ଦ୍ଧ୍ୱ ଓ ଅନୁଲମ୍ବ।",
+        "ପଞ୍ଚଭୁଜରେ 5ଟି ସମମିତି ରେଖା ଥାଏ। ଏଠି ଆମେ ଗୋଟିଏ ଦେଖାଇଛୁ।",
+        "ସମଦ୍ବିବାହୁ ତ୍ରିଭୁଜରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଥାଏ।",
+        "A ଅକ୍ଷରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଥାଏ।",
+        "H ଅକ୍ଷରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଥାଏ।",
+        "ହୃଦୟ ଆକାରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଦେଖାଯାଏ।",
+        "ପ୍ରକୃତିରେ ମଧ୍ୟ, ଏହି ପ୍ରଜାପତିରେ ସମମିତି ଦେଖାଯାଏ!"
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (stepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][stepIndex];
+
+      if (stepIndex === 1) { gsap.to("#circle", {duration: 1, opacity: 1}); gsap.to(".circleLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 2) { gsap.to("#rectangle", {duration: 1, opacity: 1}); gsap.to(".rectLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 3) { gsap.to("#pentagon", {duration: 1, opacity: 1}); gsap.to(".pentaLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 4) { gsap.to("#triangle", {duration: 1, opacity: 1}); gsap.to(".triLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 5) { gsap.to("#letterA", {duration: 1, opacity: 1}); gsap.to(".aLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 6) { gsap.to("#alphabet", {duration: 1, opacity: 1}); gsap.to(".alphaLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 7) { gsap.to("#heart", {duration: 1, opacity: 1}); gsap.to(".heartLine", {delay: 1, opacity: 1}); }
+      if (stepIndex === 8) { gsap.to("#butterfly", {duration: 1, opacity: 1}); gsap.to(".butterLine", {delay: 1, opacity: 1}); }
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        setTimeout(runStep, 1500);
+      });
+    }
+
+    replayBtn.addEventListener("click", () => {
+      stepIndex = 0;
+      gsap.set(["#circle","#rectangle","#pentagon","#triangle","#letterA","#alphabet","#heart","#butterfly"], {opacity: 0});
+      gsap.set([".circleLine",".rectLine",".pentaLine",".triLine",".aLine",".alphaLine",".heartLine",".butterLine"], {opacity: 0});
+      replayBtn.style.display = "none";
+      runStep();
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      paused = !paused;
+      if (paused) {
+        pauseBtn.textContent = "▶ Resume";
+        window.speechSynthesis.cancel();
+      } else {
+        pauseBtn.textContent = "⏸ Pause";
+        runStep();
+      }
+    });
+
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      caption.textContent = captions[currentLang][stepIndex];
+    });
+
+    runStep();
+  </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Word Problems with Large Numbers</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg,#a8edea,#fed6e3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      width: 92%;
+      max-width: 1050px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 36px rgba(20,40,80,0.15);
+      padding: 25px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      background: -webkit-linear-gradient(#4a00e0, #8e2de2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h2 { margin: 8px 0 18px; font-size: 18px; color:#444; }
+    label { font-weight:600; margin-right:6px; }
+    select {
+      margin-bottom: 12px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+    svg { width:100%; height:auto; margin: 20px 0; }
+    .caption {
+      font-size: 1.1rem;
+      margin: 12px auto;
+      background: #f3f7ff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: #111;
+      font-weight: 500;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+    }
+    button {
+      margin: 10px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight:600;
+      cursor:pointer;
+      transition: 0.3s;
+    }
+    #pauseBtn { background:#4CAF50; color:white; }
+    #pauseBtn:hover { background:#2e7d32; }
+    #replayBtn { background:#ff7b54; color:white; display:none; }
+    #replayBtn:hover { background:#e65100; }
+    .numCard { font-size:24px; font-weight:700; fill:#222; }
+    .check { font-size:30px; fill:green; opacity:0; }
+    rect { filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.1)); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Word Problems with Large Numbers</h1>
+    <h2>Step by Step Explanation</h2>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <svg viewBox="0 0 850 600">
+      <!-- Example 1 -->
+      <g id="ex1" opacity="0">
+        <rect x="50" y="20" width="720" height="70" rx="12" fill="#fff6e0" stroke="#ffc107"/>
+        <text x="70" y="60" font-size="18" fill="#333">
+          Library had <tspan>123,456</tspan> books. Received <tspan>78,901</tspan> more. How many now?
+        </text>
+      </g>
+
+      <g id="calc1" opacity="0" transform="translate(100,130)">
+        <text x="0" y="0" class="numCard">123,456</text>
+        <text x="0" y="40" class="numCard">+ 78,901</text>
+        <line x1="0" y1="50" x2="220" y2="50" stroke="#aaa"/>
+        <text id="sum" x="210" y="90" class="numCard" text-anchor="end">202,357</text>
+        <text id="tick1" x="230" y="90" class="check">✔</text>
+      </g>
+
+      <!-- Example 2 -->
+      <g id="ex2" opacity="0" transform="translate(50,280)">
+        <rect x="0" y="0" width="720" height="70" rx="12" fill="#e8f7ff" stroke="#00bcd4"/>
+        <text x="20" y="40" font-size="18" fill="#333">
+          Reservoir has <tspan>2,345,678</tspan> L. Used <tspan>456,789</tspan> L. Remaining?
+        </text>
+      </g>
+
+      <g id="calc2" opacity="0" transform="translate(100,400)">
+        <text x="0" y="0" class="numCard">2,345,678</text>
+        <text x="0" y="40" class="numCard">− 456,789</text>
+        <line x1="0" y1="50" x2="260" y2="50" stroke="#aaa"/>
+        <text id="diff" x="240" y="90" class="numCard" text-anchor="end">1,888,889</text>
+        <text id="tick2" x="260" y="90" class="check">✔</text>
+      </g>
+    </svg>
+
+    <div id="caption" class="caption">Welcome! Let's begin solving word problems with large numbers.</div>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false, step = 0, currentLang="en";
+
+    // Captions for all languages
+    const captions = {
+      en: [
+        "Example 1: A library had 123,456 books and received 78,901 more.",
+        "We add 123,456 and 78,901 to get the total number of books.",
+        "The result is 202,357 books.",
+        "Example 2: A reservoir has 2,345,678 liters and 456,789 liters were used.",
+        "Subtract 456,789 from 2,345,678 to find the remaining water.",
+        "The result is 1,888,889 liters remaining.",
+        "Summary: • Extract numbers • Choose operation • Calculate • Verify result.",
+        "Great work! Replay to review the steps again."
+      ],
+      hi: [
+        "उदाहरण 1: एक पुस्तकालय में 123,456 किताबें थीं और 78,901 और मिल गईं।",
+        "हम 123,456 और 78,901 को जोड़ते हैं।",
+        "परिणाम है 202,357 किताबें।",
+        "उदाहरण 2: एक जलाशय में 2,345,678 लीटर था और 456,789 लीटर उपयोग हुआ।",
+        "हम 2,345,678 से 456,789 घटाते हैं।",
+        "परिणाम है 1,888,889 लीटर शेष।",
+        "सारांश: • संख्याएँ निकालें • ऑपरेशन चुनें • गणना करें • परिणाम सत्यापित करें।",
+        "शानदार! दोबारा देखने के लिए Replay दबाएँ।"
+      ],
+      ta: [
+        "உதாரணம் 1: நூலகத்தில் 123,456 புத்தகங்கள் இருந்தன மற்றும் 78,901 புத்தகங்கள் கூடின.",
+        "123,456 மற்றும் 78,901 ஐ கூட்டுகிறோம்.",
+        "மொத்தம் 202,357 புத்தகங்கள்.",
+        "உதாரணம் 2: குளத்தில் 2,345,678 லிட்டர் இருந்தது, 456,789 லிட்டர் பயன்படுத்தப்பட்டது.",
+        "2,345,678 இலிருந்து 456,789 ஐ கழிக்கிறோம்.",
+        "மீதமுள்ளது 1,888,889 லிட்டர்.",
+        "சுருக்கம்: • எண்களை எடு • செயலை தேர்வு செய் • கணக்கிடு • முடிவை சரிபார்.",
+        "சிறப்பானது! மீண்டும் பார்க்க Replay அழுத்தவும்."
+      ],
+      te: [
+        "ఉదాహరణ 1: గ్రంథాలయంలో 123,456 పుస్తకాలు ఉన్నాయి మరియు 78,901 మరిన్ని వచ్చాయి.",
+        "123,456 మరియు 78,901 ను కలుపుతాము.",
+        "మొత్తం 202,357 పుస్తకాలు ఉన్నాయి.",
+        "ఉదాహరణ 2: ఒక జలాశయంలో 2,345,678 లీటర్లు ఉన్నాయి, 456,789 లీటర్లు వాడబడ్డాయి.",
+        "2,345,678 నుండి 456,789 ను తీసేస్తాము.",
+        "ఫలితం 1,888,889 లీటర్లు మిగిలాయి.",
+        "సారాంశం: • సంఖ్యలను కనుగొనండి • ఆపరేషన్ ఎంచుకోండి • లెక్కించండి • ఫలితాన్ని తనిఖీ చేయండి.",
+        "అద్భుతం! మళ్ళీ చూడటానికి Replay నొక్కండి."
+      ],
+      or: [
+        "ଉଦାହରଣ 1: ଏକ ଲାଇବ୍ରେରୀରେ 123,456 ପୁସ୍ତକ ଥିଲା ଏବଂ 78,901 ଅଧିକ ଆସିଲା।",
+        "ଆମେ 123,456 ଏବଂ 78,901 କୁ ଯୋଗ କରୁଛୁ।",
+        "ଫଳାଫଳ ହେଉଛି 202,357 ପୁସ୍ତକ।",
+        "ଉଦାହରଣ 2: ଏକ ଜଳାଶୟରେ 2,345,678 ଲିଟର ଥିଲା, 456,789 ଲିଟର ବ୍ୟବହାର ହେଲା।",
+        "ଆମେ 2,345,678ରୁ 456,789 କମାଇବା।",
+        "ଫଳାଫଳ ହେଉଛି 1,888,889 ଲିଟର ବାକି।",
+        "ସାରାଂଶ: • ସଂଖ୍ୟାଗୁଡିକୁ ନିକାଳନ୍ତୁ • କାର୍ଯ୍ୟ ବାଛନ୍ତୁ • ଗଣନା କରନ୍ତୁ • ଫଳାଫଳକୁ ସତ୍ୟାପନ କରନ୍ତୁ।",
+        "ଶାନ୍ଦାର! ପୁଣିଥରେ ଦେଖିବାକୁ Replay ଦବାନ୍ତୁ।"
+      ]
+    };
+
+    const voicesMap = { en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN" };
+
+    function speak(text,lang){
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const steps = [
+      { anim: () => gsap.to("#ex1",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#calc1",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#tick1",{opacity:1,scale:1.2,duration:0.6,yoyo:true,repeat:1}) },
+      { anim: () => gsap.to("#ex2",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#calc2",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#tick2",{opacity:1,scale:1.2,duration:0.6,yoyo:true,repeat:1}) },
+      { anim: () => {} },
+      { anim: () => replayBtn.style.display="inline-block" }
+    ];
+
+    function runStep(i){
+      if(i>=captions[currentLang].length) return;
+      step=i;
+      caption.textContent=captions[currentLang][i];
+      speak(captions[currentLang][i],currentLang);
+      steps[i].anim();
+      if(!paused) setTimeout(()=>runStep(i+1),6000);
+    }
+
+    function start(){
+      gsap.set(["#ex1","#calc1","#ex2","#calc2","#tick1","#tick2"], {opacity:0,scale:1});
+      replayBtn.style.display="none";
+      paused=false; pauseBtn.textContent="⏸ Pause";
+      currentLang=langSelect.value;
+      runStep(0);
+    }
+
+    pauseBtn.addEventListener("click",()=>{
+      paused=!paused;
+      pauseBtn.textContent=paused?"▶ Play":"⏸ Pause";
+      if(!paused) runStep(step);
+    });
+
+    replayBtn.addEventListener("click",start);
+
+    langSelect.addEventListener("change",()=>{ currentLang=langSelect.value; });
+
+    start();
+  </script>
+</body>
+</html>

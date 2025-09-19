@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mensuration - Perimeter & Area</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0b0c10, #000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      width: 95%;
+      max-width: 900px;
+      padding: 16px;
+      text-align: center;
+      color: white;
+    }
+    h2, h3 { margin: 5px 0; }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #fff;
+    }
+    select, button {
+      margin: 8px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select { background: #212121; color: #fff; border: 1px solid #555; }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+
+    .shape-label { font-weight: bold; fill: #fff; font-size: 18px; }
+
+    .star {
+      fill: white;
+      opacity: 0.6;
+      filter: drop-shadow(0 0 3px white);
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+
+    @media(max-width:600px){
+      .shape-label { font-size: 14px; }
+      .caption { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Chapter 10: Mensuration</h2>
+    <h3>Perimeter & Area of Simple Figures</h3>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 900 400" preserveAspectRatio="xMidYMid meet">
+      <!-- Starry Space Background -->
+      <g id="stars">
+        <circle class="star" cx="40" cy="50" r="2.2"/>
+        <circle class="star" cx="140" cy="80" r="1.8"/>
+        <circle class="star" cx="260" cy="60" r="2"/>
+        <circle class="star" cx="380" cy="50" r="1.5"/>
+        <circle class="star" cx="500" cy="70" r="2.3"/>
+        <circle class="star" cx="620" cy="90" r="1.9"/>
+        <circle class="star" cx="740" cy="50" r="2"/>
+        <circle class="star" cx="860" cy="80" r="1.6"/>
+        <circle class="star" cx="120" cy="300" r="1.5"/>
+        <circle class="star" cx="350" cy="330" r="2"/>
+        <circle class="star" cx="560" cy="320" r="1.8"/>
+        <circle class="star" cx="800" cy="300" r="1.6"/>
+      </g>
+
+      <!-- Shapes -->
+      <rect id="square" x="80" y="140" width="80" height="80" fill="url(#grad1)" stroke="#FFD93D" stroke-width="3" opacity="0"/>
+      <rect id="rectangle" x="260" y="140" width="140" height="80" fill="url(#grad2)" stroke="#6BCB77" stroke-width="3" opacity="0"/>
+      <polygon id="triangle" points="540,220 600,140 660,220" fill="url(#grad3)" stroke="#4D96FF" stroke-width="3" opacity="0"/>
+
+      <text class="shape-label" id="labelSquare" x="120" y="250" opacity="0" text-anchor="middle">Square</text>
+      <text class="shape-label" id="labelRectangle" x="330" y="250" opacity="0" text-anchor="middle">Rectangle</text>
+      <text class="shape-label" id="labelTriangle" x="600" y="250" opacity="0" text-anchor="middle">Triangle</text>
+
+      <defs>
+        <radialGradient id="grad1" cx="30%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFF176"/>
+          <stop offset="100%" stop-color="#FBC02D"/>
+        </radialGradient>
+        <radialGradient id="grad2" cx="30%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#A5D6A7"/>
+          <stop offset="100%" stop-color="#2E7D32"/>
+        </radialGradient>
+        <radialGradient id="grad3" cx="30%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#90CAF9"/>
+          <stop offset="100%" stop-color="#1565C0"/>
+        </radialGradient>
+      </defs>
+    </svg>
+
+    <div id="caption" class="caption">Let's explore perimeter and area!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Let's explore perimeter and area!",
+        "This is a square — Perimeter = 4 × side, Area = side²",
+        "This is a rectangle — Perimeter = 2 × (L + B), Area = L × B",
+        "This is a triangle — Perimeter = sum of all sides, Area = ½ × base × height"
+      ],
+      hi: [
+        "आइए परिमाप और क्षेत्रफल का अन्वेषण करें!",
+        "यह एक वर्ग है — परिमाप = 4 × भुजा, क्षेत्रफल = भुजा²",
+        "यह एक आयत है — परिमाप = 2 × (ल + ब), क्षेत्रफल = ल × ब",
+        "यह एक त्रिभुज है — परिमाप = सभी भुजाओं का योग, क्षेत्रफल = ½ × आधार × ऊँचाई"
+      ],
+      ta: [
+        "சுற்றளவு மற்றும் பரப்பளவை கற்போம்!",
+        "இது ஒரு சதுரம் — சுற்றளவு = 4 × பக்கம், பரப்பளவு = பக்கம்²",
+        "இது ஒரு செவ்வகம் — சுற்றளவு = 2 × (நீளம் + அகலம்), பரப்பளவு = நீளம் × அகலம்",
+        "இது ஒரு முக்கோணம் — சுற்றளவு = மூன்று பக்கங்களின் கூட்டுத்தொகை, பரப்பளவு = ½ × அடிப்படை × உயரம்"
+      ],
+      te: [
+        "పరిధి మరియు విస్తీర్ణం నేర్చుకుందాం!",
+        "ఇది ఒక చదరంగం — పరిధి = 4 × భుజం, విస్తీర్ణం = భుజం²",
+        "ఇది ఒక దీర్ఘచతురస్రం — పరిధి = 2 × (ల + బి), విస్తీర్ణం = ల × బి",
+        "ఇది ఒక త్రిభుజం — పరిధి = అన్ని భుజాల మొత్తం, విస్తీర్ణం = ½ × బేస్ × ఎత్తు"
+      ],
+      or: [
+        "ଆସନ୍ତୁ ପରିଧି ଏବଂ କ୍ଷେତ୍ରଫଳ ଶିଖିବା!",
+        "ଏହା ଏକ ବର୍ଗ — ପରିଧି = 4 × ପାଟି, କ୍ଷେତ୍ରଫଳ = ପାଟି²",
+        "ଏହା ଏକ ଆୟତ — ପରିଧି = 2 × (ଲ + ବ), କ୍ଷେତ୍ରଫଳ = ଲ × ବ",
+        "ଏହା ଏକ ତ୍ରିଭୁଜ — ପରିଧି = ସମସ୍ତ ପାଟିର ଯୋଗ, କ୍ଷେତ୍ରଫଳ = ½ × ଆଧାର × ଉଚ୍ଚତା"
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (stepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][stepIndex];
+
+      if (stepIndex === 1) gsap.to(["#square","#labelSquare"], {duration: 1, opacity: 1, scale: 1.2, transformOrigin: "center"});
+      if (stepIndex === 2) gsap.to(["#rectangle","#labelRectangle"], {duration: 1, opacity: 1, scale: 1.2, transformOrigin: "center"});
+      if (stepIndex === 3) gsap.to(["#triangle","#labelTriangle"], {duration: 1, opacity: 1, scale: 1.2, transformOrigin: "center"});
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      stepIndex = 0;
+      gsap.set(["#square","#rectangle","#triangle","#labelSquare","#labelRectangle","#labelTriangle"], {opacity:0, scale:1});
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) { paused = true; window.speechSynthesis.cancel(); pauseBtn.textContent = "▶ Play"; }
+      else { paused = false; pauseBtn.textContent = "⏸ Pause"; runStep(); }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][stepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+  </script>
+</body>
+</html>

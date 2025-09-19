@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Firebase Diagnostic</title>
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:20px} pre{background:#111;color:#0f0;padding:12px;border-radius:6px;overflow:auto}</style>
+</head>
+<body>
+  <h2>Firebase Diagnostic</h2>
+  <p id="status">Loading firebase.js as module...</p>
+  <pre id="cfg">config will appear here</pre>
+  <hr>
+  <h3>Test signUp REST call</h3>
+  <p>Enter an email and password to POST to identitytoolkit (shows raw response)</p>
+  <input id="email" placeholder="email@example.com" style="width:320px" />
+  <input id="password" placeholder="password" style="width:200px" />
+  <button id="run">Run signUp test</button>
+  <pre id="resp">response will appear here</pre>
+
+  <script type="module">
+    import './firebase.js';
+    const status = document.getElementById('status');
+    const cfg = document.getElementById('cfg');
+    const resp = document.getElementById('resp');
+    status.textContent = 'firebase.js loaded. Checking window.AURRAA...';
+    if (window.AURRAA && window.AURRAA.firebaseApp && window.AURRAA.firebaseApp.options) {
+      cfg.textContent = JSON.stringify(window.AURRAA.firebaseApp.options, null, 2);
+      status.textContent = 'Found firebaseApp.options';
+    } else {
+      cfg.textContent = 'window.AURRAA or firebaseApp.options not found';
+      status.textContent = 'firebase object not found';
+    }
+
+    document.getElementById('run').addEventListener('click', async function(){
+      resp.textContent = 'Running...';
+      try {
+        const apiKey = (window.AURRAA && window.AURRAA.firebaseApp && window.AURRAA.firebaseApp.options && window.AURRAA.firebaseApp.options.apiKey) ? window.AURRAA.firebaseApp.options.apiKey : null;
+        if (!apiKey) throw new Error('apiKey not found in window.AURRAA.firebaseApp.options');
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(apiKey);
+        const body = { email, password, returnSecureToken: true };
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const text = await r.text();
+        try { resp.textContent = JSON.stringify(JSON.parse(text), null, 2); } catch (e) { resp.textContent = text; }
+      } catch (e) {
+        resp.textContent = 'Error: ' + (e && e.message ? e.message : String(e));
+      }
+    });
+  </script>
+</body>
+</html>

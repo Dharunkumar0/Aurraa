@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Indian & International Numbers</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    width: 95%;
+    max-width: 1100px;
+    text-align: center;
+    position: relative;
+  }
+  h1 {
+    color: white;
+    text-shadow: 0px 0px 10px #60a5fa;
+    font-size: clamp(1.4rem, 2vw, 2.2rem);
+  }
+  svg {
+    width: 100%;
+    height: 60vh;
+  }
+  .caption {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    min-height: 40px;
+  }
+  .caption.show { opacity: 1; }
+  select, button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  select { background: #1e293b; color: white; }
+  button {
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    color: white;
+    box-shadow: 0px 0px 10px #818cf8;
+  }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌌 Indian & International Numbers</h1>
+  <label for="langSelect" style="color:white;">🌐 Language</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 600">
+    <defs>
+      <radialGradient id="planetGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </radialGradient>
+    </defs>
+
+    <g id="stars"></g>
+    <circle cx="850" cy="120" r="80" fill="url(#planetGrad)" opacity="0.8"></circle>
+
+    <!-- Groups for numbers -->
+    <g id="group1" transform="translate(250,250) scale(0)">
+      <rect x="-100" y="-50" width="200" height="100" rx="20" fill="#f59e0b"/>
+      <text x="0" y="10" font-size="28" fill="white" text-anchor="middle">1,23,456</text>
+    </g>
+    <g id="group2" transform="translate(750,250) scale(0)">
+      <rect x="-120" y="-50" width="240" height="100" rx="20" fill="#3b82f6"/>
+      <text x="0" y="10" font-size="28" fill="white" text-anchor="middle">7,89,45,678</text>
+    </g>
+
+    <g id="result" transform="translate(500,500) scale(0)">
+      <text x="0" y="0" text-anchor="middle" font-size="30" fill="#fbbf24">7 Crore 89 Lakh 45 Thousand 678</text>
+    </g>
+  </svg>
+
+  <div id="caption" class="caption"></div>
+  <div class="controls">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="videoFinishBtn" class="nav-btn finish-btn">Finish</button>
+  </div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Let's learn how to read and write numbers up to lakhs and crores.",
+    "Number 1: 1,23,456 → Read as One Lakh Twenty Three Thousand Four Hundred Fifty Six.",
+    "Number 2: 7,89,45,678 → Read as Seven Crore Eighty Nine Lakh Forty Five Thousand Six Hundred Seventy Eight.",
+    "Always place commas correctly as per the Indian system: Ones, Tens, Hundreds, Thousands, Lakhs, Crores."
+  ],
+  hi: [
+    "आइए हम लाखों और करोड़ों तक की संख्याएँ पढ़ना और लिखना सीखें।",
+    "संख्या 1: 1,23,456 → इसे ऐसे पढ़ें: एक लाख तेईस हज़ार चार सौ छप्पन।",
+    "संख्या 2: 7,89,45,678 → इसे ऐसे पढ़ें: सात करोड़ नवासी लाख पैंतालीस हज़ार छह सौ अठहत्तर।",
+    "हमेशा भारतीय प्रणाली के अनुसार सही जगह पर कॉमा लगाएँ।"
+  ],
+  ta: [
+    "நாம் இலட்சங்கள் மற்றும் கோடிகள் வரை எண்களைப் படித்து எழுத கற்போம்.",
+    "எண் 1: 1,23,456 → ஒன்று இலட்சம் இருபத்து மூன்று ஆயிரத்து நானூற்று ஐம்பத்து ஆறு.",
+    "எண் 2: 7,89,45,678 → ஏழு கோடி எண்பத்தொன்பது இலட்சம் நாற்பத்தைந்து ஆயிரத்து ஆறு நூற்று எழுபத்து எட்டு.",
+    "இந்திய முறைப்படி சரியான இடங்களில் காமாக்களை வையுங்கள்."
+  ],
+  te: [
+    "లక్షలు మరియు కోట్ల వరకు సంఖ్యలను చదవడం, రాయడం నేర్చుకుందాం.",
+    "సంఖ్య 1: 1,23,456 → ఒక లక్ష ఇరవై మూడు వేల నలభై ఆరు వందల యాభై ఆరు.",
+    "సంఖ్య 2: 7,89,45,678 → ఏడు కోట్లు ఎనభై తొమ్మిది లక్షల నలభై ఐదు వేల ఆరు వందల డెబ్బై ఎనిమిది.",
+    "భారతీయ పద్ధతి ప్రకారం సరిగ్గా విరామ చిహ్నాలు పెట్టండి."
+  ],
+  or: [
+    "ଆସନ୍ତୁ ଆମେ ଲକ୍ଷ ଏବଂ କୋଟି ପର୍ଯ୍ୟନ୍ତ ସଂଖ୍ୟା ପଢ଼ିବା ଏବଂ ଲେଖିବା ସିଖୁ।",
+    "ସଂଖ୍ୟା 1: 1,23,456 → ପଢ଼ନ୍ତୁ: ଏକ ଲକ୍ଷ ତେଇଶ ହଜାର ଚାରି ସେହି ପଚାଷ୍ଟି।",
+    "ସଂଖ୍ୟା 2: 7,89,45,678 → ପଢ଼ନ୍ତୁ: ସାତ କୋଟି ଏଣେବେଇ ନବେଲକ୍ଷ ଚାଲିଶି ପାଞ୍ଚହଜାର ଛଅସେହି ସତରିଅଠ।",
+    "ସବୁବେଳେ ଭାରତୀୟ ପଦ୍ଧତିରେ ସଠିକ୍ ସ୍ଥାନରେ କମା ବ୍ୟବହାର କରନ୍ତୁ।"
+  ]
+};
+
+const langMap = {en:'en-US', hi:'hi-IN', ta:'ta-IN', te:'te-IN', or:'or-IN'};
+const captionEl = document.getElementById("caption");
+const langSelect = document.getElementById("langSelect");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+
+let timeline, paused = false;
+
+// Stars
+const starGroup = document.getElementById("stars");
+for (let i = 0; i < 80; i++) {
+  const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  star.setAttribute("cx", Math.random() * 1000);
+  star.setAttribute("cy", Math.random() * 600);
+  star.setAttribute("r", Math.random() * 2);
+  star.setAttribute("fill", "white");
+  star.setAttribute("opacity", Math.random());
+  starGroup.appendChild(star);
+}
+
+function speak(text, lang) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showCaption(text) {
+  captionEl.textContent = text;
+  captionEl.classList.add("show");
+}
+
+function playAnimation() {
+  if (timeline) timeline.kill();
+  gsap.set(["#group1","#group2","#result"], {scale:0});
+  captionEl.textContent = "";
+  captionEl.classList.remove("show");
+
+  let currentLang = langSelect.value;
+  let steps = captions[currentLang];
+
+  timeline = gsap.timeline({paused:false});
+  timeline.to("#group1",{scale:1,duration:1,ease:"back.out(1.7)",onStart:()=>{
+    showCaption(steps[0]); speak(steps[0], langMap[currentLang]);
+  }})
+  .to("#group1",{scale:1.1,duration:0.5,yoyo:true,repeat:1,onStart:()=>{
+    showCaption(steps[1]); speak(steps[1], langMap[currentLang]);
+  }}, "+=3")
+  .to("#group2",{scale:1,duration:1,ease:"back.out(1.7)",onStart:()=>{
+    showCaption(steps[2]); speak(steps[2], langMap[currentLang]);
+  }}, "+=4")
+  .to("#result",{scale:1,duration:1.2,ease:"elastic.out(1,0.4)",onStart:()=>{
+    showCaption(steps[3]); speak(steps[3], langMap[currentLang]);
+  }}, "+=4");
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+  if (paused) {
+    timeline.pause();
+    window.speechSynthesis.cancel();
+  } else {
+    timeline.resume();
+  }
+});
+
+playBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", () => {
+  captionEl.textContent = "";
+  gsap.set(["#group1","#group2","#result"], {scale:0});
+});
+</script>
+</body>
+</html>

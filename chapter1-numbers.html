@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1 - Knowing Our Numbers | AURRAA</title>
+        <!-- Development Content Security Policy: allows dev server connections and common CDNs -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://127.0.0.1:5500 ws://127.0.0.1:5500; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src https://fonts.gstatic.com;"> 
+                <link rel="icon" href="coulomb-game/public/favicon.ico">
+                <link rel="stylesheet" href="chapter1-styles.css">
+                <style>
+                    /* Quick layout fixes to tidy alignment */
+                    .chapter-container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+                    .chapter-header { text-align: center; margin-bottom: 18px; }
+                    .chapter-header h1 { margin-bottom: 6px; font-size: 2rem; }
+                    .topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; align-items: start; }
+                    .topic-wrapper { display:flex; flex-direction:column; }
+                    .topic-btn { width:100%; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); cursor:pointer; text-align:left; }
+                    .topic-text { font-weight:700; display:block; }
+                    .topic-content .content-card { margin-top:10px; padding:12px; border-radius:10px; background:rgba(255,255,255,0.02); }
+                    .game-controls { text-align:center; margin-top:20px; }
+                    .start-game { max-width:320px; }
+                    .chapter-nav { display:flex; justify-content:space-between; gap:12px; margin-top:20px; }
+                    .nav-btn { padding:8px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+                    @media (max-width:600px) { .chapter-header h1 { font-size:1.4rem;} .topics-grid { gap:12px; } }
+                </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="badge.css">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-elements">
+        <div class="float-element num-1">123</div>
+        <div class="float-element num-2">π</div>
+        <div class="float-element num-3">∞</div>
+        <div class="float-element num-4">÷</div>
+        <div class="float-element num-5">×</div>
+        <div class="float-element num-6">%</div>
+    </div>
+
+    <div class="chapter-container">
+        <!-- Header -->
+        <header class="chapter-header">
+            <h1>Chapter 1 - Knowing Our Numbers</h1>
+            <p>Let's explore the magical world of numbers! 🚀</p>
+        </header>
+
+        <!-- Topic Buttons -->
+        <div class="topics-grid">
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="indian-system">
+                    <span class="topic-icon">🌏</span>
+                    <span class="topic-text">Indian and International System of Numbers</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="indian-system-content">
+                    <div class="content-card">
+                        <h3>Learn about:</h3>
+                        <ul>
+                            <li>Place Values up to Crores</li>
+                            <li>Reading Large Numbers</li>
+                            <li>Using Commas in Indian System</li>
+                        </ul>
+                        <a href="video-g6-india-and-inter.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="international">
+                    <span class="topic-icon">🎯</span>
+                    <span class="topic-text">Word problems with large numbers</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="international-content">
+                    <div class="content-card">
+                        <h3>Discover:</h3>
+                        <ul>
+                            <li>Place Values up to Millions</li>
+                            <li>International Number Names</li>
+                            <li>Using Largest System</li>
+                        </ul>
+                        <a href="video-g6-word-problem.html" class="practice-btn">Practice Now ▶️</a>
+                </div>
+            </div>
+
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="estimation">
+                    <span class="topic-icon">🎲</span>
+                    <span class="topic-text">Estimation & Rounding</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="estimation-content">
+                    <div class="content-card">
+                        <h3>Master:</h3>
+                        <ul>
+                            <li>Rounding Numbers</li>
+                            <li>Estimating Sums</li>
+                            <li>Real-life Applications</li>
+                        </ul>
+                        <a href="video-g6-estimation.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="comparison">
+                    <span class="topic-icon">⚖️</span>
+                    <span class="topic-text">Comparing Numbers</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="comparison-content">
+                    <div class="content-card">
+                        <h3>Explore:</h3>
+                        <ul>
+                            <li>Greater Than and Less Than</li>
+                            <li>Ascending and Descending Order</li>
+                            <li>Number Line Comparisons</li>
+                        </ul>
+                        <a href="video-g6-comparing-ordering-large-numbers.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="game-controls">
+            <!-- Avoid nesting <a> inside <button> (invalid). Use button content and JS navigation -->
+            <button id="startGameBtn" class="topic-btn start-game" data-target="quiz/quz-g6-ch1.html">
+                <span class="topic-icon">🎮</span>
+                <span class="topic-text">Start Quiz</span>
+                <div class="btn-glow"></div>
+            </button>
+        </div>
+
+
+        <!-- Navigation -->
+        <nav class="chapter-nav">
+            <a href="math-g6-chapters.html" class="nav-btn back-btn">
+                <span class="nav-icon">⬅️</span>
+                <span class="nav-text">Back to Chapters</span>
+            </a>
+            <a href="ncret-math-g6-c2.html" class="nav-btn next-btn">
+                <span class="nav-text">Next Chapter</span>
+                <span class="nav-icon">➡️</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Topic expand/collapse — ignore buttons that are not inside a .topic-wrapper
+        document.querySelectorAll('.topic-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const wrapper = button.closest('.topic-wrapper');
+                if (!wrapper) return; // guard: some buttons (like Start Game) live outside wrappers
+                const content = wrapper.querySelector('.topic-content');
+
+                // Remove active class from all wrappers
+                document.querySelectorAll('.topic-wrapper').forEach(w => {
+                    if (w !== wrapper) {
+                        w.classList.remove('active');
+                    }
+                });
+
+                // Toggle active class on clicked wrapper
+                wrapper.classList.toggle('active');
+            });
+        });
+
+        // Start-game buttons: navigate to the URL in data-target (supports modifier keys)
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest && e.target.closest('.start-game');
+            if (!btn) return;
+            const target = btn.getAttribute('data-target') || btn.dataset.target;
+            if (!target) return;
+            if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                window.open(target, '_blank');
+            } else {
+                window.location.href = target;
+            }
+        }, { passive: true });
+    </script>
+  <script src="badge.js"></script>
+</body>
+</html>

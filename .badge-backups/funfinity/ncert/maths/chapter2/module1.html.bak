@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Natural and Whole Numbers</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg,#c2e59c,#64b3f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      width: 92%;
+      max-width: 1050px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 36px rgba(20,40,80,0.15);
+      padding: 25px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      background: -webkit-linear-gradient(#4a00e0, #8e2de2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h2 { margin: 8px 0 18px; font-size: 18px; color:#444; }
+    label { font-weight:600; margin-right:6px; }
+    select {
+      margin-bottom: 12px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+    svg { width:100%; height:auto; margin: 20px 0; }
+    .caption {
+      font-size: 1.1rem;
+      margin: 12px auto;
+      background: #f3f7ff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: #111;
+      font-weight: 500;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+    }
+    button {
+      margin: 10px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight:600;
+      cursor:pointer;
+      transition: 0.3s;
+    }
+    #pauseBtn { background:#4CAF50; color:white; }
+    #pauseBtn:hover { background:#2e7d32; }
+    #replayBtn { background:#ff7b54; color:white; display:none; }
+    #replayBtn:hover { background:#e65100; }
+    .numCard { font-size:22px; font-weight:700; fill:#222; }
+    .highlight { fill:red; font-weight:800; }
+    .check { font-size:30px; fill:green; opacity:0; }
+    rect { filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.1)); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Natural & Whole Numbers</h1>
+    <h2>Step by Step Explanation</h2>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <svg viewBox="0 0 850 500">
+      <!-- Natural numbers -->
+      <g id="natural" opacity="0" transform="translate(60,40)">
+        <rect x="0" y="0" width="700" height="90" rx="12" fill="#fff6e0" stroke="#ffc107"/>
+        <text x="350" y="55" font-size="20" fill="#333" text-anchor="middle">
+          Natural Numbers = { 1, 2, 3, 4, 5, 6, … }
+        </text>
+      </g>
+
+      <!-- Whole numbers -->
+      <g id="whole" opacity="0" transform="translate(60,170)">
+        <rect x="0" y="0" width="700" height="90" rx="12" fill="#e8f7ff" stroke="#00bcd4"/>
+        <text x="350" y="55" font-size="20" fill="#333" text-anchor="middle">
+          Whole Numbers = { 0, 1, 2, 3, 4, 5, 6, … }
+        </text>
+      </g>
+
+      <!-- Difference highlight -->
+      <g id="diff" opacity="0" transform="translate(60,310)">
+        <rect x="0" y="0" width="700" height="90" rx="12" fill="#f3e5f5" stroke="#9c27b0"/>
+        <text x="350" y="55" font-size="20" fill="#333" text-anchor="middle">
+          Difference → Whole Numbers include 0, Natural Numbers start from 1
+        </text>
+      </g>
+
+      <!-- Ticks -->
+      <text id="tick1" x="780" y="90" class="check">✔</text>
+      <text id="tick2" x="780" y="220" class="check">✔</text>
+      <text id="tick3" x="780" y="360" class="check">✔</text>
+    </svg>
+
+    <div id="caption" class="caption">Welcome! Let's explore natural and whole numbers.</div>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false, step = 0, currentLang="en";
+
+    // Captions for all languages
+    const captions = {
+      en: [
+        "Numbers that start from 1, 2, 3, and so on are called Natural Numbers.",
+        "Whole Numbers include all Natural Numbers and also 0.",
+        "So, the only difference is that Whole Numbers start from 0, while Natural Numbers start from 1.",
+        "This is the relation between Natural and Whole Numbers."
+      ],
+      hi: [
+        "संख्या जो 1, 2, 3 से शुरू होती हैं, उन्हें प्राकृतिक संख्याएँ कहते हैं।",
+        "पूर्णांक संख्याएँ सभी प्राकृतिक संख्याएँ और साथ ही 0 को भी शामिल करती हैं।",
+        "अंतर यह है कि पूर्णांक 0 से शुरू होते हैं, जबकि प्राकृतिक संख्याएँ 1 से शुरू होती हैं।",
+        "यही प्राकृतिक और पूर्णांक संख्याओं का संबंध है।"
+      ],
+      ta: [
+        "1, 2, 3 என தொடங்கும் எண்கள் இயற்கை எண்கள் எனப்படும்.",
+        "முழு எண்கள் அனைத்தையும் சேர்த்து 0-ஐயும் கொண்டிருக்கின்றன.",
+        "வேறுபாடு என்னவென்றால், முழு எண்கள் 0-இல் தொடங்குகின்றன, இயற்கை எண்கள் 1-இல் தொடங்குகின்றன.",
+        "இதுவே இயற்கை மற்றும் முழு எண்களின் தொடர்பு."
+      ],
+      te: [
+        "1, 2, 3 నుండి ప్రారంభమయ్యే సంఖ్యలను సహజ సంఖ్యలు అంటారు.",
+        "మొత్తం సంఖ్యలు అన్ని సహజ సంఖ్యలను మరియు 0 ను కూడా కలిగి ఉంటాయి.",
+        "భేదం ఏమిటంటే, మొత్తం సంఖ్యలు 0 నుండి మొదలవుతాయి, సహజ సంఖ్యలు 1 నుండి మొదలవుతాయి.",
+        "ఇది సహజ మరియు మొత్తం సంఖ్యల మధ్య సంబంధం."
+      ],
+      or: [
+        "1, 2, 3 ରୁ ଆରମ୍ଭ ହେଉଥିବା ସଂଖ୍ୟାଗୁଡ଼ିକୁ ପ୍ରାକୃତିକ ସଂଖ୍ୟା କୁହାଯାଏ।",
+        "ସମସ୍ତ ପ୍ରାକୃତିକ ସଂଖ୍ୟା ସହିତ 0 କୁ ମଧ୍ୟ ସମ୍ପୂର୍ଣ୍ଣ ସଂଖ୍ୟାରେ ରହିଥାଏ।",
+        "ପ୍ରଭେଦଟି ହେଲା ସମ୍ପୂର୍ଣ୍ଣ ସଂଖ୍ୟା 0ରୁ ଆରମ୍ଭ ହୁଏ, ପ୍ରାକୃତିକ ସଂଖ୍ୟା 1ରୁ ଆରମ୍ଭ ହୁଏ।",
+        "ଏହାହିଁ ପ୍ରାକୃତିକ ଏବଂ ସମ୍ପୂର୍ଣ୍ଣ ସଂଖ୍ୟାର ସମ୍ପର୍କ।"
+      ]
+    };
+
+    const voicesMap = { en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN" };
+
+    function speak(text,lang){
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const steps = [
+      { anim: () => gsap.to("#natural",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#whole",{opacity:1,duration:1}) },
+      { anim: () => gsap.to("#diff",{opacity:1,duration:1}) },
+      { anim: () => { 
+          gsap.to("#tick1",{opacity:1,duration:0.6});
+          gsap.to("#tick2",{opacity:1,duration:0.6,delay:0.3});
+          gsap.to("#tick3",{opacity:1,duration:0.6,delay:0.6});
+          replayBtn.style.display="inline-block";
+        } }
+    ];
+
+    function runStep(i){
+      if(i>=captions[currentLang].length) return;
+      step=i;
+      caption.textContent=captions[currentLang][i];
+      speak(captions[currentLang][i],currentLang);
+      steps[i].anim();
+      if(!paused) setTimeout(()=>runStep(i+1),6000);
+    }
+
+    function start(){
+      gsap.set(["#natural","#whole","#diff","#tick1","#tick2","#tick3"], {opacity:0,scale:1});
+      replayBtn.style.display="none";
+      paused=false; pauseBtn.textContent="⏸ Pause";
+      currentLang=langSelect.value;
+      runStep(0);
+    }
+
+    pauseBtn.addEventListener("click",()=>{
+      paused=!paused;
+      pauseBtn.textContent=paused?"▶ Play":"⏸ Pause";
+      if(!paused) runStep(step);
+    });
+
+    replayBtn.addEventListener("click",start);
+
+    langSelect.addEventListener("change",()=>{ currentLang=langSelect.value; });
+
+    start();
+  </script>
+</body>
+</html>

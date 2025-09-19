@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Polygons Basics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    text-align: center;
+    width: 95%;
+    max-width: 1000px;
+  }
+  h1 {
+    color: white;
+    text-shadow: 0 0 10px #60a5fa;
+    font-size: clamp(1.4rem, 2vw, 2.2rem);
+    margin-bottom: 10px;
+  }
+  svg {
+    width: 100%;
+    height: 60vh;
+  }
+  .caption {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    min-height: 50px;
+    font-size: 1.1rem;
+  }
+  .caption.show { opacity: 1; }
+  select, button {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  select { background: #1e293b; color: white; }
+  button {
+    background: linear-gradient(135deg, #f59e0b, #3b82f6);
+    color: white;
+    box-shadow: 0px 0px 10px #3b82f6;
+  }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔺 Polygons Basics</h1>
+  <label for="langSelect" style="color:white;">🌐 Language</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 500">
+    <defs>
+      <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </radialGradient>
+    </defs>
+    <g id="stars"></g>
+
+    <!-- Polygons -->
+    <polygon id="triangle" points="200,350 300,150 400,350" fill="none" stroke="#22d3ee" stroke-width="5" opacity="0"/>
+    <polygon id="square" points="500,150 600,150 600,250 500,250" fill="none" stroke="#facc15" stroke-width="5" opacity="0"/>
+    <polygon id="pentagon" points="750,200 800,150 850,200 825,250 775,250" fill="none" stroke="#f87171" stroke-width="5" opacity="0"/>
+  </svg>
+
+  <div id="caption" class="caption"></div>
+  <div class="controls">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+  </div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Let's learn about polygons step by step.",
+    "A Triangle has three sides and three angles.",
+    "A Square is a quadrilateral with four equal sides and four right angles.",
+    "A Pentagon has five sides and five angles."
+  ],
+  hi: [
+    "आइए बहुभुजों के बारे में एक-एक करके जानें।",
+    "त्रिभुज के तीन भुजाएँ और तीन कोण होते हैं।",
+    "वर्ग एक चतुर्भुज है जिसकी चारों भुजाएँ बराबर और चारों कोण समकोण होते हैं।",
+    "पंचभुज के पांच भुजाएँ और पांच कोण होते हैं।"
+  ],
+  ta: [
+    "பலகோணங்களை ஒன்றன் பின் ஒன்றாக கற்போம்.",
+    "முக்கோணத்திற்கு மூன்று பக்கங்களும் மூன்று கோணங்களும் உள்ளன.",
+    "சதுரம் என்பது நான்கு சம பக்கங்கள் மற்றும் நான்கு நேர்கோணங்கள் கொண்ட நாற்கோணம்.",
+    "ஐந்து பக்கங்கள் மற்றும் ஐந்து கோணங்கள் கொண்ட ஐந்துபக்க கோணம்."
+  ],
+  te: [
+    "బహుభుజాలను ఒక్కొక్కటిగా నేర్చుకుందాం.",
+    "త్రిభుజానికి మూడు భుజాలు మరియు మూడు కోణాలు ఉంటాయి.",
+    "చతురస్రం అనేది నాలుగు సమాన భుజాలు మరియు నాలుగు సమకోణాలు కలిగిన చతుర్భుజం.",
+    "ఐదు భుజాలు మరియు ఐదు కోణాలు కలిగిన ఐదు పక్కల బహుభుజం."
+  ],
+  or: [
+    "ବହୁଭୁଜ ବିଷୟରେ ଏକେକରେ ସିଖିବା।",
+    "ତ୍ରିଭୁଜର ତିନୋଟି ପାଟି ଓ ତିନୋଟି କୋଣ ଥାଏ।",
+    "ବର୍ଗ ଏକ ଚତୁର୍ଭୁଜ ଯାହାର ଚାରିଟି ପାଟି ସମାନ ଓ ଚାରିଟି କୋଣ ସମକୋଣ।",
+    "ପେଣ୍ଟାଗନର ପାଞ୍ଚଟି ପାଟି ଓ ପାଞ୍ଚଟି କୋଣ ଥାଏ।"
+  ]
+};
+
+const langMap = {en:'en-US', hi:'hi-IN', ta:'ta-IN', te:'te-IN', or:'or-IN'};
+const captionEl = document.getElementById("caption");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+let timeline, paused = false;
+
+// Star background
+const starGroup = document.getElementById("stars");
+for (let i = 0; i < 100; i++) {
+  const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  star.setAttribute("cx", Math.random() * 1000);
+  star.setAttribute("cy", Math.random() * 500);
+  star.setAttribute("r", Math.random() * 2);
+  star.setAttribute("fill", "white");
+  starGroup.appendChild(star);
+}
+
+// Highlight function
+function highlightShape(shapeId) {
+  gsap.to(shapeId, {
+    strokeWidth: 10,
+    duration: 0.5,
+    repeat: 1,
+    yoyo: true,
+    stroke: "#ffffff"
+  });
+}
+
+function speak(text, lang) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showCaption(text) {
+  captionEl.textContent = text;
+  captionEl.classList.add("show");
+}
+
+function playAnimation() {
+  if (timeline) timeline.kill();
+  captionEl.textContent = "";
+  captionEl.classList.remove("show");
+  gsap.set(["#triangle","#square","#pentagon"], {opacity:0, scale:0, strokeWidth:5});
+
+  let currentLang = langSelect.value;
+  let steps = captions[currentLang];
+
+  timeline = gsap.timeline({paused:false});
+  timeline.add(()=>{showCaption(steps[0]); speak(steps[0], langMap[currentLang]);}, "+=0.5");
+  timeline.to("#triangle",{opacity:1, scale:1, duration:1, onStart:()=>{
+    showCaption(steps[1]); speak(steps[1], langMap[currentLang]);
+    highlightShape("#triangle");
+  }}, "+=3");
+  timeline.to("#square",{opacity:1, scale:1, duration:1, onStart:()=>{
+    showCaption(steps[2]); speak(steps[2], langMap[currentLang]);
+    highlightShape("#square");
+  }}, "+=5");
+  timeline.to("#pentagon",{opacity:1, scale:1, duration:1, onStart:()=>{
+    showCaption(steps[3]); speak(steps[3], langMap[currentLang]);
+    highlightShape("#pentagon");
+  }}, "+=5");
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+  if (paused) { timeline.pause(); window.speechSynthesis.cancel(); }
+  else { timeline.resume(); }
+});
+
+playBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", playAnimation);
+</script>
+</body>
+</html>

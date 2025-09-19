@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparing & Ordering Large Numbers</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 70%;
+      max-width: 700px;
+      padding: 20px;
+      text-align: center;
+    }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(0,0,0,0.05);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #222;
+    }
+    button, select {
+      margin: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+    select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+    .numText { font-weight: bold; font-size: 18px; fill: #111; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Knowing Our Numbers</h2>
+    <h3>Comparing & Ordering Large Numbers</h3>
+
+    <!-- Language selector -->
+    <label for="langSelect">🌐 Choose Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <svg viewBox="0 0 900 400">
+      <g id="card1">
+        <rect x="0" y="0" width="150" height="80" rx="15" fill="#FFD93D"/>
+        <text class="numText" x="75" y="50" text-anchor="middle">78,943</text>
+      </g>
+      <g id="card2">
+        <rect x="0" y="0" width="150" height="80" rx="15" fill="#6BCB77"/>
+        <text class="numText" x="75" y="50" text-anchor="middle">56,781</text>
+      </g>
+      <g id="card3">
+        <rect x="0" y="0" width="150" height="80" rx="15" fill="#4D96FF"/>
+        <text class="numText" x="75" y="50" text-anchor="middle">89,230</text>
+      </g>
+      <g id="card4">
+        <rect x="0" y="0" width="150" height="80" rx="15" fill="#FF6B6B"/>
+        <text class="numText" x="75" y="50" text-anchor="middle">67,892</text>
+      </g>
+    </svg>
+
+    <div id="caption" class="caption">Let's learn how to compare and order large numbers!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let currentStepIndex = 0;
+    let currentLang = "en";
+
+    // Captions
+    const captions = {
+      en: [
+        "Let's learn how to compare and order large numbers!",
+        "We have four numbers: 78,943, 56,781, 89,230, and 67,892.",
+        "First, compare the highest place digits. 89,230 is the largest.",
+        "Next comes 78,943.",
+        "Then comes 67,892.",
+        "Finally, 56,781 is the smallest.",
+        "Ordered: 56,781 < 67,892 < 78,943 < 89,230"
+      ],
+      hi: [
+        "आइए बड़े संख्याओं की तुलना और क्रम सीखते हैं!",
+        "हमारे पास चार संख्याएँ हैं: 78,943, 56,781, 89,230 और 67,892।",
+        "सबसे पहले, सबसे बड़े अंक की तुलना करें। 89,230 सबसे बड़ा है।",
+        "अगली संख्या 78,943 है।",
+        "फिर 67,892 आती है।",
+        "अंत में, 56,781 सबसे छोटा है।",
+        "क्रम: 56,781 < 67,892 < 78,943 < 89,230"
+      ],
+      ta: [
+        "பெரிய எண்களை ஒப்பிட்டு வரிசைப்படுத்தக் கற்போம்!",
+        "எங்களிடம் நான்கு எண்கள் உள்ளன: 78,943, 56,781, 89,230, மற்றும் 67,892.",
+        "முதலில், உயர்ந்த இலக்கங்களை ஒப்பிடுங்கள். 89,230 மிகப் பெரியது.",
+        "அடுத்தது 78,943.",
+        "பிறகு 67,892.",
+        "இறுதியாக, 56,781 மிகச் சிறியது.",
+        "வரிசை: 56,781 < 67,892 < 78,943 < 89,230"
+      ],
+      te: [
+        "పెద్ద సంఖ్యలను పోల్చి క్రమపరచడం నేర్చుకుందాం!",
+        "మాకు నాలుగు సంఖ్యలు ఉన్నాయి: 78,943, 56,781, 89,230, మరియు 67,892.",
+        "మొదట, అత్యధిక అంకెను పోల్చండి. 89,230 పెద్దది.",
+        "తర్వాత 78,943.",
+        "తర్వాత 67,892.",
+        "చివరగా, 56,781 చిన్నది.",
+        "క్రమం: 56,781 < 67,892 < 78,943 < 89,230"
+      ],
+      or: [
+        "ଆସନ୍ତୁ, ବଡ଼ ସଂଖ୍ୟାଗୁଡ଼ିକୁ ତୁଳନା ଏବଂ ବ୍ୟବସ୍ଥିତ କରିବାକୁ ଶିଖିବା!",
+        "ଆମ ପାଖରେ ଚାରିଟି ସଂଖ୍ୟା ଅଛି: 78,943, 56,781, 89,230 ଏବଂ 67,892।",
+        "ପ୍ରଥମେ, ସର୍ବୋଚ୍ଚ ସ୍ଥାନର ଅଙ୍କର ସହିତ ତୁଳନା କର। 89,230 ସବୁଠାରୁ ବଡ଼।",
+        "ତାପରେ 78,943 ଆସେ।",
+        "ପରେ 67,892।",
+        "ଶେଷରେ, 56,781 ସବୁଠାରୁ ଛୋଟ।",
+        "କ୍ରମ: 56,781 < 67,892 < 78,943 < 89,230"
+      ]
+    };
+
+    // Voice mapping
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return; // don't speak when paused
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (currentStepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][currentStepIndex];
+
+      // Animations
+      if (currentStepIndex === 1) gsap.to(["#card1", "#card2", "#card3", "#card4"], {duration: 0.6, scale: 1.1, yoyo: true, repeat: 1, stagger: 0.2});
+      if (currentStepIndex === 2) gsap.to("#card3", {duration: 1, y: 50});
+      if (currentStepIndex === 3) gsap.to("#card1", {duration: 1, y: 50});
+      if (currentStepIndex === 4) gsap.to("#card4", {duration: 1, y: 50});
+      if (currentStepIndex === 5) gsap.to("#card2", {duration: 1, y: 50});
+      if (currentStepIndex === 6) {
+        gsap.to("#card2", {duration: 1, x: 150, y: 300});
+        gsap.to("#card4", {duration: 1, x: 300, y: 300});
+        gsap.to("#card1", {duration: 1, x: 450, y: 300});
+        gsap.to("#card3", {duration: 1, x: 600, y: 300});
+      }
+
+      speak(captions[currentLang][currentStepIndex], currentLang, () => {
+        currentStepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      currentStepIndex = 0;
+      currentLang = langSelect.value;
+
+      // Reset positions
+      gsap.set("#card1", {x: 50, y: 150});
+      gsap.set("#card2", {x: 250, y: 150});
+      gsap.set("#card3", {x: 450, y: 150});
+      gsap.set("#card4", {x: 650, y: 150});
+
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) {
+        paused = true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent = "▶ Play";
+      } else {
+        paused = false;
+        pauseBtn.textContent = "⏸ Pause";
+        runStep();
+      }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+
+    // Only restart on language change if not paused
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][currentStepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+  </script>
+</body>
+</html>

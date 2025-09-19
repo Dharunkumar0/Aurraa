@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to query users by username (but only get limited fields)
+    match /users/{userId} {
+      allow get: if request.auth != null;
+      // Allow querying users collection for username lookup
+      allow list: if request.query.limit <= 1 
+                 && request.query.filters.size() == 1
+                 && request.query.filters[0].field == 'username';
+      
+      // Only allow user to modify their own data
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

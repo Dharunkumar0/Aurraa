@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rounding Race - Easy Version</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: auto;
+            padding: 20px;
+            color: white;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 42px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #b21f1f;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #b21f1f;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .race-track {
+            position: relative;
+            height: 200px;
+            margin: 20px 0;
+            background: linear-gradient(to bottom, #3a3a3a, #2b2b2b);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .track-lane {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            background: transparent;
+            border-bottom: 2px dashed #FFD700;
+        }
+        
+        .lane-1 {
+            top: 30%;
+        }
+        
+        .lane-2 {
+            top: 60%;
+        }
+        
+        .car {
+            position: absolute;
+            font-size: 40px;
+            transition: left 0.5s ease-out;
+            z-index: 10;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .player-car {
+            top: 27%;
+            left: 5%;
+            color: #FF0000;
+        }
+        
+        .opponent-car {
+            top: 57%;
+            left: 5%;
+            color: #4fc3f7;
+        }
+        
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                #000000,
+                #000000 10px,
+                #FFFFFF 10px,
+                #FFFFFF 20px
+            );
+            z-index: 5;
+        }
+        
+        .rounding-challenge {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .challenge-text {
+            font-size: 24px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 10px;
+        }
+        
+        .number-to-round {
+            font-size: 42px;
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #000;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+        
+        .rounding-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .rounding-option {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: #1a2a6c;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+        }
+        
+        .rounding-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .rounding-option:active {
+            transform: translateY(2px);
+        }
+        
+        .feedback {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .feedback.correct {
+            color: #43cea2;
+        }
+        
+        .feedback.incorrect {
+            color: #ff6b6b;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: #1a2a6c;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .game-over.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over h2 {
+            font-size: 48px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #b21f1f;
+            margin-bottom: 20px;
+        }
+        
+        .game-over p {
+            font-size: 22px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #1a2a6c;
+        }
+        
+        .instructions p {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .rounding-help {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: left;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            display: none;
+        }
+        
+        .rounding-help h4 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #1a2a6c;
+        }
+        
+        .rounding-help ul {
+            color: #ffffff;
+            padding-left: 20px;
+        }
+        
+        .rounding-help li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 36px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .race-track {
+                height: 180px;
+            }
+            
+            .rounding-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .rounding-option {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes nitro {
+            0% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #FFD700, 0 0 20px #FFD700; }
+            100% { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #FFD700, 0 0 40px #FFD700; }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+        
+        .nitro {
+            animation: nitro 0.5s ease-in-out infinite;
+        }
+        
+        .example {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1 class="title">ROUNDING RACE</h1>
+            <p class="subtitle">Round numbers correctly to win the race!</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">SCORE</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">LEVEL</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="lives">5</div>
+                <div class="stat-label">LIVES</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <p>Round the number correctly to make your car go faster!</p>
+            <p>Correct answer = speed boost! Wrong answer = slow down!</p>
+            <button id="show-help-btn"><i class="fas fa-question-circle"></i> Show Rounding Help</button>
+        </div>
+        
+        <div class="rounding-help" id="rounding-help">
+            <h4>How to Round Numbers:</h4>
+            <ul>
+                <li><strong>Rounding to the nearest ten:</strong> Look at the ones digit. If it's 5 or more, round up. If it's 4 or less, round down.</li>
+                <li class="example">Example: 73 rounded to the nearest ten is 70 (because 3 is less than 5)</li>
+                <li><strong>Rounding to the nearest hundred:</strong> Look at the tens digit. If it's 5 or more, round up. If it's 4 or less, round down.</li>
+                <li class="example">Example: 486 rounded to the nearest hundred is 500 (because 8 is more than 5)</li>
+                <li><strong>Rounding to the nearest thousand:</strong> Look at the hundreds digit. If it's 5 or more, round up. If it's 4 or less, round down.</li>
+                <li class="example">Example: 3,427 rounded to the nearest thousand is 3,000 (because 4 is less than 5)</li>
+            </ul>
+        </div>
+        
+        <div class="race-track">
+            <div class="track-lane lane-1"></div>
+            <div class="track-lane lane-2"></div>
+            <div class="car player-car" id="player-car">🏎️</div>
+            <div class="car opponent-car" id="opponent-car">🏎️</div>
+            <div class="finish-line"></div>
+        </div>
+        
+        <div class="rounding-challenge">
+            <div class="challenge-text">Round this number to the nearest:</div>
+            <div class="number-to-round" id="number-to-round">4,673</div>
+            <div class="rounding-options">
+                <button class="rounding-option" data-place="10">Ten</button>
+                <button class="rounding-option" data-place="100">Hundred</button>
+                <button class="rounding-option" data-place="1000">Thousand</button>
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="controls">
+            <button id="start-btn"><i class="fas fa-play"></i> Start Race</button>
+            <button id="hint-btn"><i class="fas fa-lightbulb"></i> Show Answer</button>
+        </div>
+        
+        <div class="game-over" id="game-over">
+            <h2 id="result-message">RACE FINISHED!</h2>
+            <p>Your final score: <span id="final-score">0</span></p>
+            <p>You reached level: <span id="final-level">1</span></p>
+            <div style="display:flex;gap:12px;align-items:center;">
+                <button id="restart-btn"><i class="fas fa-redo"></i> Race Again</button>
+                <button id="finish-end-btn"><i class="fas fa-flag-checkered"></i> Finish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let lives = 5;
+        let playerPosition = 5;
+        let opponentPosition = 5;
+        let currentNumber = 0;
+        let currentRoundingPlace = 100;
+        let correctAnswer = 0;
+        let isGameActive = false;
+        let raceInterval;
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const livesElement = document.getElementById('lives');
+        const numberToRoundElement = document.getElementById('number-to-round');
+        const playerCarElement = document.getElementById('player-car');
+        const opponentCarElement = document.getElementById('opponent-car');
+        const feedbackElement = document.getElementById('feedback');
+        const startButton = document.getElementById('start-btn');
+        const hintButton = document.getElementById('hint-btn');
+        const showHelpButton = document.getElementById('show-help-btn');
+        const roundingHelp = document.getElementById('rounding-help');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalLevelElement = document.getElementById('final-level');
+        const restartButton = document.getElementById('restart-btn');
+        const resultMessageElement = document.getElementById('result-message');
+        const roundingOptions = document.querySelectorAll('.rounding-option');
+        
+        // Initialize the game
+        function initGame() {
+            // Initialize game state
+            score = 0;
+            level = 1;
+            lives = 5;
+            playerPosition = 5;
+            opponentPosition = 5;
+            isGameActive = true;
+            
+            // Update UI
+            updateUI();
+            generateChallenge();
+            updateCarPositions();
+            
+            // Hide game over screen
+            gameOverScreen.classList.remove('active');
+            
+            // Start opponent movement
+            startOpponentMovement();
+            
+            // Update button text
+            startButton.innerHTML = '<i class="fas fa-redo"></i> Restart Race';
+        }
+        
+        // Generate a random rounding challenge
+        function generateChallenge() {
+            // Generate a random number based on level (easier numbers for lower levels)
+            let min, max;
+            
+            switch(level) {
+                case 1:
+                    min = 100;
+                    max = 999;
+                    break;
+                case 2:
+                    min = 1000;
+                    max = 4999;
+                    break;
+                case 3:
+                    min = 5000;
+                    max = 9999;
+                    break;
+                case 4:
+                    min = 10000;
+                    max = 19999;
+                    break;
+                case 5:
+                    min = 20000;
+                    max = 50000;
+                    break;
+                default:
+                    min = 100;
+                    max = 999;
+            }
+            
+            currentNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+            
+            // Select a random rounding place (10, 100, or 1000)
+            const roundingPlaces = [10, 100, 1000];
+            currentRoundingPlace = roundingPlaces[Math.floor(Math.random() * roundingPlaces.length)];
+            
+            // Calculate correct answer
+            correctAnswer = Math.round(currentNumber / currentRoundingPlace) * currentRoundingPlace;
+            
+            // Update display
+            numberToRoundElement.textContent = formatNumber(currentNumber);
+            
+            // Update rounding options text
+            roundingOptions.forEach(option => {
+                const place = parseInt(option.dataset.place);
+                option.textContent = getPlaceName(place);
+            });
+            
+            // Hide feedback
+            feedbackElement.style.opacity = '0';
+        }
+        
+        // Get the name of the rounding place
+        function getPlaceName(place) {
+            switch(place) {
+                case 10: return 'Ten';
+                case 100: return 'Hundred';
+                case 1000: return 'Thousand';
+                default: return '';
+            }
+        }
+        
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Check if the player's answer is correct
+        function checkAnswer(selectedPlace) {
+            if (!isGameActive) return;
+            
+            const isCorrect = parseInt(selectedPlace) === currentRoundingPlace;
+            
+            if (isCorrect) {
+                // Correct answer - speed boost!
+                score += level * 50;
+                playerPosition += 20; // Bigger boost to make it easier
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Correct! Speed Boost! +' + (level * 50) + ' points';
+                feedbackElement.className = 'feedback correct';
+                feedbackElement.style.opacity = '1';
+                
+                // Add nitro effect to player car
+                playerCarElement.classList.add('nitro');
+                setTimeout(() => playerCarElement.classList.remove('nitro'), 1000);
+            } else {
+                // Incorrect answer - small penalty
+                lives--;
+                playerPosition = Math.max(5, playerPosition - 5); // Smaller penalty
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Wrong! The correct rounding was to the nearest ' + getPlaceName(currentRoundingPlace).toLowerCase();
+                feedbackElement.className = 'feedback incorrect';
+                feedbackElement.style.opacity = '1';
+                
+                // Game over if no lives left
+                if (lives <= 0) {
+                    endGame(false);
+                    return;
+                }
+            }
+            
+            // Update UI
+            updateUI();
+            updateCarPositions();
+            
+            // Check if player won
+            if (playerPosition >= 90) {
+                endGame(true);
+                return;
+            }
+            
+            // Generate new challenge after a delay
+            setTimeout(() => {
+                if (isGameActive) {
+                    generateChallenge();
+                    feedbackElement.style.opacity = '0';
+                }
+            }, 2000);
+        }
+        
+        // Update car positions on the track
+        function updateCarPositions() {
+            playerCarElement.style.left = `${playerPosition}%`;
+            opponentCarElement.style.left = `${opponentPosition}%`;
+        }
+        
+        // Start opponent movement (slower for easier gameplay)
+        function startOpponentMovement() {
+            if (raceInterval) clearInterval(raceInterval);
+            
+            raceInterval = setInterval(() => {
+                if (!isGameActive) return;
+                
+                // Opponent moves forward at a slower pace
+                opponentPosition += 0.3 + level * 0.05;
+                updateCarPositions();
+                
+                // Check if opponent won
+                if (opponentPosition >= 90) {
+                    endGame(false);
+                }
+            }, 500);
+        }
+        
+        // End the game
+        function endGame(isWin) {
+            isGameActive = false;
+            clearInterval(raceInterval);
+            
+            // Show game over screen
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = level;
+            
+            if (isWin) {
+                resultMessageElement.textContent = 'YOU WIN!';
+                resultMessageElement.style.color = '#43cea2';
+                
+                // Level up if player won
+                if (level < 5) {
+                    level++;
+                    setTimeout(() => {
+                        if (confirm(`You reached level ${level}! Ready for the next race?`)) {
+                            playerPosition = 5;
+                            opponentPosition = 5;
+                            lives = 5; // Reset lives for new level
+                            isGameActive = true;
+                            updateUI();
+                            generateChallenge();
+                            updateCarPositions();
+                            startOpponentMovement();
+                        }
+                    }, 1000);
+                }
+            } else {
+                resultMessageElement.textContent = 'GAME OVER';
+                resultMessageElement.style.color = '#ff6b6b';
+                gameOverScreen.classList.add('active');
+            }
+        }
+        
+        // Show rounding instructions
+        function showInstructions() {
+            alert("How to Round Numbers:\n\n" +
+                  "1. Look at the digit to the right of the place you're rounding to.\n" +
+                  "2. If that digit is 5 or greater, round up.\n" +
+                  "3. If that digit is 4 or less, round down.\n\n" +
+                  "Example: Rounding 4,673 to the nearest hundred:\n" +
+                  "- The hundreds place is 6\n" +
+                  "- The digit to the right is 7, which is 5 or greater\n" +
+                  "- So we round up to 4,700");
+        }
+        
+        // Show the correct answer
+        function showAnswer() {
+            if (!isGameActive) return;
+            
+            feedbackElement.textContent = `The correct answer is ${formatNumber(correctAnswer)} (nearest ${getPlaceName(currentRoundingPlace).toLowerCase()})`;
+            feedbackElement.className = 'feedback correct';
+            feedbackElement.style.opacity = '1';
+            
+            // Hide answer after a delay
+            setTimeout(() => {
+                feedbackElement.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Toggle rounding help
+        function toggleHelp() {
+            roundingHelp.style.display = roundingHelp.style.display === 'block' ? 'none' : 'block';
+            showHelpButton.innerHTML = roundingHelp.style.display === 'block' ? 
+                '<i class="fas fa-times"></i> Hide Rounding Help' : 
+                '<i class="fas fa-question-circle"></i> Show Rounding Help';
+        }
+        
+        // Update the UI elements
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            livesElement.textContent = lives;
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Rounding option buttons
+            roundingOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    checkAnswer(option.dataset.place);
+                });
+            });
+            
+            // Control buttons
+            startButton.addEventListener('click', initGame);
+            hintButton.addEventListener('click', showAnswer);
+            showHelpButton.addEventListener('click', toggleHelp);
+            restartButton.addEventListener('click', initGame);
+            // Finish (end-game) button
+            const finishEndBtn = document.getElementById('finish-end-btn');
+            finishEndBtn?.addEventListener('click', () => {
+                try { localStorage.setItem('rounding-last-score', String(score)); } catch (e) {}
+                window.location.href = '../chapter1-numbers.html';
+            });
+        }
+        
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            setupEventListeners();
+            // Don't auto-start the game, let the player click Start
+        });
+    </script>
+</body>
+</html>

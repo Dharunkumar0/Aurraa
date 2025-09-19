@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - AURRAA</title>
+            <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <!-- Tailwind Play CDN for quick styling (no build) -->
+            <script src="https://cdn.tailwindcss.com"></script>
+            <script>
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            fontFamily: {
+                                fredoka: ['"Fredoka One"', 'cursive'],
+                                poppins: ['Poppins', 'sans-serif']
+                            }
+                        }
+                    }
+                }
+            </script>
+            <style>
+                /* small custom animations */
+                @keyframes floaty { 0% { transform: translateY(0) } 50% { transform: translateY(-10px) } 100% { transform: translateY(0) } }
+                .floaty { animation: floaty 4s ease-in-out infinite; }
+                .icon-fade { animation: floaty 3.6s ease-in-out infinite; }
+            </style>
+</head>
+<body>
+    <script src="student-auth.js"></script>
+        <main class="signup-container">
+            <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-pink-50 to-yellow-50 flex items-center justify-center p-6">
+                <div class="relative max-w-5xl w-full grid md:grid-cols-2 gap-6 items-center">
+                    <!-- Hero / left -->
+                    <div class="space-y-6 px-6 md:px-12">
+                        <h1 class="text-4xl md:text-5xl font-fredoka text-indigo-700">Welcome to AURRAA 🎉</h1>
+                        <p class="text-lg text-gray-700">Make learning fun, colourful and rewarding. Create your account and choose your syllabus to get started!</p>
+
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">📚 Read & Learn</span>
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow icon-fade">🎮 Games & Practice</span>
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">🏆 Earn Badges</span>
+                        </div>
+
+                        <div class="mt-6 text-sm text-gray-600">Already a teacher? <a href="teacher-login.html" class="text-indigo-600 font-semibold">Sign in here</a></div>
+
+                        <!-- floating decorative icons -->
+                        <div class="absolute -left-6 -top-6 w-40 h-40 opacity-90 select-none pointer-events-none">
+                            <div class="text-5xl">🚀</div>
+                        </div>
+                    </div>
+
+                    <!-- Signup card / right -->
+                    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-2xl font-semibold">Create Your Account</h2>
+                                <p class="text-sm text-gray-500">For students (6–12). Simple, safe, and fun.</p>
+                            </div>
+                            <div class="text-3xl">✨</div>
+                        </div>
+
+                        <form id="signupForm" class="space-y-4">
+                            <div class="grid grid-cols-1 gap-3">
+                                <label class="block text-sm text-gray-600">Full name
+                                    <input required id="full-name" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Enter your full name">
+                                </label>
+
+                                <label class="block text-sm text-gray-600">Institution
+                                    <input required id="institution" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your school or institution">
+                                </label>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label class="block text-sm text-gray-600">Teacher name
+                                        <input required id="teacher-name" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Teacher's name">
+                                    </label>
+                                    <label class="block text-sm text-gray-600">Username
+                                        <input required id="username" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Choose a username">
+                                    </label>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label class="block text-sm text-gray-600">Email
+                                        <input required id="email" type="email" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="your@email.com">
+                                    </label>
+                                    <label class="block text-sm text-gray-600">Password
+                                        <input required id="password" type="password" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Create a password">
+                                    </label>
+                                </div>
+
+                                <label class="block text-sm text-gray-600">Confirm password
+                                    <input required id="confirm-password" type="password" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Confirm password">
+                                </label>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-semibold py-3 rounded-xl shadow hover:scale-[1.01] transform transition">Sign up — Let's go!</button>
+                            </div>
+                        </form>
+
+                        <p class="mt-4 text-center text-sm text-gray-600">Already have an account? <a href="login.html" class="text-indigo-600 font-semibold">Login</a></p>
+
+                        <section id="syllabusSelection" class="mt-6 hidden">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-3">Choose your syllabus</h3>
+                            <div class="flex gap-3">
+                                <a href="ncret-grade.html" class="flex-1">
+                                    <button class="w-full rounded-lg py-3 bg-gradient-to-r from-yellow-400 to-orange-400 font-bold">NCERT 📖</button>
+                                </a>
+                                <a href="scert-grade.html" class="flex-1">
+                                    <button class="w-full rounded-lg py-3 bg-gradient-to-r from-green-400 to-blue-400 font-bold">SCERT 📜</button>
+                                </a>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+    <script src="student-auth.js"></script>
+
+            <script>
+              // Simple signup simulation: show syllabus selection on submit
+              document.getElementById('signupForm').addEventListener('submit', function(e){
+                e.preventDefault();
+                // basic validation
+                const pw = document.getElementById('password').value;
+                const cpw = document.getElementById('confirm-password').value;
+                if(pw !== cpw){
+                  alert('Passwords do not match — please check.');
+                  return;
+                }
+                // show syllabus choices
+                document.getElementById('syllabusSelection').classList.remove('hidden');
+                // visually indicate success
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.textContent = 'Signed up ✓';
+                btn.disabled = true;
+              });
+            </script>
+
+    </main>
+</body>
+</html>

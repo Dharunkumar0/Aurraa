@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCERT Syllabus – Grade 6 | AURRAA</title>
+    <link rel="stylesheet" href="ncert-grade6-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Background Icons -->
+    <div class="floating-icons">
+        <div class="floating-icon book-icon">📚</div>
+        <div class="floating-icon pencil-icon">✏️</div>
+        <div class="floating-icon star-icon">⭐</div>
+        <div class="floating-icon rocket-icon">🚀</div>
+        <div class="floating-icon brain-icon">🧠</div>
+        <div class="floating-icon trophy-icon">🏆</div>
+    </div>
+
+    <div class="ncert-container">
+        <!-- Header / Logo -->
+        <header class="ncert-header">
+            <div class="logo">
+                <h1>AURRAA</h1>
+            </div>
+        </header>
+
+    <!-- Navigation Bar removed -->
+
+        <!-- Main Content -->
+        <main class="ncert-main">
+            <div class="ncert-card">
+                <a href="ncert-grade6.html">
+                <div class="ncert-title">
+                    <h2>NCERT Syllabus – Grade 6</h2>
+                    <p>Select a subject to start your adventure!</p>
+                </div>
+            </a>
+
+                <div class="subjects-grid">
+                    <!-- Mathematics -->
+                    <a class="subject-card math-card" href="#" aria-label="Mathematics">
+                        <span class="subject-icon">📐</span>
+                        <span class="subject-name">Mathematics</span>
+                        <span class="shine"></span>
+                    </a>
+                    <!-- Science -->
+                    <a class="subject-card science-card" href="#" aria-label="Science">
+                        <span class="subject-icon">🧪</span>
+                        <span class="subject-name">Science</span>
+                        <span class="shine"></span>
+                    </a>
+                </div>
+
+                <div class="actions">
+                    <a class="back-link" href="grade.html">← Back to Grades</a>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="ncert-footer">
+            <p>&copy; 2024 AURRAA. Making learning fun and engaging!</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.subject-card');
+            cards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    card.classList.add('clicked');
+                    setTimeout(() => card.classList.remove('clicked'), 180);
+                    alert(`Opening ${card.querySelector('.subject-name').textContent} for Grade 6 (NCERT)`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

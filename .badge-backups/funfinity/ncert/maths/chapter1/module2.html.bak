@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Indian & International Place Value System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 70%;
+      max-width: 850px;
+      padding: 20px;
+      text-align: center;
+    }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(0,0,0,0.05);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #222;
+    }
+    button, select {
+      margin: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+    select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+    .numText { font-weight: bold; font-size: 22px; fill: #111; }
+    .comma { font-size: 22px; font-weight: bold; fill: #666; }
+    .highlight { fill: red !important; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Knowing Our Numbers</h2>
+    <h3>Indian & International Place Value System</h3>
+
+    <!-- Language selector -->
+    <label for="langSelect">🌐 Choose Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <svg viewBox="0 0 950 400">
+      <!-- Indian system -->
+      <g id="indian">
+        <rect x="80" y="100" width="250" height="80" rx="15" fill="#FFD93D"/>
+        <text class="numText" x="205" y="150" text-anchor="middle">
+          23<tspan id="indComma1" class="comma">,</tspan>45<tspan id="indComma2" class="comma">,</tspan>678
+        </text>
+      </g>
+      <!-- International system -->
+      <g id="international">
+        <rect x="480" y="100" width="270" height="80" rx="15" fill="#4D96FF"/>
+        <text class="numText" x="615" y="150" text-anchor="middle">
+          23<tspan id="intComma1" class="comma">,</tspan>456<tspan id="intComma2" class="comma">,</tspan>789
+        </text>
+      </g>
+    </svg>
+
+    <div id="caption" class="caption">Let's explore the Indian and International place value system!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let currentStepIndex = 0;
+    let currentLang = "en";
+
+    // Captions
+    const captions = {
+      en: [
+        "Let's explore the Indian and International place value system!",
+        "Here is the number 23,45,678 written in the Indian system.",
+        "In Indian system, commas are placed after 3 digits, then every 2 digits.",
+        "Now, the same number in International system: 23,456,789.",
+        "In International system, commas are placed after every 3 digits.",
+        "So 23,45,678 in Indian = 23,456,789 in International."
+      ],
+      hi: [
+        "आइए भारतीय और अंतर्राष्ट्रीय स्थान मान प्रणाली को समझें!",
+        "यह संख्या 23,45,678 भारतीय प्रणाली में लिखी जाती है।",
+        "भारतीय प्रणाली में पहले तीन अंकों के बाद, फिर हर दो अंकों के बाद कॉमा लगाया जाता है।",
+        "अब वही संख्या अंतर्राष्ट्रीय प्रणाली में: 23,456,789।",
+        "अंतर्राष्ट्रीय प्रणाली में हर तीन अंकों के बाद कॉमा लगाया जाता है।",
+        "तो 23,45,678 भारतीय प्रणाली में = 23,456,789 अंतर्राष्ट्रीय प्रणाली में।"
+      ],
+      ta: [
+        "இந்திய மற்றும் சர்வதேச இட மதிப்பு முறையை கற்போம்!",
+        "இந்திய முறையில் 23,45,678 என்று எழுதப்படுகிறது.",
+        "இந்திய முறையில், முதலில் 3 இலக்கங்களுக்குப் பிறகு, பின்னர் ஒவ்வொரு 2 இலக்கங்களுக்குப் பிறகு கமா வைக்கப்படும்.",
+        "இப்போது சர்வதேச முறையில்: 23,456,789.",
+        "சர்வதேச முறையில், ஒவ்வொரு 3 இலக்கங்களுக்குப் பிறகு கமா வைக்கப்படும்.",
+        "அதனால் 23,45,678 இந்திய முறையில் = 23,456,789 சர்வதேச முறையில்."
+      ],
+      te: [
+        "భారత మరియు అంతర్జాతీయ స్థాన విలువ వ్యవస్థను నేర్చుకుందాం!",
+        "భారతీయ విధానంలో ఇది 23,45,678 గా రాయబడుతుంది.",
+        "భారతీయ విధానంలో మొదట 3 అంకెల తర్వాత, ఆ తర్వాత ప్రతి 2 అంకెల తర్వాత కామా ఉంటుంది.",
+        "ఇప్పుడు అంతర్జాతీయ విధానంలో: 23,456,789.",
+        "అంతర్జాతీయ విధానంలో ప్రతి 3 అంకెల తర్వాత కామా ఉంటుంది.",
+        "అందువల్ల భారతీయ 23,45,678 = అంతర్జాతీయ 23,456,789."
+      ],
+      or: [
+        "ଆସନ୍ତୁ, ଭାରତୀୟ ଏବଂ ଆନ୍ତର୍ଜାତୀୟ ସ୍ଥାନମାନ ପ୍ରଣାଳୀକୁ ବୁ understand ିବା!",
+        "ଭାରତୀୟ ପ୍ରଣାଳୀରେ ଏହାକୁ 23,45,678 ଭାବେ ଲେଖାଯାଏ।",
+        "ଭାରତୀୟ ପ୍ରଣାଳୀରେ ପ୍ରଥମେ 3ଟି ଅଙ୍କ ପରେ, ପରେ ପ୍ରତ୍ୟେକ 2ଟି ଅଙ୍କ ପରେ କମା ଦିଆଯାଏ।",
+        "ଏବେ ଆନ୍ତର୍ଜାତୀୟ ପ୍ରଣାଳୀରେ: 23,456,789।",
+        "ଆନ୍ତର୍ଜାତୀୟ ପ୍ରଣାଳୀରେ ପ୍ରତ୍ୟେକ 3ଟି ଅଙ୍କ ପରେ କମା ଦିଆଯାଏ।",
+        "ତେଣୁ 23,45,678 ଭାରତୀୟ = 23,456,789 ଆନ୍ତର୍ଜାତୀୟ।"
+      ]
+    };
+
+    // Voice mapping
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (currentStepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][currentStepIndex];
+
+      // Animations step-by-step
+      if (currentStepIndex === 1) gsap.to("#indian", {duration: 1, scale: 1.2, yoyo: true, repeat: 1});
+      if (currentStepIndex === 2) {
+        gsap.to("#indComma1", {duration: 0.8, fill: "red", repeat: 1, yoyo: true});
+        gsap.to("#indComma2", {duration: 0.8, delay: 1, fill: "red", repeat: 1, yoyo: true});
+      }
+      if (currentStepIndex === 3) gsap.to("#international", {duration: 1, scale: 1.2, yoyo: true, repeat: 1});
+      if (currentStepIndex === 4) {
+        gsap.to("#intComma1", {duration: 0.8, fill: "red", repeat: 1, yoyo: true});
+        gsap.to("#intComma2", {duration: 0.8, delay: 1, fill: "red", repeat: 1, yoyo: true});
+      }
+      if (currentStepIndex === 5) gsap.to(["#indian", "#international"], {duration: 1, y: -20});
+
+      speak(captions[currentLang][currentStepIndex], currentLang, () => {
+        currentStepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      currentStepIndex = 0;
+      currentLang = langSelect.value;
+
+      // Reset positions
+      gsap.set("#indian", {x: 0, y: 100, scale:1});
+      gsap.set("#international", {x: 0, y: 100, scale:1});
+      gsap.set(["#indComma1","#indComma2","#intComma1","#intComma2"], {fill:"#666"});
+
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) {
+        paused = true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent = "▶ Play";
+      } else {
+        paused = false;
+        pauseBtn.textContent = "⏸ Pause";
+        runStep();
+      }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][currentStepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+  </script>
+</body>
+</html>

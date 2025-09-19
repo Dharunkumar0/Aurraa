@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Practice – What is Science? | AURRAA</title>
+  <link rel="stylesheet" href="practice-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="floating-icons" aria-hidden="true">
+    <div class="icon book">📚</div>
+    <div class="icon star">⭐</div>
+    <div class="icon pencil">✏️</div>
+    <div class="icon flask">🔬</div>
+    <div class="sparkle"></div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <h1>Practice – What is Science?</h1>
+      <p>Watch the video to unlock practice questions and test your understanding.</p>
+    </header>
+
+  <!-- Navigation Bar removed -->
+
+    <main class="stage">
+      <div class="video-wrap" id="videoWrap">
+        <div class="video-frame" aria-hidden="false">
+          <div class="video-inner">
+            <video id="lessonVideo" playsinline preload="metadata">
+              <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- circular progress ring removed (replaced by linear progress bar) -->
+        </div>
+
+        <div class="controls center">
+          <button id="playPause" class="btn-big play" aria-label="Play">▶</button>
+          <button id="skipBtn" class="btn-skip" aria-label="Skip">⏭ Skip</button>
+        </div>
+
+        <div class="progress-wrap center">
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            <div>Watch to unlock practice questions</div>
+            <div id="percentLabel">0%</div>
+          </div>
+        </div>
+
+  <button id="startQuiz" class="start-quiz" disabled>Start Game</button>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      const video = document.getElementById('lessonVideo');
+      const playPause = document.getElementById('playPause');
+      const skipBtn = document.getElementById('skipBtn');
+      const progressFill = document.getElementById('progressFill');
+      const percentLabel = document.getElementById('percentLabel');
+      const startQuiz = document.getElementById('startQuiz');
+  // Ring removed; progress uses linear bar
+
+      function updateUI(){
+        const pct = video.duration ? Math.min(1, video.currentTime / video.duration) : 0;
+        const pct100 = Math.floor(pct * 100);
+        progressFill.style.width = (pct100) + '%';
+        percentLabel.textContent = pct100 + '%';
+
+  // (no circular ring) linear progress bar updates above
+
+        // enable start quiz at 80%
+        if(pct >= 0.8){
+          startQuiz.removeAttribute('disabled');
+          startQuiz.classList.add('enabled');
+          startQuiz.style.cursor = 'pointer';
+        } else {
+          startQuiz.setAttribute('disabled','');
+          startQuiz.classList.remove('enabled');
+          startQuiz.style.cursor = 'not-allowed';
+        }
+      }
+
+      // play/pause toggle
+      playPause.addEventListener('click', ()=>{
+        if(video.paused){ video.play(); playPause.textContent = '⏸'; playPause.classList.remove('play'); playPause.classList.add('pause'); }
+        else { video.pause(); playPause.textContent = '▶'; playPause.classList.remove('pause'); playPause.classList.add('play'); }
+      });
+
+      skipBtn.addEventListener('click', ()=>{
+        // skip to 90% to unlock quiz quickly
+        if(video.duration){ video.currentTime = Math.max(0, video.duration * 0.9); updateUI(); }
+      });
+
+      video.addEventListener('timeupdate', updateUI);
+      video.addEventListener('loadedmetadata', updateUI);
+      video.addEventListener('ended', updateUI);
+
+      startQuiz.addEventListener('click', ()=>{
+        if(startQuiz.disabled) return;
+        alert('Starting game — have fun!');
+        // here you'd navigate to the game page or initialize the game engine
+      });
+
+  // init: nothing for ring
+
+    })();
+  </script>
+</body>
+</html>

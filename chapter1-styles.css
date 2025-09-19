@@ -1,0 +1,418 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+    min-height: 100vh;
+    color: #333;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+/* Animated Background */
+.bg-elements {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.float-element {
+    position: absolute;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.2);
+    animation: float 15s infinite linear;
+    font-family: 'Fredoka One', cursive;
+}
+
+.num-1 { top: 10%; left: 10%; animation-delay: 0s; }
+.num-2 { top: 30%; right: 20%; animation-delay: -2s; }
+.num-3 { top: 60%; left: 15%; animation-delay: -4s; }
+.num-4 { top: 20%; left: 80%; animation-delay: -6s; }
+.num-5 { top: 75%; right: 10%; animation-delay: -8s; }
+.num-6 { top: 45%; left: 30%; animation-delay: -10s; }
+
+@keyframes float {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Main Container */
+.chapter-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Styles */
+.chapter-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.chapter-header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 0.5rem;
+}
+
+.chapter-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Topics Grid */
+.topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+/* Topic Button Styles */
+.topic-wrapper {
+    position: relative;
+}
+
+.topic-btn {
+    width: 100%;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 10px 20px rgba(0, 0, 0, 0.1),
+        0 3px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.topic-icon {
+    font-size: 2rem;
+}
+
+/* enforce consistent icon box and flexible text area */
+.topic-icon {
+    font-size: 1.6rem;
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.topic-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-align: left;
+    color: #333;
+    line-height: 1.2;
+    flex: 1 1 auto; /* ensure text uses remaining space */
+}
+
+/* ensure all topic-like buttons have a minimum height for visual alignment */
+.topic-btn {
+    min-height: 64px;
+}
+
+/* Button Hover Effects */
+.topic-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.15),
+        0 5px 10px rgba(0, 0, 0, 0.08);
+}
+
+.topic-btn:active {
+    transform: translateY(-2px);
+}
+
+/* Topic Content */
+.topic-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    margin-top: 0.5rem;
+}
+
+.topic-wrapper.active .topic-content {
+    max-height: 300px;
+}
+
+.content-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.5s ease-out;
+}
+
+.content-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.content-card ul {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.content-card ul li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.content-card ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #43cea2;
+}
+
+/* Finish module button */
+.finish-module-btn {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(45deg,#6a11cb,#2575fc);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.finish-module-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(37,117,252,0.2); }
+
+/* Practice Button */
+.practice-btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(45deg, #43cea2, #185a9d);
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.practice-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 206, 162, 0.4);
+}
+
+/* Game Section */
+.game-section {
+    text-align: center;
+    margin: 4rem 0;
+    animation: fadeIn 1s ease-out;
+}
+
+.start-game-btn {
+    position: relative;
+    padding: 1.5rem 3rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.game-btn-text {
+    position: relative;
+    z-index: 1;
+    margin-right: 0.5rem;
+}
+
+.game-btn-icon {
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.btn-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    animation: rotate 4s linear infinite;
+}
+
+.start-game-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+}
+
+.game-info {
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+}
+
+/* Navigation */
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+
+    .chapter-header h1 {
+        font-size: 2rem;
+    }
+
+    .topic-btn {
+        padding: 1.2rem;
+    }
+
+    .topic-icon {
+        font-size: 1.5rem;
+    }
+
+    .topic-text {
+        font-size: 1rem;
+    }
+
+    .start-game-btn {
+        padding: 1.2rem 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    .nav-btn {
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* Theme Colors for Different Topics */
+.topic-btn:nth-child(1) {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+}
+
+.topic-btn:nth-child(2) {
+    background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+}
+
+.topic-btn:nth-child(3) {
+    background: linear-gradient(135deg, #A8E6CF, #4CAF50);
+}
+
+.topic-btn:nth-child(4) {
+    background: linear-gradient(135deg, #FFD93D, #FF6B6B);
+}
+
+/* Start Game / global button alignment tweaks */
+.game-controls {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0 2rem;
+}
+.game-controls .topic-btn {
+    width: auto; /* don't stretch full width outside the grid */
+    min-width: 260px;
+    max-width: 520px;
+    padding: 1.2rem 1.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+/* ensure practice button aligns inside content cards */
+.content-card .practice-btn {
+    display: inline-block;
+    margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+    .game-controls .topic-btn { min-width: 100%; max-width: 100%; }
+}

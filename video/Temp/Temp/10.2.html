@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Introduction to Circle Perimeter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0b0c10, #000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      width: 95%;
+      max-width: 900px;
+      padding: 16px;
+      text-align: center;
+      color: white;
+    }
+    h2, h3 { margin: 5px 0; }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #fff;
+    }
+    select, button {
+      margin: 8px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select { background: #212121; color: #fff; border: 1px solid #555; }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+
+    .star {
+      fill: white;
+      opacity: 0.6;
+      filter: drop-shadow(0 0 3px white);
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+
+    @media(max-width:600px){
+      .caption { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Introduction to Circle Perimeter</h2>
+    <h3>(Circumference)</h3>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 900 400" preserveAspectRatio="xMidYMid meet">
+      <!-- Starry Space Background -->
+      <g id="stars">
+        <circle class="star" cx="50" cy="50" r="1.5"/>
+        <circle class="star" cx="200" cy="90" r="2"/>
+        <circle class="star" cx="400" cy="40" r="1.8"/>
+        <circle class="star" cx="600" cy="100" r="2.2"/>
+        <circle class="star" cx="800" cy="60" r="1.5"/>
+        <circle class="star" cx="120" cy="320" r="1.8"/>
+        <circle class="star" cx="360" cy="300" r="1.5"/>
+        <circle class="star" cx="700" cy="320" r="1.7"/>
+      </g>
+
+      <!-- Circle with radius line -->
+      <circle id="circle" cx="450" cy="200" r="80" stroke="url(#grad1)" stroke-width="4" fill="none" opacity="0"/>
+      <line id="radiusLine" x1="450" y1="200" x2="530" y2="200" stroke="#FFEB3B" stroke-width="3" opacity="0"/>
+      <text id="radiusLabel" x="490" y="190" fill="#FFEB3B" font-weight="bold" font-size="18" opacity="0">r</text>
+
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF9800"/>
+          <stop offset="100%" stop-color="#FF5722"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div id="caption" class="caption">Let's learn about circle perimeter!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Let's learn about circle perimeter, also called circumference!",
+        "A circle has a radius 'r' from its center to any point on its edge.",
+        "The perimeter of a circle is called the circumference.",
+        "Its formula is: C = 2 × π × r"
+      ],
+      hi: [
+        "आइए वृत्त की परिधि के बारे में जानें, जिसे परिमाप भी कहते हैं!",
+        "वृत्त का त्रिज्या 'r' केंद्र से किनारे तक की दूरी है।",
+        "वृत्त की परिधि को circumference कहते हैं।",
+        "सूत्र है: C = 2 × π × r"
+      ],
+      ta: [
+        "வட்டத்தின் சுற்றளவை பற்றி கற்போம்!",
+        "வட்டத்தின் ஆரம் 'r' என்பது மையத்திலிருந்து வட்டத்தின் விளிம்புக்கு உள்ள தூரம்.",
+        "வட்டத்தின் சுற்றளவை circumference என்று அழைப்பார்கள்.",
+        "சூத்திரம்: C = 2 × π × r"
+      ],
+      te: [
+        "వృత్త పరిధి గురించి నేర్చుకుందాం!",
+        "వృత్తం యొక్క వ్యాసార్థం 'r' అనేది కేంద్రం నుండి అంచు వరకు దూరం.",
+        "వృత్త పరిధిని circumference అంటారు.",
+        "సూత్రం: C = 2 × π × r"
+      ],
+      or: [
+        "ଆସନ୍ତୁ ବୃତ୍ତର ପରିଧି ବିଷୟରେ ଶିଖିବା!",
+        "ବୃତ୍ତର ବ୍ୟାସାର୍ଧ 'r' କେନ୍ଦ୍ରରୁ ପାଟି ପର୍ଯ୍ୟନ୍ତ ଦୂରତା।",
+        "ବୃତ୍ତର ପରିଧିକୁ circumference କୁହାଯାଏ।",
+        "ସୂତ୍ର: C = 2 × π × r"
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (stepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][stepIndex];
+
+      if (stepIndex === 1) gsap.to(["#circle","#radiusLine","#radiusLabel"], {duration: 1, opacity: 1, scale: 1.05, transformOrigin:"center"});
+      if (stepIndex === 3) gsap.to("#circle", {duration: 1, strokeWidth: 6, repeat: 1, yoyo: true});
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      stepIndex = 0;
+      gsap.set(["#circle","#radiusLine","#radiusLabel"], {opacity:0, scale:1});
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) { paused = true; window.speechSynthesis.cancel(); pauseBtn.textContent = "▶ Play"; }
+      else { paused = false; pauseBtn.textContent = "⏸ Pause"; runStep(); }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][stepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+  </script>
+</body>
+</html>

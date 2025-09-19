@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Place Value System (Indian)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    width: 95%;
+    max-width: 1100px;
+    text-align: center;
+    position: relative;
+  }
+  h1 {
+    color: white;
+    text-shadow: 0px 0px 10px #60a5fa;
+    font-size: clamp(1.4rem, 2vw, 2.2rem);
+  }
+  svg {
+    width: 100%;
+    height: 60vh;
+  }
+  .caption {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    min-height: 40px;
+  }
+  .caption.show { opacity: 1; }
+  select, button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  select { background: #1e293b; color: white; }
+  button {
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    color: white;
+    box-shadow: 0px 0px 10px #818cf8;
+  }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌌 Place Value System (Indian)</h1>
+  <label for="langSelect" style="color:white;">🌐 Language</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 600">
+    <defs>
+      <radialGradient id="digitGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </radialGradient>
+    </defs>
+
+    <g id="stars"></g>
+
+    <!-- Digits -->
+    <g id="digits" transform="translate(500,200)">
+      <g class="digit" transform="translate(-300,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">7</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Crores</text>
+      </g>
+      <g class="digit" transform="translate(-180,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">8</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Lakhs</text>
+      </g>
+      <g class="digit" transform="translate(-60,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">9</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Thousands</text>
+      </g>
+      <g class="digit" transform="translate(60,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">4</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Hundreds</text>
+      </g>
+      <g class="digit" transform="translate(180,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">5</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Tens</text>
+      </g>
+      <g class="digit" transform="translate(300,0)">
+        <circle r="40" fill="url(#digitGrad)"/>
+        <text x="0" y="10" text-anchor="middle" fill="white" font-size="28">6</text>
+        <text class="place" x="0" y="80" text-anchor="middle" fill="#facc15" font-size="18">Ones</text>
+      </g>
+    </g>
+  </svg>
+
+  <div id="caption" class="caption"></div>
+  <div class="controls">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+  </div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Let's learn about the Place Value System in the Indian Number System.",
+    "Each digit has a unique place value: Ones, Tens, Hundreds, Thousands, Lakhs, Crores.",
+    "The number 78,94,56 has: 7 Crores, 8 Lakhs, 9 Thousands, 4 Hundreds, 5 Tens, and 6 Ones.",
+    "This helps us read large numbers correctly and place commas properly."
+  ],
+  hi: [
+    "आइए भारतीय संख्या प्रणाली में स्थान मूल्य प्रणाली के बारे में जानें।",
+    "प्रत्येक अंक का एक स्थान मूल्य होता है: इकाई, दहाई, सैकड़ा, हज़ार, लाख, करोड़।",
+    "संख्या 78,94,56 में है: 7 करोड़, 8 लाख, 9 हज़ार, 4 सैकड़े, 5 दहाई और 6 इकाई।",
+    "यह हमें बड़ी संख्याओं को सही तरह से पढ़ने और कॉमा सही जगह लगाने में मदद करता है।"
+  ],
+  ta: [
+    "இந்திய எண் முறைமையில் இட மதிப்பு முறையை கற்போம்.",
+    "ஒவ்வொரு இலக்கத்துக்கும் தனித்த இட மதிப்பு உள்ளது: ஒன்றுகள், பத்துகள், நூறுகள், ஆயிரங்கள், இலட்சங்கள், கோடிகள்.",
+    "எண் 78,94,56 இல் 7 கோடி, 8 இலட்சம், 9 ஆயிரம், 4 நூறு, 5 பத்து, 6 ஒன்று உள்ளது.",
+    "இது எண்களை சரியாக வாசிக்கவும் காமாக்களை சரியாக இடவும் உதவுகிறது."
+  ],
+  te: [
+    "భారతీయ సంఖ్యా వ్యవస్థలో స్థాన విలువను నేర్చుకుందాం.",
+    "ప్రతి అంకెకు ప్రత్యేక స్థాన విలువ ఉంది: ఒకలు, పద్దులు, వందలు, వేలలు, లక్షలు, కోట్లు.",
+    "సంఖ్య 78,94,56 లో 7 కోట్లు, 8 లక్షలు, 9 వేలలు, 4 వందలు, 5 పద్దులు, 6 ఒకలు ఉన్నాయి.",
+    "ఇది పెద్ద సంఖ్యలను సరిగ్గా చదవడానికి మరియు విరామ చిహ్నాలు పెట్టడానికి సహాయపడుతుంది."
+  ],
+  or: [
+    "ଆସନ୍ତୁ ଭାରତୀୟ ସଂଖ୍ୟା ପଦ୍ଧତିରେ ସ୍ଥାନ ମୂଲ୍ୟ ପ୍ରଣାଳୀ ସିଖୁ।",
+    "ପ୍ରତ୍ୟେକ ଅଙ୍କର ନିଜସ୍ୱ ସ୍ଥାନ ମୂଲ୍ୟ ଥାଏ: ଏକକ, ଦଶକ, ସତକ, ହଜାର, ଲକ୍ଷ, କୋଟି।",
+    "ସଂଖ୍ୟା 78,94,56 ରେ ଅଛି: 7 କୋଟି, 8 ଲକ୍ଷ, 9 ହଜାର, 4 ସତକ, 5 ଦଶକ, 6 ଏକକ।",
+    "ଏହା ଆମକୁ ଠିକ୍ ଭାବରେ ବଡ଼ ସଂଖ୍ୟା ପଢିବାକୁ ଓ କମା ବ୍ୟବହାର କରିବାକୁ ସାହାଯ୍ୟ କରେ।"
+  ]
+};
+
+const langMap = {en:'en-US', hi:'hi-IN', ta:'ta-IN', te:'te-IN', or:'or-IN'};
+const captionEl = document.getElementById("caption");
+const langSelect = document.getElementById("langSelect");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+let timeline, paused = false;
+
+// Star Background
+const starGroup = document.getElementById("stars");
+for (let i = 0; i < 80; i++) {
+  const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  star.setAttribute("cx", Math.random() * 1000);
+  star.setAttribute("cy", Math.random() * 600);
+  star.setAttribute("r", Math.random() * 2);
+  star.setAttribute("fill", "white");
+  star.setAttribute("opacity", Math.random());
+  starGroup.appendChild(star);
+}
+
+function speak(text, lang) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showCaption(text) {
+  captionEl.textContent = text;
+  captionEl.classList.add("show");
+}
+
+function playAnimation() {
+  if (timeline) timeline.kill();
+  captionEl.textContent = "";
+  captionEl.classList.remove("show");
+  gsap.set(".digit", {scale:0});
+
+  let currentLang = langSelect.value;
+  let steps = captions[currentLang];
+  let digits = document.querySelectorAll(".digit");
+
+  timeline = gsap.timeline({paused:false});
+  timeline.add(()=>{showCaption(steps[0]); speak(steps[0], langMap[currentLang]);});
+  digits.forEach((d,i)=>{
+    timeline.to(d,{scale:1,duration:0.6,ease:"back.out(1.7)",onStart:()=>{
+      if(i===0) {showCaption(steps[1]); speak(steps[1], langMap[currentLang]);}
+      if(i===digits.length-1) {showCaption(steps[2]); speak(steps[2], langMap[currentLang]);}
+    }}, i*0.8);
+  });
+  timeline.to({}, {duration:1, onStart:()=>{
+    showCaption(steps[3]); speak(steps[3], langMap[currentLang]);
+  }});
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+  if (paused) {
+    timeline.pause();
+    window.speechSynthesis.cancel();
+  } else {
+    timeline.resume();
+  }
+});
+
+playBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", () => {
+  captionEl.textContent = "";
+  gsap.set(".digit", {scale:0});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Factors & Multiples Animation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin:0; font-family:Poppins,sans-serif;
+  background: linear-gradient(135deg,#f0f4f7,#d9e2ec);
+  display:flex; justify-content:center; align-items:flex-start;
+  min-height:100vh; padding:20px;
+}
+.card {
+  background:rgba(255,255,255,0.95); border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  width:90%; max-width:900px; padding:20px; text-align:center;
+}
+h2 { margin:0; font-size:24px; }
+h3 { margin:5px 0 15px 0; font-size:18px; color:#555; }
+svg { width:100%; height:auto; margin-top:20px; }
+.numText { font-weight:bold; font-size:20px; fill:#111; }
+.highlight { stroke:gold; stroke-width:4px; }
+.line { stroke:#222; stroke-width:2; }
+.tick { stroke:#222; stroke-width:1; }
+.factor { fill:#3498db; font-size:14px; font-weight:bold; }
+.multiple { fill:#27ae60; font-size:14px; font-weight:bold; }
+.caption { margin-top:12px; padding:8px 12px; background:#eef; border-radius:10px; display:inline-block; }
+button, select { margin:8px; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+#pauseBtn { background:#4CAF50; color:#fff; }
+#replayBtn { background:#FF6B6B; color:#fff; display:none; }
+select { border:1px solid #ccc; }
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Factors & Multiples</h2>
+<h3>Animated Number Line Visualization</h3>
+
+<label>🌐 Language:</label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+<br>
+
+<svg viewBox="0 0 900 300" id="mainSvg">
+  <!-- Number Cards -->
+  <g id="card1"><rect x="50" y="10" width="100" height="50" rx="12" fill="#FFD93D"/><text x="100" y="40" text-anchor="middle" class="numText">12</text></g>
+  <g id="card2"><rect x="200" y="10" width="100" height="50" rx="12" fill="#6BCB77"/><text x="250" y="40" text-anchor="middle" class="numText">18</text></g>
+
+  <!-- Number Line -->
+  <line x1="30" y1="200" x2="870" y2="200" class="line"/>
+</svg>
+
+<div id="caption" class="caption">Welcome! Let's explore factors and multiples step by step.</div>
+<br>
+<button id="pauseBtn">⏸ Pause</button>
+<button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const captions = {
+en:[
+  "Let's learn factors and multiples using number cards and a number line.",
+  "We will first focus on 12 and explore all its factors.",
+  "Next, we will focus on 18 and explore its multiples."
+],
+hi:[
+  "आइए संख्या कार्ड्स और नंबर लाइन के साथ गुणक और भाजक सीखें।",
+  "पहले 12 पर ध्यान दें और इसके सभी भाजक देखें।",
+  "फिर 18 पर ध्यान दें और इसके गुणक देखें।"
+],
+ta:[
+  "எண் கார்ட்கள் மற்றும் எண் வரிசை மூலம் காரக்கள் மற்றும் பெருக்குகளை கற்றுக்கொள்வோம்.",
+  "முதலில் 12 ஐ கவனித்து அதனுடைய அனைத்து காரக்களையும் காண்போம்.",
+  "பின்னர் 18 ஐ கவனித்து அதன் பெருக்குகளை காண்போம்."
+],
+te:[
+  "నంబర్ కార్డ్స్ మరియు నంబర్ లైన్ తో గుణకాలు మరియు భాగకాలను నేర్చుకుందాం.",
+  "మొదట 12 పై దృష్టి పెట్టి దాని అన్ని భాగకాలను చూపుదాం.",
+  "తర్వాత 18 పై దృష్టి పెట్టి దాని గుణకాలను చూపుదాం."
+],
+or:[
+  "ସଂଖ୍ୟା କାର୍ଡ୍ସ ଏବଂ ନମ୍ବର ଲାଇନ୍ ସହିତ ଗୁଣକ ଏବଂ ଭାଜକ ଶିଖନ୍ତୁ।",
+  "ପ୍ରଥମେ 12 ଉପରେ ଧ୍ୟାନ ଦିଅନ୍ତୁ ଏବଂ ତାହାର ସମସ୍ତ ଭାଜକ ଦେଖନ୍ତୁ।",
+  "ପରବର୍ତ୍ତୀ 18 ଉପରେ ଧ୍ୟାନ ଦିଅନ୍ତୁ ଏବଂ ତାହାର ଗୁଣକ ଦେଖନ୍ତୁ।"
+]
+};
+
+const voicesMap={en:"en-IN",hi:"hi-IN",ta:"ta-IN",te:"te-IN",or:"or-IN"};
+const svg=document.getElementById("mainSvg");
+const captionEl=document.getElementById("caption");
+const pauseBtn=document.getElementById("pauseBtn");
+const replayBtn=document.getElementById("replayBtn");
+const langSel=document.getElementById("langSelect");
+
+let paused=false,currentStep=0;
+
+// Numbers for animation
+const num1=12; // Show factors
+const num2=18; // Show multiples
+const factors=[1,2,3,4,6,12];
+const multiples=[18,36,54];
+
+// Draw number line ticks
+function drawNumberLine(){
+  const lineLength=840,startX=30;
+  for(let i=0;i<=60;i+=1){
+    const tick=document.createElementNS("http://www.w3.org/2000/svg","line");
+    tick.setAttribute("x1",startX+i*14);
+    tick.setAttribute("y1",200);
+    tick.setAttribute("x2",startX+i*14);
+    tick.setAttribute("y2",205);
+    tick.setAttribute("class","tick");
+    svg.appendChild(tick);
+
+    const label=document.createElementNS("http://www.w3.org/2000/svg","text");
+    label.setAttribute("x",startX+i*14);
+    label.setAttribute("y",220);
+    label.setAttribute("text-anchor","middle");
+    label.setAttribute("class","numText");
+    label.textContent=i;
+    svg.appendChild(label);
+  }
+}
+drawNumberLine();
+
+// Speak function
+function speak(text, callback){
+  if(paused) return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=voicesMap[langSel.value];
+  u.rate=0.9;
+  u.onend=()=>{if(!paused) callback();}
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+// Highlight number cards and number line
+function highlightNumberCard(cardId){
+  gsap.to("#"+cardId+" rect",{stroke:"gold",strokeWidth:4});
+}
+
+// Highlight number on number line
+function highlightNumberLine(num,color="red"){
+  const x=30+num*14;
+  const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  circle.setAttribute("cx",x);
+  circle.setAttribute("cy",200);
+  circle.setAttribute("r",10);
+  circle.setAttribute("fill",color);
+  svg.appendChild(circle);
+}
+
+// Main animation sequence
+function runAnimation(){
+  replayBtn.style.display="none";
+  paused=false;
+  currentStep=0;
+
+  // Reset highlights
+  ["card1","card2"].forEach(id=>gsap.set("#"+id+" rect",{stroke:"none"}));
+  // Remove previous highlights
+  Array.from(svg.querySelectorAll("circle")).forEach(c=>c.remove());
+
+  function nextStep(){
+    if(currentStep>=3){
+      replayBtn.style.display="inline-block";
+      return;
+    }
+    captionEl.textContent=captions[langSel.value][currentStep];
+
+    if(currentStep===0){
+      speak(captions[langSel.value][0],()=>{
+        currentStep++;
+        nextStep();
+      });
+    } else if(currentStep===1){
+      highlightNumberCard("card1");
+      // Read factors one by one
+      function readFactor(i){
+        if(i>=factors.length){
+          currentStep++;
+          nextStep();
+          return;
+        }
+        captionEl.textContent=`${captions[langSel.value][1]} Factor: ${factors[i]}`;
+        highlightNumberLine(factors[i],"blue");
+        speak(`${factors[i]}`,()=>readFactor(i+1));
+      }
+      readFactor(0);
+    } else if(currentStep===2){
+      highlightNumberCard("card2");
+      // Read multiples one by one
+      function readMultiple(i){
+        if(i>=multiples.length){
+          currentStep++;
+          nextStep();
+          return;
+        }
+        captionEl.textContent=`${captions[langSel.value][2]} Multiple: ${multiples[i]}`;
+        highlightNumberLine(multiples[i],"green");
+        speak(`${multiples[i]}`,()=>readMultiple(i+1));
+      }
+      readMultiple(0);
+    }
+  }
+  nextStep();
+}
+
+// Pause/Play
+pauseBtn.addEventListener("click",()=>{
+  if(!paused){
+    paused=true;
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent="▶ Play";
+  }else{
+    paused=false;
+    pauseBtn.textContent="⏸ Pause";
+    runAnimation();
+  }
+});
+
+replayBtn.addEventListener("click",runAnimation);
+langSel.addEventListener("change",()=>{runAnimation();});
+
+runAnimation();
+</script>
+</body>
+</html>

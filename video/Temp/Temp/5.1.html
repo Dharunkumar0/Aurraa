@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Types of Angles - Space Theme</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  color: white;
+}
+.card {
+  background: rgba(0,0,0,0.6);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  width: 95%;
+  max-width: 900px;
+}
+svg { width: 100%; height: auto; }
+.caption {
+  margin-top: 12px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: inline-block;
+}
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn:hover { background: #2e7d32; }
+#replayBtn:hover { background: #ff5722; }
+
+.line { stroke-width: 4; stroke-linecap: round; }
+.arc { fill: none; stroke-width: 4; }
+text { fill: white; font-weight: bold; font-size: 16px; }
+
+.star { fill: white; opacity: 0.8; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Types of Angles</h2>
+  <label for="langSelect">🌐 Language: </label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 900 400">
+    <!-- Stars -->
+    <g id="stars">
+      <circle class="star" cx="50" cy="50" r="2"/>
+      <circle class="star" cx="200" cy="120" r="1.5"/>
+      <circle class="star" cx="500" cy="40" r="2"/>
+      <circle class="star" cx="800" cy="100" r="1.5"/>
+      <circle class="star" cx="950" cy="70" r="2"/>
+    </g>
+
+    <!-- Right Angle -->
+    <line id="rightLine1" x1="100" y1="300" x2="200" y2="300" stroke="cyan" class="line" opacity="0"/>
+    <line id="rightLine2" x1="200" y1="300" x2="200" y2="200" stroke="cyan" class="line" opacity="0"/>
+    <text x="150" y="320" text-anchor="middle">Right Angle</text>
+    <path id="rightArc" d="M 200 300 L 180 300 A 20 20 0 0 1 200 280 Z" stroke="cyan" class="arc" opacity="0"/>
+
+    <!-- Acute Angle -->
+    <line id="acuteLine1" x1="300" y1="300" x2="380" y2="220" stroke="lime" class="line" opacity="0"/>
+    <line id="acuteLine2" x1="300" y1="300" x2="420" y2="300" stroke="lime" class="line" opacity="0"/>
+    <text x="360" y="320" text-anchor="middle">Acute Angle</text>
+    <path id="acuteArc" d="M 300 300 L 320 300 A 20 20 0 0 1 310 280 Z" stroke="lime" class="arc" opacity="0"/>
+
+    <!-- Obtuse Angle -->
+    <line id="obtuseLine1" x1="500" y1="300" x2="580" y2="180" stroke="orange" class="line" opacity="0"/>
+    <line id="obtuseLine2" x1="500" y1="300" x2="650" y2="300" stroke="orange" class="line" opacity="0"/>
+    <text x="580" y="320" text-anchor="middle">Obtuse Angle</text>
+    <path id="obtuseArc" d="M500 300 L520 300 A 40 40 0 0 1 550 250 Z" stroke="orange" class="arc" opacity="0"/>
+  </svg>
+
+  <div id="caption" class="caption">Click anywhere to start!</div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const caption=document.getElementById("caption");
+const replayBtn=document.getElementById("replayBtn");
+const pauseBtn=document.getElementById("pauseBtn");
+const langSelect=document.getElementById("langSelect");
+
+let paused=false, stepIndex=0, currentLang="en";
+
+const captionsData={
+en:["Right Angle = 90°","Acute Angle < 90°","Obtuse Angle > 90°"],
+hi:["समकोण = 90°","तीव्र कोण < 90°","स्थूल कोण > 90°"],
+ta:["உரையுள்ள கோணம் = 90°","சின்ன கோணம் < 90°","பெரிய கோணம் > 90°"],
+te:["కుడి కోణం = 90°","చిన్న కోణం < 90°","పెద్ద కోణం > 90°"],
+or:["ସମକୋଣ = 90°","ତୀବ୍ର କୋଣ < 90°","ବେଶି କୋଣ > 90°"]
+};
+
+const voicesMap={en:"en-IN",hi:"hi-IN",ta:"ta-IN",te:"te-IN",or:"or-IN"};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang=voicesMap[lang]||"en-IN";
+  utter.rate=0.9;
+  utter.onend=()=>{ if(!paused) callback(); };
+  const voices=speechSynthesis.getVoices();
+  const found=voices.find(v=>v.lang===utter.lang);
+  if(found) utter.voice=found;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+function runStep(){
+  if(stepIndex>=captionsData[currentLang].length){
+    replayBtn.style.display="inline-block";
+    return;
+  }
+  caption.textContent=captionsData[currentLang][stepIndex];
+
+  if(stepIndex===0){
+    gsap.to(["#rightLine1","#rightLine2","#rightArc"],{duration:1,opacity:1});
+  }
+  if(stepIndex===1){
+    gsap.to(["#acuteLine1","#acuteLine2","#acuteArc"],{duration:1,opacity:1});
+  }
+  if(stepIndex===2){
+    gsap.to(["#obtuseLine1","#obtuseLine2","#obtuseArc"],{duration:1,opacity:1});
+  }
+
+  speak(captionsData[currentLang][stepIndex],currentLang,()=>{
+    stepIndex++;
+    if(!paused) runStep();
+  });
+}
+
+function playAnimation(){
+  replayBtn.style.display="none";
+  paused=false; stepIndex=0;
+  currentLang=langSelect.value;
+  gsap.set(["#rightLine1","#rightLine2","#rightArc",
+           "#acuteLine1","#acuteLine2","#acuteArc",
+           "#obtuseLine1","#obtuseLine2","#obtuseArc"],{opacity:0});
+  runStep();
+}
+
+pauseBtn.addEventListener("click",()=>{
+  if(!paused){paused=true;speechSynthesis.cancel();pauseBtn.textContent="▶ Play";}
+  else{paused=false;pauseBtn.textContent="⏸ Pause";runStep();}
+});
+
+replayBtn.addEventListener("click",playAnimation);
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  caption.textContent=captionsData[currentLang][stepIndex]||captionsData[currentLang][0];
+});
+
+document.body.addEventListener("click",()=>{if(stepIndex===0) playAnimation();},{once:true});
+</script>
+</body>
+</html>

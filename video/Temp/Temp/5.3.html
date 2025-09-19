@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3D Shapes - Improved Layout & Animation</title>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<style>
+  :root{
+    --card-bg: rgba(0,0,0,0.65);
+    --accent: #1db954;
+    --muted: rgba(255,255,255,0.08);
+  }
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family: "Poppins",system-ui,Segoe UI,Roboto, Arial;
+    background:#000;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;
+    max-width:1000px;
+    background:var(--card-bg);
+    border-radius:14px;
+    padding:18px 18px 28px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+    text-align:center;
+  }
+
+  h2{margin:6px 0 12px; font-size:26px; letter-spacing:0.6px;}
+  label{margin-right:8px; opacity:0.95;}
+  select{padding:8px 12px; border-radius:8px; border:0; font-weight:600;}
+
+  svg{width:100%; height:320px; display:block; margin:12px auto 6px; overflow:visible;justify-items: center;}
+  .shape-stroke{stroke:#ffffff; stroke-width:1; stroke-opacity:0.9}
+  .textLabel{fill:#fff; font-weight:700; font-size:15px; text-anchor:middle;}
+
+  .controls{margin-top:12px; display:flex; align-items:center; justify-content:center; gap:12px;}
+  .caption{
+    padding:10px 14px;
+    border-radius:999px;
+    background:var(--muted);
+    display:inline-block;
+    max-width:800px;
+    text-align:center;
+    font-weight:600;
+  }
+  button{
+    padding:10px 16px;
+    border-radius:10px;
+    border:0;
+    font-weight:700;
+    cursor:pointer;
+  }
+  #pauseBtn{background:#278a3a; color:#fff;}
+  #replayBtn{background:#ff764b; color:#fff; display:none;}
+  #pauseBtn:hover{filter:brightness(.95)}
+  #replayBtn:hover{filter:brightness(.95)}
+
+  /* small responsive tweak */
+  @media (max-width:520px){
+    svg{height:420px;}
+  }
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-label="3D Shapes basics">
+    <h2>3D Shapes Basics</h2>
+
+    <div style="margin-bottom:10px;">
+      <label for="langSelect">🌐 Language:</label>
+      <select id="langSelect" aria-label="Language select">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ta">தமிழ்</option>
+        <option value="te">తెలుగు</option>
+        <option value="or">ଓଡ଼ିଆ</option>
+      </select>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <!-- Wider viewBox so shapes can sit side-by-side -->
+    <center><svg viewBox="0 0 1000 360" aria-hidden="false" role="img">
+      <!-- For clarity: each group is translated horizontally so the shapes don't overlap -->
+      <!-- Cube group (isometric-style) -->
+      <g id="cube" transform="translate(120,160)" opacity="0" >
+        <!-- top face -->
+        <polygon class="shape-stroke" points="0,-40 60,-70 120,-40 60,-10" fill="#ffad33" />
+        <!-- left face -->
+        <polygon class="shape-stroke" points="0,-40 0,40 60,70 60,-10" fill="#ff8a33" />
+        <!-- right face -->
+        <polygon class="shape-stroke" points="60,-10 60,70 120,40 120,-40" fill="#ff6a33" />
+        <text class="textLabel" x="60" y="110">Cube</text>
+      </g>
+
+      <!-- Cuboid group (stretched) -->
+      <g id="cuboid" transform="translate(300,150)" opacity="0" >
+        <!-- top (wider trapezoid to show depth) -->
+        <polygon class="shape-stroke" points="0,-45 110,-70 220,-45 110,-20" fill="#36d1dc"/>
+        <!-- left face -->
+        <polygon class="shape-stroke" points="0,-45 0,55 110,80 110,-20" fill="#5b86e5"/>
+        <!-- right face -->
+        <polygon class="shape-stroke" points="110,-20 110,80 220,55 220,-45" fill="#2ec4c4"/>
+        <text class="textLabel" x="110" y="120">Cuboid</text>
+      </g>
+
+      <!-- Cylinder -->
+      <g id="cylinder" transform="translate(500,140)" opacity="0">
+        <ellipse class="shape-stroke" cx="0" cy="-30" rx="52" ry="22" fill="#41d295"></ellipse>
+        <rect x="-52" y="-30" width="104" height="150" fill="#3bb2b8" class="shape-stroke"></rect>
+        <ellipse class="shape-stroke" cx="0" cy="120" rx="52" ry="22" fill="#41d295"></ellipse>
+        <text class="textLabel" x="0" y="150">Cylinder</text>
+      </g>
+
+      <!-- Cone -->
+      <g id="cone" transform="translate(700,150)" opacity="0">
+        <ellipse class="shape-stroke" cx="0" cy="110" rx="55" ry="18" fill="#ff5f6d"></ellipse>
+        <polygon class="shape-stroke" points="0,-50 -55,110 55,110" fill="#ff7b82"></polygon>
+        <text class="textLabel" x="0" y="150">Cone</text>
+      </g>
+
+      <!-- Sphere -->
+      <g id="sphere" transform="translate(880,160)" opacity="0">
+        <defs>
+          <radialGradient id="rad1" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="#ffd28a" stop-opacity="0.95"/>
+            <stop offset="60%" stop-color="#f7971e" stop-opacity="0.98"/>
+            <stop offset="100%" stop-color="#e46b08" stop-opacity="1"/>
+          </radialGradient>
+        </defs>
+        <circle class="shape-stroke" cx="0" cy="0" r="64" fill="url(#rad1)"></circle>
+        <!-- highlight -->
+        <ellipse cx="-15" cy="-18" rx="18" ry="10" fill="rgba(255,255,255,0.45)"></ellipse>
+        <text class="textLabel" x="0" y="105">Sphere</text>
+      </g>
+    </svg></center>
+
+    <div class="controls">
+      <div id="caption" class="caption">Click anywhere once to start the guided animation.</div>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; align-items:center;">
+      <button id="pauseBtn" aria-pressed="false">⏸ Pause</button>
+      <button id="replayBtn">🔄 Replay</button>
+    </div>
+  </div>
+
+<script>
+/* ---------------------------
+   Data and UI references
+   --------------------------- */
+const shapes = ["cube","cuboid","cylinder","cone","sphere"];
+const captionEl = document.getElementById("caption");
+const pauseBtn = document.getElementById("pauseBtn");
+const replayBtn = document.getElementById("replayBtn");
+const langSelect = document.getElementById("langSelect");
+
+let currentLang = langSelect.value || "en";
+let paused = false;
+let stepIndex = 0;         // which shape index we are at
+let runningPromise = null; // the currently running animation/speech promise
+
+// Multilingual caption texts (5 items - one per shape)
+const captionsData = {
+  en:[
+    "Cube: A solid with six equal square faces.",
+    "Cuboid: A solid with rectangular faces.",
+    "Cylinder: Two circular ends and a curved surface.",
+    "Cone: A circular base tapering to a point.",
+    "Sphere: Perfectly round like a ball."
+  ],
+  hi:[
+    "घन: छह समान वर्गाकार पृष्ठों वाला ठोस।",
+    "घनाभ: आयताकार पृष्ठों वाला ठोस।",
+    "सिलेंडर: दो वृत्ताकार सिर और एक वक्र सतह।",
+    "शंकु: वृत्तीय आधार से एक बिंदु की ओर संकुचित आकृति।",
+    "गोला: गेंद की तरह पूरी तरह गोल।"
+  ],
+  ta:[
+    "கியூப்: ஆறு சமமான சதுர முகங்களைக் கொண்ட உறை பொருள்.",
+    "கியூபாயிட்: நீளம் மற்றும் அகலம் கொண்ட உறை பொருள் (ஆயத்தமான முகங்கள்).",
+    "சிலிண்டர்: இரண்டு வட்டப் புறம் மற்றும் வளைந்த பக்கம் கொண்டது.",
+    "கோன்: வட்ட அடிப்படை, ஒரு புள்ளிக்கு முக்கூறாக வரும் வடிவம்.",
+    "ஸ்பியர்: பந்தைப் போல முழுக்க முழு வட்டமாகும்."
+  ],
+  te:[
+    "క్యూబ్: ఆరు సమాన చతురస్ర ముఖాలు కలిగిన ఘନరూపం.",
+    "క్యూబాయిడ్: आयతాకార ముఖాలతో కూడిన ఘనం.",
+    "సిలిండర్: రెండు వృత్తాకార తుఫానులు మరియు వక్ర ఉపరితలంతో కూడినదీ.",
+    "కోణ్: వృత్తాకార ఆధారం నుండి ఒక బిందువుకి చేరే ఆకారం.",
+    "స్ఫియర్: బంతి లాంటిది — పూర్తిగా గోళాకారం."
+  ],
+  or:[
+    "ଘନ: 6ଟି ସମାନ ଚତୁରସ୍ର ପୃଷ୍ଠ ଥିବା ଠୋସ।",
+    "ଘନାକାର: ଆୟତାକାର ପୃଷ୍ଠ ଥିବା ଠୋସ।",
+    "ସିଲିଣ୍ଡର: ଦୁଇଟି ବୃତ୍ତାକାର ଶୀର୍ଷ ଏବଂ ଏକ ବକ୍ର ପୃଷ୍ଠ।",
+    "ଶଙ୍କୁ: ଏକ ବୃତ୍ତ ଆଧାରରୁ ଏକ ବିନ୍ଦୁକୁ ସଂକୁଚିତ ଆକୃତି।",
+    "ସ୍ଫିୟର: ବଲ୍ ଭଳି ସମ୍ପୂର୍ଣ୍ଣ ଗୋଲାକାର।"
+  ]
+};
+
+// map desired lang codes to probable speechSynthesis language tags (will fall back if not found)
+const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+/* ---------------------------
+   Utility: speak returns Promise
+   --------------------------- */
+function speakPromise(text, lang){
+  // if paused, resolve immediately (we don't want to speak while paused)
+  if(paused) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    // cancel any previous speech
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = voicesMap[lang] || lang || "en-IN";
+    utter.rate = 0.95;
+    utter.onend = () => resolve();
+    // if speechSynthesis has no voices for the language, it will still try default voice.
+    speechSynthesis.speak(utter);
+  });
+}
+
+/* ---------------------------
+   Utility: animate via GSAP returns Promise when onComplete
+   --------------------------- */
+function animatePromise(targetSelector, vars){
+  return new Promise(resolve => {
+    gsap.to(targetSelector, {...vars, onComplete: () => resolve()});
+  });
+}
+
+/* ---------------------------
+   Show one shape (clean others), animate and speak
+   This function runs from stepIndex and continues until paused or all done.
+   --------------------------- */
+async function runSequence(){
+  replayBtn.style.display = "none";
+  // for safety cancel any running speech
+  window.speechSynthesis.cancel();
+
+  while(stepIndex < shapes.length){
+    if(paused) return; // stop without resetting index so resume continues
+    const id = shapes[stepIndex];
+
+    // Hide others immediately and reset transforms
+    shapes.forEach(s => {
+      gsap.set("#" + s, {opacity: 0, scale: 1, y: 0});
+    });
+
+    // Small reveal animation
+    await animatePromise("#" + id, {duration: 0.5, opacity: 1, scale: 1.12, y: -12, ease: "power2.out"});
+    // update caption text
+    captionEl.textContent = (captionsData[currentLang] && captionsData[currentLang][stepIndex]) || captionsData.en[stepIndex];
+    // speak and wait for speech to finish (or resolve early if paused)
+    await speakPromise(captionEl.textContent, currentLang);
+    if(paused) { return; }
+
+    // settle back
+    await animatePromise("#" + id, {duration: 0.55, scale: 1, y: 0, ease: "bounce.out"});
+
+    // small delay then next
+    await new Promise(r => setTimeout(r, 330));
+    stepIndex++;
+  }
+
+  // finished all steps
+  captionEl.textContent = (currentLang && captionsData[currentLang] && captionsData[currentLang].slice(-1)[0]) || captionsData.en.slice(-1)[0];
+  replayBtn.style.display = "inline-block";
+}
+
+/* ---------------------------
+   Controls: play, pause, replay
+   --------------------------- */
+function playFromStart(){
+  // Reset state and start
+  paused = false;
+  stepIndex = 0;
+  currentLang = langSelect.value || "en";
+  pauseBtn.textContent = "⏸ Pause";
+  pauseBtn.setAttribute("aria-pressed","false");
+  runSequence();
+}
+
+function resumeFromCurrent(){
+  // resume from current stepIndex (do not reset)
+  paused = false;
+  pauseBtn.textContent = "⏸ Pause";
+  pauseBtn.setAttribute("aria-pressed","false");
+  runSequence();
+}
+
+// initial single-click start
+document.body.addEventListener("click", function onceStart(){
+  // only trigger on the very first click (user asked initial run behavior)
+  document.body.removeEventListener("click", onceStart);
+  playFromStart();
+}, {once:true});
+
+// Pause button toggles
+pauseBtn.addEventListener("click", () => {
+  if(!paused){
+    // pause
+    paused = true;
+    // stop any ongoing speech, and stop GSAP tweens
+    window.speechSynthesis.cancel();
+    gsap.killTweensOf("*");
+    pauseBtn.textContent = "▶ Play";
+    pauseBtn.setAttribute("aria-pressed","true");
+  } else {
+    // resume
+    // don't reset stepIndex, continue
+    resumeFromCurrent();
+  }
+});
+
+// Replay button
+replayBtn.addEventListener("click", ()=>{
+  // stop current actions and restart
+  paused = false;
+  window.speechSynthesis.cancel();
+  gsap.killTweensOf("*");
+  stepIndex = 0;
+  replayBtn.style.display = "none";
+  pauseBtn.textContent = "⏸ Pause";
+  runSequence();
+});
+
+// language change: update currentLang and update caption (if in-between)
+langSelect.addEventListener("change", ()=>{
+  currentLang = langSelect.value;
+  // Update caption to current step text (or first if none)
+  const idx = Math.min(stepIndex, captionsData[currentLang].length - 1);
+  captionEl.textContent = captionsData[currentLang][idx] || captionsData.en[idx];
+});
+
+// small accessibility: pressing space on pause button toggles same as click
+pauseBtn.addEventListener("keyup", (e)=>{
+  if(e.code === "Space") pauseBtn.click();
+});
+
+/* ---------------------------
+   Minor: pre-show all shapes at opacity 0 (ensures they are hidden until animated)
+   --------------------------- */
+shapes.forEach(s => gsap.set("#" + s, {opacity: 0}));
+</script>
+
+</body>
+</html>

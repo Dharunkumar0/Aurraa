@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Estimation and Rounding Off</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 80%;
+      max-width: 950px;
+      padding: 20px;
+      text-align: center;
+    }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(0,0,0,0.05);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #222;
+    }
+    button, select {
+      margin: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+    select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+    .numText { font-weight: bold; font-size: 28px; fill: #111; }
+    .rounded { font-weight: bold; font-size: 26px; fill: green; opacity: 0; }
+    .rule { font-weight: bold; font-size: 22px; fill: blue; opacity: 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Knowing Our Numbers</h2>
+    <h3>Estimation and Rounding Off</h3>
+
+    <!-- Language selector -->
+    <label for="langSelect">🌐 Choose Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <svg viewBox="0 0 1000 500">
+      <!-- Base example -->
+      <g id="example1">
+        <rect x="350" y="50" width="250" height="90" rx="15" fill="#FFD93D"/>
+        <text class="numText" x="475" y="110" text-anchor="middle">76,543</text>
+      </g>
+      <text id="round10" class="rounded" x="475" y="200" text-anchor="middle">Nearest 10 → 76,540</text>
+      <text id="round100" class="rounded" x="475" y="250" text-anchor="middle">Nearest 100 → 76,500</text>
+      <text id="round1000" class="rounded" x="475" y="300" text-anchor="middle">Nearest 1000 → 77,000</text>
+
+      <!-- Rule text -->
+      <text id="rule" class="rule" x="500" y="360" text-anchor="middle">Rule: If digit < 5 → Round Down | If digit ≥ 5 → Round Up</text>
+
+      <!-- More examples -->
+      <text id="ex2" class="rounded" x="475" y="400" text-anchor="middle">42 → 40</text>
+      <text id="ex3" class="rounded" x="475" y="430" text-anchor="middle">47 → 50</text>
+      <text id="ex4" class="rounded" x="475" y="460" text-anchor="middle">1,234 → 1,000</text>
+      <text id="ex5" class="rounded" x="475" y="490" text-anchor="middle">8,765 → 9,000</text>
+    </svg>
+
+    <div id="caption" class="caption">Let's learn Estimation and Rounding Off!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let currentStepIndex = 0;
+    let currentLang = "en";
+
+    // Captions
+    const captions = {
+      en: [
+        "Let's learn Estimation and Rounding Off!",
+        "We start with the number seventy-six thousand, five hundred forty-three.",
+        "Rounding to the nearest 10 → Look at the ones digit (3). Since 3 < 5, round down to 76,540.",
+        "Rounding to the nearest 100 → Look at the tens digit (4). Since 4 < 5, round down to 76,500.",
+        "Rounding to the nearest 1000 → Look at the hundreds digit (5). Since 5 ≥ 5, round up to 77,000.",
+        "Rule: If digit < 5 → Round Down. If digit ≥ 5 → Round Up.",
+        "Example: 42 rounds to 40.",
+        "Example: 47 rounds to 50.",
+        "Example: 1,234 rounds to 1,000.",
+        "Example: 8,765 rounds to 9,000."
+      ]
+      // (other language translations can be added similarly)
+    };
+
+    const voicesMap = { en: "en-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (currentStepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][currentStepIndex];
+
+      // Animations
+      if (currentStepIndex === 1) gsap.to("#example1", {duration: 1, scale: 1.1, yoyo: true, repeat: 1});
+      if (currentStepIndex === 2) gsap.to("#round10", {duration: 1, opacity: 1, y: -10});
+      if (currentStepIndex === 3) gsap.to("#round100", {duration: 1, opacity: 1, y: -10});
+      if (currentStepIndex === 4) gsap.to("#round1000", {duration: 1, opacity: 1, y: -10});
+      if (currentStepIndex === 5) gsap.to("#rule", {duration: 1, opacity: 1});
+      if (currentStepIndex === 6) gsap.to("#ex2", {duration: 1, opacity: 1});
+      if (currentStepIndex === 7) gsap.to("#ex3", {duration: 1, opacity: 1});
+      if (currentStepIndex === 8) gsap.to("#ex4", {duration: 1, opacity: 1});
+      if (currentStepIndex === 9) gsap.to("#ex5", {duration: 1, opacity: 1});
+
+      speak(captions[currentLang][currentStepIndex], currentLang, () => {
+        currentStepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      currentStepIndex = 0;
+      currentLang = langSelect.value;
+
+      gsap.set(["#round10","#round100","#round1000","#rule","#ex2","#ex3","#ex4","#ex5"], {opacity:0, y:0});
+      gsap.set("#example1", {scale:1});
+
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) {
+        paused = true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent = "▶ Play";
+      } else {
+        paused = false;
+        pauseBtn.textContent = "⏸ Pause";
+        runStep();
+      }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+
+    playAnimation();
+  </script>
+</body>
+</html>

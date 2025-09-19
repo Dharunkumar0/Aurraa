@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Equivalent Fractions</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    text-align: center;
+    width: 95%;
+    max-width: 1000px;
+  }
+  h1 {
+    color: white;
+    text-shadow: 0 0 10px #60a5fa;
+    font-size: clamp(1.5rem, 2vw, 2.5rem);
+    margin-bottom: 10px;
+  }
+  svg {
+    width: 100%;
+    height: 60vh;
+  }
+  .caption {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    min-height: 50px;
+    font-size: 1.1rem;
+  }
+  .caption.show { opacity: 1; }
+  select, button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  select { background: #1e293b; color: white; }
+  button {
+    background: linear-gradient(135deg, #f59e0b, #3b82f6);
+    color: white;
+    box-shadow: 0px 0px 10px #3b82f6;
+  }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>➗ Equivalent Fractions</h1>
+  <label for="langSelect" style="color:white;">🌐 Language</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 500">
+    <defs>
+      <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </radialGradient>
+    </defs>
+
+    <g id="stars"></g>
+
+    <!-- Fraction 1 -->
+    <g id="frac1" opacity="0" transform="translate(300,250)">
+      <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#22d3ee" stroke-width="5"/>
+      <text x="0" y="-10" fill="white" font-size="28" text-anchor="middle">1</text>
+      <line x1="-60" y1="0" x2="60" y2="0" stroke="white" stroke-width="3"/>
+      <text x="0" y="40" fill="white" font-size="28" text-anchor="middle">2</text>
+      <text x="0" y="80" fill="#facc15" font-size="18" text-anchor="middle">1/2</text>
+    </g>
+
+    <!-- Fraction 2 (Equivalent) -->
+    <g id="frac2" opacity="0" transform="translate(700,250)">
+      <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#f87171" stroke-width="5"/>
+      <text x="0" y="-10" fill="white" font-size="28" text-anchor="middle">2</text>
+      <line x1="-60" y1="0" x2="60" y2="0" stroke="white" stroke-width="3"/>
+      <text x="0" y="40" fill="white" font-size="28" text-anchor="middle">4</text>
+      <text x="0" y="80" fill="#facc15" font-size="18" text-anchor="middle">2/4</text>
+    </g>
+  </svg>
+
+  <div id="caption" class="caption"></div>
+  <div class="controls">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+  </div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Let's learn about equivalent fractions.",
+    "A fraction represents a part of a whole.",
+    "1/2 and 2/4 are equivalent fractions because they represent the same part.",
+    "We can multiply or divide numerator and denominator by same number to get equivalent fractions."
+  ],
+  hi: [
+    "आइए समकक्ष भिन्नों के बारे में जानें।",
+    "एक भिन्न पूरे का एक भाग दर्शाता है।",
+    "1/2 और 2/4 समकक्ष भिन्न हैं क्योंकि ये समान भाग दर्शाते हैं।",
+    "भिन्नों के अंश और हर को समान संख्या से गुणा या भाग करके समकक्ष भिन्न प्राप्त किए जा सकते हैं।"
+  ],
+  ta: [
+    "சமமான பிரித்திகளை கற்போம்.",
+    "ஒரு பிரிவு முழு ஒன்றின் ஒரு பகுதியாக இருக்கும்.",
+    "1/2 மற்றும் 2/4 சமமான பிரித்திகள், ஏனெனில் அவை ஒரே பகுதியைக் குறிக்கும்.",
+    "அஞ்சு மற்றும் ஹரை ஒரே எண்ணால் பெருக்கி அல்லது பகுத்து சமமான பிரித்திகளை பெறலாம்."
+  ],
+  te: [
+    "సమానమైన భిన్నాలను నేర్చుకుందాం.",
+    "భిన్నం ఒక పూర్తి భాగాన్ని సూచిస్తుంది.",
+    "1/2 మరియు 2/4 సమాన భిన్నాలు ఎందుకంటే అవి అదే భాగాన్ని సూచిస్తాయి.",
+    "అంశం మరియు హరాన్ని ఒకే సంఖ్యతో గుణించడం లేదా భాగించడం ద్వారా సమాన భిన్నాలను పొందవచ్చు."
+  ],
+  or: [
+    "ସମାନ ଭିନ୍ନ ବିଷୟରେ ସିଖିବା।",
+    "ଭିନ୍ନ ପୂର୍ଣ୍ଣର ଏକ ଭାଗକୁ ପ୍ରତିନିଧିତ୍ୱ କରେ।",
+    "1/2 ଏବଂ 2/4 ସମାନ ଭିନ୍ନ, କାରଣ ଏହା ସମାନ ଭାଗକୁ ପ୍ରତିନିଧିତ୍ୱ କରେ।",
+    "ଅଂଶ ଏବଂ ହରକୁ ସମାନ ସଂଖ୍ୟାରେ ଗୁଣ କିମ୍ବା ଭାଗ କରି ସମାନ ଭିନ୍ନ ପାଇଁ ଯାଇପାରିବ।"
+  ]
+};
+
+const langMap = {en:'en-US', hi:'hi-IN', ta:'ta-IN', te:'te-IN', or:'or-IN'};
+const captionEl = document.getElementById("caption");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+let timeline, paused = false;
+
+// Stars background
+const starGroup = document.getElementById("stars");
+for (let i=0;i<80;i++){
+  const star = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  star.setAttribute("cx",Math.random()*1000);
+  star.setAttribute("cy",Math.random()*500);
+  star.setAttribute("r",Math.random()*2);
+  star.setAttribute("fill","white");
+  starGroup.appendChild(star);
+}
+
+function highlightShape(shapeId){
+  gsap.to(shapeId, {strokeWidth:10, duration:0.5, repeat:1, yoyo:true, stroke:"#ffffff"});
+}
+
+function speak(text, lang){
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showCaption(text){
+  captionEl.textContent = text;
+  captionEl.classList.add("show");
+}
+
+function playAnimation(){
+  if(timeline) timeline.kill();
+  captionEl.textContent = "";
+  captionEl.classList.remove("show");
+  gsap.set(["#frac1","#frac2"],{opacity:0, scale:0, strokeWidth:5});
+
+  let currentLang = langSelect.value;
+  let steps = captions[currentLang];
+
+  timeline = gsap.timeline({paused:false});
+  timeline.add(()=>{showCaption(steps[0]); speak(steps[0], langMap[currentLang]);}, "+=0.5");
+  timeline.to("#frac1",{opacity:1, scale:1, duration:1, onStart:()=>{showCaption(steps[1]); speak(steps[1], langMap[currentLang]); highlightShape("#frac1");}}, "+=2");
+  timeline.to("#frac2",{opacity:1, scale:1, duration:1, onStart:()=>{showCaption(steps[2]); speak(steps[2], langMap[currentLang]); highlightShape("#frac2");}}, "+=4");
+  timeline.add(()=>{showCaption(steps[3]); speak(steps[3], langMap[currentLang]);}, "+=2");
+}
+
+pauseBtn.addEventListener("click", ()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+  if(paused){ timeline.pause(); window.speechSynthesis.cancel(); }
+  else{ timeline.resume(); }
+});
+
+playBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", playAnimation);
+</script>
+</body>
+</html>

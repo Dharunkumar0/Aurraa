@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reflection Symmetry - Space Theme</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0a0f2c, #000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      width: 95%;
+      max-width: 1000px;
+      padding: 16px;
+      text-align: center;
+      color: white;
+    }
+    svg { width: 100%; height: auto; }
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #fff;
+    }
+    select, button {
+      margin: 8px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select { background: #1b1b1b; color: #fff; border: 1px solid #555; }
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+
+    .star {
+      fill: white;
+      opacity: 0.6;
+      filter: drop-shadow(0 0 3px white);
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+    @media(max-width:600px){
+      .caption { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reflection Symmetry</h2>
+    <h3>Explore symmetric objects</h3>
+
+    <label for="langSelect">🌐 Language:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 1000 450" preserveAspectRatio="xMidYMid meet">
+      <!-- Starry background -->
+      <g id="stars">
+        <circle class="star" cx="50" cy="50" r="1.5"/>
+        <circle class="star" cx="200" cy="90" r="2"/>
+        <circle class="star" cx="400" cy="40" r="1.8"/>
+        <circle class="star" cx="600" cy="100" r="2.2"/>
+        <circle class="star" cx="800" cy="60" r="1.5"/>
+        <circle class="star" cx="120" cy="320" r="1.8"/>
+        <circle class="star" cx="360" cy="300" r="1.5"/>
+        <circle class="star" cx="700" cy="320" r="1.7"/>
+        <circle class="star" cx="850" cy="250" r="2"/>
+        <circle class="star" cx="450" cy="350" r="1.4"/>
+      </g>
+
+      <!-- Symmetric objects -->
+      <g id="square" opacity="0">
+        <rect x="100" y="150" width="100" height="100" fill="url(#gradSquare)" stroke="white" stroke-width="2"/>
+        <line x1="150" y1="150" x2="150" y2="250" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <g id="letterA" opacity="0">
+        <text x="250" y="220" font-size="100" font-weight="bold" fill="url(#gradA)">A</text>
+        <line x1="300" y1="150" x2="300" y2="250" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <g id="butterfly" opacity="0">
+        <path d="M450 180 Q420 140 450 100 Q480 140 450 180 M450 180 Q420 220 450 260 Q480 220 450 180" 
+              stroke="white" stroke-width="2" fill="url(#gradButterfly)"/>
+        <line x1="450" y1="90" x2="450" y2="270" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <g id="heart" opacity="0">
+        <path d="M550 180 
+                 C550 140, 600 140, 600 180 
+                 C600 220, 550 260, 550 300 
+                 C550 260, 500 220, 500 180 
+                 C500 140, 550 140, 550 180" 
+              fill="url(#gradHeart)" stroke="white" stroke-width="2"/>
+        <line x1="550" y1="130" x2="550" y2="310" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <g id="letterM" opacity="0">
+        <text x="650" y="220" font-size="100" font-weight="bold" fill="url(#gradM)">M</text>
+        <line x1="700" y1="150" x2="700" y2="250" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <g id="diamond" opacity="0">
+        <polygon points="800,180 850,230 800,280 750,230" fill="url(#gradDiamond)" stroke="white" stroke-width="2"/>
+        <line x1="800" y1="180" x2="800" y2="280" stroke="yellow" stroke-width="3"/>
+      </g>
+
+      <defs>
+        <linearGradient id="gradSquare" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#42a5f5"/>
+          <stop offset="100%" stop-color="#1e88e5"/>
+        </linearGradient>
+        <linearGradient id="gradA" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ab47bc"/>
+          <stop offset="100%" stop-color="#6a1b9a"/>
+        </linearGradient>
+        <linearGradient id="gradButterfly" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f06292"/>
+          <stop offset="100%" stop-color="#ec407a"/>
+        </linearGradient>
+        <linearGradient id="gradHeart" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff5252"/>
+          <stop offset="100%" stop-color="#ff1744"/>
+        </linearGradient>
+        <linearGradient id="gradM" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffb74d"/>
+          <stop offset="100%" stop-color="#f57c00"/>
+        </linearGradient>
+        <linearGradient id="gradDiamond" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4db6ac"/>
+          <stop offset="100%" stop-color="#00897b"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div id="caption" class="caption">Let's explore reflection symmetry!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Let's learn about reflection symmetry!",
+        "This square has a vertical line of symmetry.",
+        "The letter A also has vertical symmetry.",
+        "Even a butterfly shows reflection symmetry in nature!",
+        "A heart shape also has a vertical line of symmetry.",
+        "The letter M has vertical symmetry as well.",
+        "A diamond shape has both vertical and horizontal symmetry."
+      ],
+      hi: [
+        "आइए प्रतिबिंब सममिति के बारे में जानें!",
+        "इस वर्ग में एक ऊर्ध्वाधर सममिति रेखा है।",
+        "अक्षर A में भी ऊर्ध्वाधर सममिति है।",
+        "प्रकृति में भी तितली में प्रतिबिंब सममिति होती है!",
+        "एक दिल का आकार भी ऊर्ध्वाधर सममिति दिखाता है।",
+        "अक्षर M में भी ऊर्ध्वाधर सममिति है।",
+        "एक हीरा आकार में ऊर्ध्वाधर और क्षैतिज सममिति होती है।"
+      ],
+      ta: [
+        "அதிர்ச்சிப் சமச்சீரைப் பற்றி கற்போம்!",
+        "இந்த சதுரத்திற்கு ஒரு செங்குத்து சமச்சீர் கோடு உள்ளது.",
+        "A எழுத்துக்கும் செங்குத்து சமச்சீர் உள்ளது.",
+        "இயற்கையிலும் பட்டாம்பூச்சி பக்கசமச்சீர் காட்டுகிறது!",
+        "ஒரு இதயம் வடிவமும் செங்குத்து சமச்சீர் கொண்டது.",
+        "M எழுத்துக்கும் செங்குத்து சமச்சீர் உள்ளது.",
+        "ஒரு வைரம் வடிவத்திற்கு செங்குத்து மற்றும் கிடைமட்ட சமச்சீர் இரண்டும் உள்ளன."
+      ],
+      te: [
+        "ప్రతిబింబ సమమితి గురించి తెలుసుకుందాం!",
+        "ఈ చదరంలో నిలువు సమమితి రేఖ ఉంది.",
+        "A అక్షరానికి కూడా నిలువు సమమితి ఉంది.",
+        "ప్రకృతిలో కూడా సీతాకోకచిలుక ప్రతిబింబ సమమితి చూపిస్తుంది!",
+        "గుండె ఆకారం కూడా నిలువు సమమితి కలిగి ఉంటుంది.",
+        "M అక్షరానికి కూడా నిలువు సమమితి ఉంది.",
+        "వజ్రం ఆకారం వద్దు నిలువు మరియు అడ్డం సమమితి ఉంది."
+      ],
+      or: [
+        "ପ୍ରତିବିମ୍ବ ସମମିତି ବିଷୟରେ ଶିଖିବା!",
+        "ଏହି ଚତୁରସ୍ରରେ ଏକ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ରେଖା ଅଛି।",
+        "A ଅକ୍ଷରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଅଛି।",
+        "ପ୍ରକୃତିରେ ମଧ୍ୟ, ପ୍ରଜାପତିରେ ପ୍ରତିବିମ୍ବ ସମମିତି ଥାଏ!",
+        "ହୃଦୟ ଆକାରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ଥାଏ।",
+        "M ଅକ୍ଷରରେ ମଧ୍ୟ ଉର୍ଦ୍ଧ୍ୱ ସମମିତି ରହିଛି।",
+        "ବଜ୍ର ଆକାରରେ ଉର୍ଦ୍ଧ୍ୱ ଏବଂ ଅନୁଲମ୍ବ ସମମିତି ଥାଏ।"
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (stepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][stepIndex];
+
+      const objects = ["#square","#letterA","#butterfly","#heart","#letterM","#diamond"];
+      if(stepIndex > 0 && stepIndex <= objects.length){
+        gsap.to(objects[stepIndex-1], {duration: 1, opacity: 1});
+      }
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      stepIndex = 0;
+      gsap.set(["#square","#letterA","#butterfly","#heart","#letterM","#diamond"], {opacity: 0});
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) { paused = true; window.speechSynthesis.cancel(); pauseBtn.textContent = "▶ Play"; }
+      else { paused = false; pauseBtn.textContent = "⏸ Pause"; runStep(); }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][stepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+  </script>
+</body>
+</html>

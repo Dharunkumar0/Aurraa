@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Grade - AURRAA</title>
+    <link rel="stylesheet" href="grade-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Background Icons -->
+    <div class="floating-icons">
+        <div class="floating-icon book-icon">📚</div>
+        <div class="floating-icon pencil-icon">✏️</div>
+        <div class="floating-icon star-icon">⭐</div>
+        <div class="floating-icon rocket-icon">🚀</div>
+        <div class="floating-icon brain-icon">🧠</div>
+        <div class="floating-icon trophy-icon">🏆</div>
+    </div>
+
+    <div class="grade-container">
+        <!-- Header -->
+        <header class="grade-header">
+            <div class="logo">
+                <h1>AURRAA</h1>
+            </div>
+        </header>
+
+    <!-- Navigation Bar removed -->
+
+        <!-- Main -->
+        <main class="grade-main">
+            <div class="grade-card">
+                <div class="grade-header-text">
+                    <h2>Select Your Grade</h2>
+                    <p>Pick your grade to start playing, learning and earning badges!</p>
+                </div>
+
+                <div class="grade-grid">
+                    <a href="scert-grade6.html"
+                    <button class="grade-btn grade-6" data-grade="6">
+                        <span class="grade-icon">🎒</span>
+                        <span class="grade-label">Grade 6</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                </a>
+                    <button class="grade-btn grade-7" data-grade="7">
+                        <span class="grade-icon">🎒</span>
+                        <span class="grade-label">Grade 7</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                    <button class="grade-btn grade-8" data-grade="8">
+                        <span class="grade-icon">🎒</span>
+                        <span class="grade-label">Grade 8</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                    <button class="grade-btn grade-9" data-grade="9">
+                        <span class="grade-icon">📘</span>
+                        <span class="grade-label">Grade 9</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                    <button class="grade-btn grade-10" data-grade="10">
+                        <span class="grade-icon">📘</span>
+                        <span class="grade-label">Grade 10</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                    <button class="grade-btn grade-11" data-grade="11">
+                        <span class="grade-icon">🎓</span>
+                        <span class="grade-label">Grade 11</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                    <button class="grade-btn grade-12" data-grade="12">
+                        <span class="grade-icon">🎓</span>
+                        <span class="grade-label">Grade 12</span>
+                        <span class="btn-shine"></span>
+                    </button>
+                </div>
+
+                <div class="grade-footer-actions">
+                    <a class="back-link" href="signup.html">← Back to Sign Up</a>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="grade-footer">
+            <p>&copy; 2024 AURRAA. Making learning fun and engaging!</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.grade-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const grade = btn.dataset.grade;
+                    btn.classList.add('clicked');
+                    setTimeout(() => btn.classList.remove('clicked'), 200);
+                    alert(`You selected Grade ${grade}! Redirecting to your dashboard...`);
+                    // window.location.href = `dashboard.html?grade=${grade}`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

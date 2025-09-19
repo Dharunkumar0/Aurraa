@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Diversity in Plants and Animals (Animated)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #a1ffce, #faffd1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.card {
+  position: relative;
+  overflow: hidden;
+  background: #f0fff3;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 950px;
+  padding: 20px;
+  text-align: center;
+}
+svg.background-shapes {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+svg.foreground {
+  width: 100%;
+  height: 300px;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  background: rgba(0,0,0,0.05);
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: inline-block;
+  color: #222;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s;
+}
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#playPauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn:hover { background: #ff5722; }
+#playPauseBtn:hover { background: #2e7d32; }
+select { background: #2196F3; color: #fff; }
+.emoji { text-anchor: middle; dominant-baseline: middle; font-size: 60px; }
+.label { font-weight: bold; font-size: 16px; fill: #111; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🌍 Chapter 2: Diversity in the Living World</h2>
+  <h3>Plants and Animals Around Us</h3>
+
+  <!-- Background shapes -->
+  <svg class="background-shapes">
+    <circle cx="50" cy="50" r="20" fill="#FFEB3B" opacity="0.6"/>
+    <circle cx="300" cy="80" r="25" fill="#FF5722" opacity="0.5"/>
+    <rect x="600" y="30" width="40" height="40" fill="#03A9F4" opacity="0.5"/>
+    <polygon points="150,200 170,240 130,240" fill="#4CAF50" opacity="0.5"/>
+    <circle cx="800" cy="150" r="30" fill="#E91E63" opacity="0.4"/>
+  </svg>
+
+  <!-- Foreground emojis -->
+  <svg class="foreground" viewBox="0 0 900 300">
+    <g id="plant1"><text x="150" y="80" class="emoji">🌳</text><text class="label" x="150" y="140">Tree</text></g>
+    <g id="plant2"><text x="350" y="80" class="emoji">🌿</text><text class="label" x="350" y="140">Shrub</text></g>
+    <g id="animal1"><text x="550" y="80" class="emoji">🐯</text><text class="label" x="550" y="140">Tiger</text></g>
+    <g id="animal2"><text x="750" y="80" class="emoji">🐟</text><text class="label" x="750" y="140">Fish</text></g>
+  </svg>
+
+  <div id="caption" class="caption">
+    Let’s explore the diversity in plants and animals around us!
+  </div>
+
+  <div>
+    <select id="languageSelect" aria-label="Select language">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="kn">ಕನ್ನಡ (Kannada)</option>
+    </select>
+    <button id="playPauseBtn">▶ Play</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+</div>
+
+<script>
+const caption = document.getElementById("caption");
+const playPauseBtn = document.getElementById("playPauseBtn");
+const replayBtn = document.getElementById("replayBtn");
+const languageSelect = document.getElementById("languageSelect");
+
+let voices = [];
+let stepIndex = 0;
+let playing = false;
+let currentUtterance = null;
+let currentLang = languageSelect.value;
+
+const captions = {
+  en: [
+    "Let’s explore the diversity in plants and animals around us!",
+    "Plants vary greatly: tall trees like banyan 🌳, small shrubs 🌿, and herbs 🌱.",
+    "Animals are diverse too: powerful tigers 🐯, tiny ants 🐜, birds 🦜, and fish 🐟.",
+    "Each organism is adapted to its environment, like fish swimming in water 🌊.",
+    "Together, plants and animals maintain balance in ecosystems 🌍."
+  ],
+  hi: [
+    "आइए हम अपने चारों ओर पौधों और जानवरों की विविधता को समझें!",
+    "पौधे कई रूपों में होते हैं: बड़े वृक्ष 🌳, छोटे झाड़ियाँ 🌿 और जड़ी-बूटियाँ 🌱।",
+    "जानवर भी विविध हैं: बाघ 🐯, चींटियाँ 🐜, पक्षी 🦜 और मछलियाँ 🐟।",
+    "हर जीव अपने वातावरण के अनुसार ढला हुआ है, जैसे मछली पानी में तैरती है 🌊।",
+    "मिलकर पौधे और जानवर पारिस्थितिकी तंत्र में संतुलन बनाए रखते हैं 🌍।"
+  ],
+  ta: [
+    "நம் சுற்றியுள்ள தாவரங்கள் மற்றும் விலங்குகளின் பல்வகைத்தன்மையை அறிந்து கொள்வோம்!",
+    "மரங்கள் 🌳, புதர்கள் 🌿, மூலிகைகள் 🌱 என தாவரங்கள் பல வகை உள்ளன.",
+    "விலங்குகளும் பல்வேறு: புலி 🐯, எறும்பு 🐜, பறவைகள் 🦜, மீன் 🐟.",
+    "ஒவ்வொரு உயிரினமும் அதன் சூழலுக்கு ஏற்ப தன்னை மாற்றிக் கொள்கிறது. மீன்கள் நீரில் நீந்துகின்றன 🌊.",
+    "தாவரங்களும் விலங்குகளும் சேர்ந்து சுற்றுச்சூழலில் சமநிலையைப் பேணுகின்றன 🌍."
+  ],
+  kn: [
+    "ನಮ್ಮ ಸುತ್ತಲಿರುವ ಸಸ್ಯ ಮತ್ತು ಪ್ರಾಣಿಗಳ ವೈವಿಧ್ಯತೆಯನ್ನು ತಿಳಿಯೋಣ!",
+    "ಮರಗಳು 🌳, ಗಿಡಗಳು 🌿, ಔಷಧಿ ಸಸ್ಯಗಳು 🌱 ಇತ್ಯಾದಿ ಸಸ್ಯಗಳು ಇವೆ.",
+    "ಪ್ರಾಣಿಗಳೂ ವೈವಿಧ್ಯಮಯ: ಹುಲಿ 🐯, ಇರುವೆ 🐜, ಹಕ್ಕಿಗಳು 🦜, ಮೀನುಗಳು 🐟.",
+    "ಪ್ರತಿ ಜೀವಿಯೂ ತನ್ನ ಪರಿಸರಕ್ಕೆ ಹೊಂದಿಕೊಳ್ಳುತ್ತದೆ. ಮೀನುಗಳು ನೀರಿನಲ್ಲಿ ಈಜುತ್ತವೆ 🌊.",
+    "ಸಸ್ಯಗಳು ಮತ್ತು ಪ್ರಾಣಿಗಳು ಸೇರಿ ಪರಿಸರದಲ್ಲಿ ಸಮತೋಲನವನ್ನು ಕಾಯ್ದುಕೊಳ್ಳುತ್ತವೆ 🌍."
+  ]
+};
+
+// Load voices
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function getVoice(langCode) {
+  return voices.find(v => v.lang.toLowerCase().startsWith(langCode)) ||
+         voices.find(v => v.lang.toLowerCase().startsWith("en")) || null;
+}
+
+function resetPositions() {
+  gsap.set("#plant1, #plant2, #animal1, #animal2", {x:0, y:0, scale:1});
+}
+
+function animateStep(index) {
+  switch(index){
+    case 0: gsap.fromTo(["#plant1","#plant2","#animal1","#animal2"], {scale:0.7},{scale:1,duration:0.8,stagger:0.2, ease:"back.out(1.5)"}); break;
+    case 1: gsap.to("#plant1",{y:20,scale:1.1,duration:0.9, ease:"elastic.out(1,0.3)"}); break;
+    case 2: gsap.to("#animal1",{y:20,scale:1.1,duration:0.9, ease:"elastic.out(1,0.3)"}); break;
+    case 3: gsap.to(["#plant2","#animal2"],{y:25,scale:1.05,stagger:0.2,duration:0.9, ease:"elastic.out(1,0.3)"}); break;
+    case 4: gsap.to(["#plant1","#plant2","#animal1","#animal2"],{y:120,duration:1,stagger:0.2, ease:"power1.inOut"}); break;
+  }
+}
+
+function speakAndAnimate(text, index) {
+  if(!playing) return;
+  caption.textContent = text;
+  animateStep(index);
+
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  const voice = getVoice(currentLang);
+  if(voice) currentUtterance.voice = voice;
+  currentUtterance.lang = voice?.lang || "en";
+
+  currentUtterance.onend = () => {
+    stepIndex++;
+    if(stepIndex < captions[currentLang].length && playing) {
+      speakAndAnimate(captions[currentLang][stepIndex], stepIndex);
+    } else {
+      replayBtn.style.display = "inline-block";
+      playPauseBtn.textContent = "▶ Play";
+      playing = false;
+    }
+  };
+  speechSynthesis.speak(currentUtterance);
+}
+
+function runAnimation() {
+  stepIndex = 0;
+  resetPositions();
+  replayBtn.style.display = "none";
+  speakAndAnimate(captions[currentLang][0], 0);
+}
+
+// Play/Pause button
+playPauseBtn.addEventListener("click", () => {
+  if(!playing){
+    playing = true;
+    playPauseBtn.textContent = "⏸ Pause";
+    runAnimation();
+  } else {
+    playing = false;
+    playPauseBtn.textContent = "▶ Play";
+    speechSynthesis.cancel();
+  }
+});
+
+// Replay
+replayBtn.addEventListener("click", runAnimation);
+
+// Language selection
+languageSelect.addEventListener("change", () => {
+  currentLang = languageSelect.value;
+  if(playing){
+    speechSynthesis.cancel();
+    runAnimation();
+  }
+});
+
+// Background animation
+gsap.to(".background-shapes circle, .background-shapes rect, .background-shapes polygon", {
+  x: 50,
+  rotation: 20,
+  scale:1.2,
+  yoyo:true,
+  repeat:-1,
+  duration:6,
+  ease:"sine.inOut",
+  stagger:0.5
+});
+</script>
+</body>
+</html>

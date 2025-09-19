@@ -1,0 +1,11 @@
+:root{--badge-bronze:#b87333;--badge-silver:#c0c0c0;--badge-gold:#d4af37;--badge-size:56px}
+/* badge container */
+.aurraa-badge{position:fixed;top:18px;right:18px;width:var(--badge-size);height:var(--badge-size);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,0.25);z-index:9999;transition:transform .18s ease,background-color .2s ease}
+.aurraa-badge:hover{transform:translateY(-3px)}
+.aurraa-badge .count{font-family:Inter,system-ui,Segoe UI,Roboto,Poppins,sans-serif;font-weight:700;color:#111;font-size:14px}
+.aurraa-badge.bronze{background:var(--badge-bronze);color:white}
+.aurraa-badge.silver{background:linear-gradient(180deg, #f8f9fb 0%, var(--badge-silver) 100%);color:#111}
+.aurraa-badge.gold{background:linear-gradient(180deg,#fff8e6 0%,var(--badge-gold) 100%);color:#111}
+/* small ribbon label for new unlocked */
+.aurraa-badge .label{position:absolute;bottom:-10px;right:-10px;background:rgba(255,255,255,0.9);color:#111;padding:4px 6px;border-radius:10px;font-size:11px;font-weight:600;box-shadow:0 3px 6px rgba(0,0,0,0.12)}
+@media(max-width:520px){:root{--badge-size:48px}.aurraa-badge{top:12px;right:12px}}

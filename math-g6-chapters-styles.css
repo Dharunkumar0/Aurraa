@@ -1,0 +1,306 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(165deg, #4b6cb7 0%, #182848 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Animated Background */
+.bg-elements {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 0;
+    /* prevent emoji/cloud layers from intercepting clicks */
+    pointer-events: none;
+}
+
+.cloud {
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.6;
+    animation: floatCloud 20s linear infinite;
+}
+
+.cloud-1 { top: 20%; animation-delay: 0s; }
+.cloud-2 { top: 40%; animation-delay: -7s; }
+.cloud-3 { top: 60%; animation-delay: -14s; }
+
+.star {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0.8;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+.star-1 { top: 15%; left: 85%; animation-delay: 0s; }
+.star-2 { top: 45%; left: 15%; animation-delay: -1s; }
+.star-3 { top: 75%; left: 75%; animation-delay: -2s; }
+
+@keyframes floatCloud {
+    from { left: -10%; }
+    to { left: 110%; }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Game Container */
+.game-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Ensure chapter map and island content render above background and are clickable */
+.chapter-map {
+    position: relative;
+    z-index: 2;
+}
+
+.island-content {
+    display: block; /* allow anchors to behave like full cards */
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header Styles */
+.game-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeInDown 1s ease-out;
+}
+
+.game-header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 0.5rem;
+}
+
+.game-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Chapter Map */
+.chapter-map {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    align-items: center;
+}
+
+/* Chapter Islands */
+.chapter-island {
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    transition: transform 0.3s ease-out;
+}
+
+.island-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.chapter-island:not(.unlocked) .island-content {
+    filter: grayscale(0.8) brightness(0.7);
+}
+
+.chapter-island.unlocked .island-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    cursor: pointer;
+}
+
+.chapter-island.current .island-content {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.island-content:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Chapter Content Styles */
+.island-content h3 {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+.island-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress and Lock Icons */
+.progress-badge, .lock-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.progress-badge {
+    animation: bounce 2s infinite;
+}
+
+.island-decoration {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    opacity: 0.8;
+    transform: rotate(-15deg);
+}
+
+/* Path Connectors */
+.path-connector {
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    width: 4px;
+    height: 2rem;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+    transform: translateX(-50%);
+}
+
+/* Back Button */
+.back-button {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-container {
+        padding: 1rem;
+    }
+
+    .game-header h1 {
+        font-size: 2rem;
+    }
+
+    .game-header p {
+        font-size: 1rem;
+    }
+
+    .chapter-island {
+        max-width: 100%;
+    }
+
+    .island-content {
+        padding: 1.5rem;
+    }
+
+    .island-content h2 {
+        font-size: 1.2rem;
+    }
+
+    .back-button {
+        bottom: 1rem;
+        left: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* Click Animation */
+.chapter-island.unlocked:active .island-content {
+    transform: scale(0.98);
+}
+
+/* Zoom Animation for Chapter Selection */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.chapter-island {
+    animation: zoomIn 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+.chapter-island:nth-child(1) { animation-delay: 0.1s; }
+.chapter-island:nth-child(2) { animation-delay: 0.2s; }
+.chapter-island:nth-child(3) { animation-delay: 0.3s; }
+.chapter-island:nth-child(4) { animation-delay: 0.4s; }
+.chapter-island:nth-child(5) { animation-delay: 0.5s; }
+.chapter-island:nth-child(6) { animation-delay: 0.6s; }
+.chapter-island:nth-child(7) { animation-delay: 0.7s; }
+.chapter-island:nth-child(8) { animation-delay: 0.8s; }
+.chapter-island:nth-child(9) { animation-delay: 0.9s; }
+.chapter-island:nth-child(10) { animation-delay: 1s; }
+.chapter-island:nth-child(11) { animation-delay: 1.1s; }
+.chapter-island:nth-child(12) { animation-delay: 1.2s; }
+.chapter-island:nth-child(13) { animation-delay: 1.3s; }
+.chapter-island:nth-child(14) { animation-delay: 1.4s; }

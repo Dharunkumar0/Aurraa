@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURRAA - Gamified Learning Engine</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<link rel="stylesheet" href="badge.css">
+    <!-- Header / Hero -->
+    <header class="hero-section">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <h1 class="brand">AURRAA</h1>
+                <p class="subtitle">Gamified Learning Engine</p>
+                <p class="description">Master STEM subjects through interactive animations, engaging mini-games, and hands-on learning. Perfect for grades 6–12, designed to make learning physics, chemistry, math, and biology fun and effective.</p>
+                <div class="hero-buttons">
+                    <button class="btn primary start-learning" id="go-student"><span class="play-icon">▶</span> Start Learning</button>
+                    <button class="btn ghost teacher-view" id="go-teacher">Teacher View</button>
+                </div>
+                <div class="feature-bullets">
+                    <div class="bullet"><span class="bullet-icon">▷</span><div><strong>Interactive SVG Animations</strong><p>Visual learning with real-time physics simulations</p></div></div>
+                    <div class="bullet"><span class="bullet-icon">🏆</span><div><strong>Gamified Progress</strong><p>Earn points, badges, and level up</p></div></div>
+                    <div class="bullet"><span class="bullet-icon">👩‍🏫</span><div><strong>Teacher Dashboard</strong><p>Track student progress and performance</p></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom-right toast like the screenshot -->
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Subjects Section -->
+        <section class="subjects-section">
+            <h2>Choose Your Subject</h2>
+            <p>Explore STEM subjects through interactive animations, engaging quizzes, and hands-on simulations</p>
+        </section>
+    </main>
+
+    <script>
+    (function(){
+        var closeBtn = document.querySelector('.toast-close');
+        var laterBtn = document.querySelector('[data-toast-later]');
+        function hideToast(){
+            var toast = document.querySelector('.install-toast');
+            if(toast){ toast.classList.add('hidden'); }
+        }
+        if(closeBtn){ closeBtn.addEventListener('click', hideToast); }
+        if(laterBtn){ laterBtn.addEventListener('click', hideToast); }
+    })();
+    </script>
+    <script src="teacher-auth.js"></script>
+    <script src="student-auth.js"></script>
+    <script src="badge.js"></script>
+</body>
+</html>

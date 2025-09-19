@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AURRAA</title>
+            <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <!-- Tailwind Play CDN for quick styling (no build) -->
+            <script src="https://cdn.tailwindcss.com"></script>
+            <script>
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            fontFamily: {
+                                fredoka: ['"Fredoka One"', 'cursive'],
+                                poppins: ['Poppins', 'sans-serif']
+                            }
+                        }
+                    }
+                }
+            </script>
+            <style>
+                /* small custom animations */
+                @keyframes floaty { 0% { transform: translateY(0) } 50% { transform: translateY(-10px) } 100% { transform: translateY(0) } }
+                .floaty { animation: floaty 4s ease-in-out infinite; }
+                .icon-fade { animation: floaty 3.6s ease-in-out infinite; }
+            </style>
+  <link rel="stylesheet" href="badge.css">
+</head>
+<body>
+        <main class="signup-container">
+            <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-pink-50 to-yellow-50 flex items-center justify-center p-6">
+                <div class="relative max-w-5xl w-full grid md:grid-cols-2 gap-6 items-center">
+                    <!-- Hero / left -->
+                    <div class="space-y-6 px-6 md:px-12">
+                        <h1 class="text-4xl md:text-5xl font-fredoka text-indigo-700">Welcome Back to AURRAA 🎉</h1>
+                        <p class="text-lg text-gray-700">Make learning fun, colourful and rewarding. Create your account and choose your syllabus to get started!</p>
+
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">📚 Read & Learn</span>
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow icon-fade">🎮 Games & Practice</span>
+                            <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">🏆 Earn Badges</span>
+                        </div>
+
+                        <div class="mt-6 text-sm text-gray-600">Already a teacher? <a href="teacher-login.html" class="text-indigo-600 font-semibold">Sign in here</a></div>
+
+                        <!-- floating decorative icons -->
+                        <div class="absolute -left-6 -top-6 w-40 h-40 opacity-90 select-none pointer-events-none">
+                            <div class="text-5xl">🚀</div>
+                        </div>
+                    </div>
+
+                    <!-- Login card / right -->
+                    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-2xl font-semibold">Login to Your Account</h2>
+                            </div>
+                            <div class="text-3xl">✨</div>
+                        </div>
+
+                        <form class="login-form space-y-4">
+                            <div class="grid grid-cols-1 gap-3">
+                                <label class="block text-sm text-gray-600">Institution
+                                    <input required id="institution" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your school or institution">
+                                </label>
+
+                                <label class="block text-sm text-gray-600">Username or Email
+                                    <input required id="username" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Enter username or email">
+                                </label>
+
+                                <label class="block text-sm text-gray-600">Password
+                                    <input required id="password" type="password" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Enter your password">
+                                </label>
+
+                                <div class="flex items-center justify-between text-sm">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="remember-me" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <span class="ml-2 text-gray-600">Remember me</span>
+                                    </label>
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-800" id="forgot-password">Forgot password?</a>
+                                </div>
+                            </div>
+
+                            <div class="error-message text-sm text-red-600 bg-red-50 p-3 rounded-lg" style="display:none"></div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-semibold py-3 rounded-xl shadow hover:scale-[1.01] transform transition flex items-center justify-center">
+                                    <span>Login</span>
+                                    <span class="loading-spinner ml-2 hidden">
+                                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-6">
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-300"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-white/80 text-gray-500">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 grid grid-cols-2 gap-3">
+                                <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                                    <span class="ml-2">Google</span>
+                                </button>
+                                <button type="button" id="guest-login" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                                    </svg>
+                                    <span class="ml-2">Guest</span>
+                                </button>
+                            </div>
+                        </div>
+
+                                                <p class="mt-4 text-center text-sm text-gray-600">Don't have an account? <a href="signup.html" class="text-indigo-600 font-semibold">Sign up</a></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Firebase helpers (attaches window.AURRAA) -->
+        <script type="module" src="firebase.js"></script>
+        <script src="student-auth.js"></script>
+        <script src="login-handler.js"></script>
+        <script src="badge.js"></script>
+</body>
+</html>

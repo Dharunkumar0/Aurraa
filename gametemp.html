@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Line Race</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+            color: white;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 48px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #b21f1f;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 22px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #b21f1f;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .game-area {
+            position: relative;
+            height: 300px;
+            margin: 30px 0;
+            background: linear-gradient(to bottom, #2b5876, #4e4376);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        #number-line-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .challenge-container {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .challenge-text {
+            font-size: 24px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 10px;
+        }
+        
+        .challenge-number {
+            font-size: 32px;
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: #1a2a6c;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #1a2a6c;
+        }
+        
+        .instructions p {
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        
+        .keyboard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .key {
+            background: linear-gradient(135deg, #434343, #000000);
+            color: #FFD700;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #FFD700;
+        }
+        
+        .feedback {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .feedback.correct {
+            color: #43cea2;
+        }
+        
+        .feedback.incorrect {
+            color: #ff6b6b;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .game-over.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over h2 {
+            font-size: 60px;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0 #b21f1f;
+            margin-bottom: 20px;
+        }
+        
+        .game-over p {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 36px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .game-area {
+                height: 250px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1 class="title">NUMBER LINE RACE</h1>
+            <p class="subtitle">Drive to the correct number on the line!</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">SCORE</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">LEVEL</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="lives">3</div>
+                <div class="stat-label">LIVES</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <p>Convert the Indian number to International system and drive your car to the correct position!</p>
+            <p>Example: 1 crore 20 lakh → 12,000,000</p>
+            <div class="keyboard-controls">
+                <div class="key">←</div>
+                <div class="key">→</div>
+                <div class="key">Space</div>
+            </div>
+        </div>
+        
+        <div class="challenge-container">
+            <div class="challenge-text">Find the International equivalent of:</div>
+            <div class="challenge-number" id="challenge-number">1 crore 20 lakh</div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="number-line-canvas"></canvas>
+            <div class="game-over" id="game-over">
+                <h2>GAME OVER</h2>
+                <p>Your final score: <span id="final-score">0</span></p>
+                <p>You reached level: <span id="final-level">1</span></p>
+                <button id="restart-btn"><i class="fas fa-redo"></i> Play Again</button>
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="controls">
+            <button id="start-btn"><i class="fas fa-play"></i> Start Game</button>
+            <button id="hint-btn"><i class="fas fa-lightbulb"></i> Show Hint</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let currentChallenge = "";
+        let targetPosition = 0;
+        let carPosition = 0;
+        let numberLineMin = 0;
+        let numberLineMax = 20000000;
+        let isGameActive = false;
+        let carVelocity = 0;
+        let canvas, ctx;
+        let animationId;
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const livesElement = document.getElementById('lives');
+        const challengeNumberElement = document.getElementById('challenge-number');
+        const feedbackElement = document.getElementById('feedback');
+        const startButton = document.getElementById('start-btn');
+        const hintButton = document.getElementById('hint-btn');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalLevelElement = document.getElementById('final-level');
+        const restartButton = document.getElementById('restart-btn');
+        
+        // Initialize the game
+        function initGame() {
+            // Initialize game state
+            score = 0;
+            level = 1;
+            lives = 3;
+            isGameActive = true;
+            numberLineMax = 20000000;
+            
+            // Set up canvas
+            canvas = document.getElementById('number-line-canvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            
+            updateUI();
+            generateChallenge();
+            drawNumberLine();
+            
+            // Hide game over screen
+            gameOverScreen.classList.remove('active');
+            
+            // Start game loop
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            gameLoop();
+        }
+        
+        // Generate a random challenge
+        function generateChallenge() {
+            // Different difficulty based on level
+            let numberValue;
+            
+            if (level === 1) {
+                // Easy: lakhs only
+                const lakhs = Math.floor(Math.random() * 90) + 10; // 10-99 lakh
+                numberValue = lakhs * 100000;
+                currentChallenge = `${lakhs} lakh`;
+            } else {
+                // Medium: crores and lakhs
+                const crores = Math.floor(Math.random() * 9) + 1; // 1-9 crore
+                const lakhs = Math.floor(Math.random() * 100); // 0-99 lakh
+                numberValue = crores * 10000000 + lakhs * 100000;
+                currentChallenge = `${crores} crore ${lakhs} lakh`;
+            }
+            
+            targetPosition = numberValue;
+            challengeNumberElement.textContent = currentChallenge;
+            
+            // Reset car position to a random starting point
+            carPosition = Math.random() * (numberLineMax - numberLineMin) + numberLineMin;
+        }
+        
+        // Draw the number line
+        function drawNumberLine() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const lineY = height * 0.7;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw background
+            ctx.fillStyle = '#2b5876';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw road
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(0, lineY - 10, width, 20);
+            
+            // Draw road markings
+            ctx.fillStyle = '#FFFFFF';
+            for (let i = 0; i < width; i += 30) {
+                ctx.fillRect(i, lineY, 15, 3);
+            }
+            
+            // Draw number line ticks and labels
+            const scale = width / (numberLineMax - numberLineMin);
+            const tickInterval = (numberLineMax - numberLineMin) / 10;
+            
+            for (let i = 0; i <= 10; i++) {
+                const value = numberLineMin + i * tickInterval;
+                const x = i * (width / 10);
+                
+                // Draw tick
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, lineY - 15);
+                ctx.lineTo(x, lineY + 15);
+                ctx.stroke();
+                
+                // Draw label
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(formatInternationalSystem(value), x, lineY + 30);
+            }
+            
+            // Draw target marker
+            const targetX = (targetPosition - numberLineMin) * scale;
+            ctx.fillStyle = '#43cea2';
+            ctx.beginPath();
+            ctx.arc(targetX, lineY - 25, 10, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw target value
+            ctx.fillStyle = '#43cea2';
+            ctx.font = '14px Arial';
+            ctx.fillText(formatInternationalSystem(targetPosition), targetX, lineY - 40);
+            
+            // Draw car
+            const carX = (carPosition - numberLineMin) * scale;
+            drawCar(carX, lineY);
+            
+            // Draw car position value
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '14px Arial';
+            ctx.fillText(formatInternationalSystem(Math.round(carPosition)), carX, lineY - 60);
+        }
+        
+        // Draw the car
+        function drawCar(x, y) {
+            // Car body
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(x - 20, y - 15, 40, 10);
+            
+            // Car top
+            ctx.fillStyle = '#FF3333';
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y - 15);
+            ctx.lineTo(x - 5, y - 25);
+            ctx.lineTo(x + 15, y - 25);
+            ctx.lineTo(x + 15, y - 15);
+            ctx.fill();
+            
+            // Wheels
+            ctx.fillStyle = '#333333';
+            ctx.beginPath();
+            ctx.arc(x - 10, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 10, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Headlights
+            ctx.fillStyle = '#FFFF00';
+            ctx.beginPath();
+            ctx.arc(x - 18, y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 18, y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Format number in International system
+        function formatInternationalSystem(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Check if the car is at the correct position
+        function checkPosition() {
+            const tolerance = (numberLineMax - numberLineMin) * 0.02; // 2% tolerance
+            const isCorrect = Math.abs(carPosition - targetPosition) < tolerance;
+            
+            if (isCorrect) {
+                // Correct position
+                score += level * 50;
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Correct! +' + (level * 50) + ' points 🎉';
+                feedbackElement.className = 'feedback correct';
+                feedbackElement.style.opacity = '1';
+                
+                // Level up after 3 correct answers
+                if (score >= level * 150) {
+                    levelUp();
+                } else {
+                    // Generate new challenge after a delay
+                    setTimeout(() => {
+                        if (isGameActive) {
+                            generateChallenge();
+                            feedbackElement.style.opacity = '0';
+                        }
+                    }, 2000);
+                }
+            } else {
+                // Incorrect position
+                lives--;
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Wrong position! Try again. 😢';
+                feedbackElement.className = 'feedback incorrect';
+                feedbackElement.style.opacity = '1';
+                
+                // Game over if no lives left
+                if (lives <= 0) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Level up function
+        function levelUp() {
+            level++;
+            
+            // Visual feedback
+            feedbackElement.textContent = 'Level ' + level + '! Numbers get larger!';
+            feedbackElement.className = 'feedback correct';
+            feedbackElement.style.opacity = '1';
+            
+            // Increase number range
+            numberLineMax = level * 20000000;
+            
+            updateUI();
+            
+            // Generate new challenge after a delay
+            setTimeout(() => {
+                if (isGameActive) {
+                    generateChallenge();
+                    feedbackElement.style.opacity = '0';
+                }
+            }, 2000);
+        }
+        
+        // Game over function
+        function gameOver() {
+            isGameActive = false;
+            
+            // Show game over screen
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = level;
+            gameOverScreen.classList.add('active');
+        }
+        
+        // Update the UI elements
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            livesElement.textContent = lives;
+        }
+        
+        // Show hint to the player
+        function showHint() {
+            if (!isGameActive) return;
+            
+            // Visual feedback
+            feedbackElement.textContent = 'Target: ' + formatInternationalSystem(targetPosition);
+            feedbackElement.className = 'feedback correct';
+            feedbackElement.style.opacity = '1';
+            
+            // Hide hint after a delay
+            setTimeout(() => {
+                feedbackElement.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (!isGameActive) return;
+                
+                if (e.key === 'ArrowLeft') {
+                    carVelocity = -1;
+                } else if (e.key === 'ArrowRight') {
+                    carVelocity = 1;
+                } else if (e.key === ' ') {
+                    checkPosition();
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    carVelocity = 0;
+                }
+            });
+            
+            // Button controls
+            startButton.addEventListener('click', initGame);
+            hintButton.addEventListener('click', showHint);
+            restartButton.addEventListener('click', initGame);
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (isGameActive) {
+                // Update car position
+                const carSpeed = carVelocity * (numberLineMax - numberLineMin) * 0.01;
+                carPosition += carSpeed;
+                
+                // Keep car within bounds
+                carPosition = Math.max(numberLineMin, Math.min(numberLineMax, carPosition));
+                
+                // Redraw number line
+                drawNumberLine();
+            }
+            
+            // Continue game loop
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Resize canvas when window resizes
+        function resizeCanvas() {
+            if (canvas) {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawNumberLine();
+            }
+        }
+        
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            // Set up canvas
+            canvas = document.getElementById('number-line-canvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            
+            // Draw initial number line
+            drawNumberLine();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>

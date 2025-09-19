@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Basic Geometrical Ideas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    text-align: center;
+    width: 95%;
+    max-width: 1000px;
+  }
+  h1 {
+    color: white;
+    text-shadow: 0 0 10px #60a5fa;
+    font-size: clamp(1.4rem, 2vw, 2.2rem);
+    margin-bottom: 10px;
+  }
+  svg {
+    width: 100%;
+    height: 60vh;
+  }
+  .caption {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    min-height: 40px;
+  }
+  .caption.show { opacity: 1; }
+  select, button {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  select { background: #1e293b; color: white; }
+  button {
+    background: linear-gradient(135deg, #f59e0b, #3b82f6);
+    color: white;
+    box-shadow: 0px 0px 10px #3b82f6;
+  }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📏 Basic Geometrical Ideas</h1>
+  <label for="langSelect" style="color:white;">🌐 Language</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 500">
+    <defs>
+      <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </radialGradient>
+    </defs>
+
+    <g id="stars"></g>
+
+    <!-- Point -->
+    <circle id="point" cx="500" cy="250" r="8" fill="url(#grad)" opacity="0"/>
+    
+    <!-- Line -->
+    <line id="line" x1="200" y1="150" x2="800" y2="150" stroke="url(#grad)" stroke-width="4" opacity="0"/>
+    
+    <!-- Line Segment -->
+    <line id="segment" x1="300" y1="250" x2="700" y2="250" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" opacity="0"/>
+    
+    <!-- Ray -->
+    <line id="ray" x1="400" y1="350" x2="800" y2="350" stroke="#facc15" stroke-width="5" stroke-linecap="round" opacity="0"/>
+    <circle id="rayStart" cx="400" cy="350" r="7" fill="#facc15" opacity="0"/>
+  </svg>
+
+  <div id="caption" class="caption"></div>
+  <div class="controls">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+  </div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Let's learn the basic geometrical ideas one by one.",
+    "A point shows an exact location . Here is a point.",
+    "A line has no end points and extends infinitely in both directions.",
+    "A line segment has two fixed end points. It is part of a line.",
+    "A ray has one fixed starting point and goes infinitely in one direction."
+  ],
+  hi: [
+    "आइए एक-एक करके मूलभूत ज्यामितीय विचार सीखें।",
+    "एक बिंदु किसी स्थान को दर्शाता है। यहाँ एक बिंदु है।",
+    "रेखा के कोई छोर नहीं होते, यह दोनों दिशाओं में अनंत तक जाती है।",
+    "रेखाखंड के दो छोर होते हैं। यह रेखा का हिस्सा है।",
+    "किरण का एक प्रारंभिक बिंदु होता है और यह एक दिशा में अनंत तक जाती है।"
+  ],
+  ta: [
+    "அடிப்படை வடிவியல் கருத்துகளை ஒன்று ஒன்றாக கற்போம்.",
+    "ஒரு புள்ளி சரியான இடத்தை குறிக்கிறது. இது ஒரு புள்ளி.",
+    "ஒரு கோடு இரு திசைகளிலும் முடிவில்லாமல் நீள்கிறது.",
+    "கோடு துண்டிற்கு இரண்டு முனைகள் உள்ளன. இது கோட்டின் ஒரு பகுதி.",
+    "ஒரு கதிருக்கு ஒரு தொடக்க புள்ளி உள்ளது மற்றும் ஒரு திசையில் முடிவில்லாமல் நீள்கிறது."
+  ],
+  te: [
+    "మనం ప్రాథమిక గణిత ఆలోచనలను ఒక్కొక్కటిగా నేర్చుకుందాం.",
+    "బిందువు ఒక ఖచ్చితమైన స్థలాన్ని సూచిస్తుంది. ఇది ఒక బిందువు.",
+    "గీతకు చివరలు ఉండవు, అది రెండు దిశల్లో అనంతంగా సాగుతుంది.",
+    "గీత భాగానికి రెండు చివరలు ఉంటాయి. ఇది గీతలో భాగం.",
+    "కిరణానికి ఒక ప్రారంభ బిందువు ఉంటుంది మరియు అది ఒక దిశలో అనంతంగా సాగుతుంది."
+  ],
+  or: [
+    "ଆସନ୍ତୁ ଆମେ ମୂଳ ଜ୍ୟାମିତିକ ଧାରଣାଗୁଡିକୁ ଏକେକରେ ସିଖିବା।",
+    "ଏକ ବିନ୍ଦୁ ଠିକ୍ ଏକଟି ସ୍ଥାନକୁ ଦର୍ଶାଏ। ଏହା ହେଉଛି ଏକ ବିନ୍ଦୁ।",
+    "ଏକ ରେଖାର କୌଣସି ଶେଷବିନ୍ଦୁ ନଥାଏ, ଏହା ଦୁଇଦିଗରେ ଅସୀମ ପର୍ଯ୍ୟନ୍ତ ଯାଏ।",
+    "ଏକ ରେଖାଖଣ୍ଡର ଦୁଇଟି ଶେଷବିନ୍ଦୁ ଥାଏ। ଏହା ରେଖାର ଏକ ଅଂଶ।",
+    "ଏକ କିରଣର ଏକ ଆରମ୍ଭ ବିନ୍ଦୁ ଥାଏ ଏବଂ ଏହା ଗୋଟିଏ ଦିଗରେ ଅସୀମ ପର୍ଯ୍ୟନ୍ତ ଯାଏ।"
+  ]
+};
+
+const langMap = {en:'en-US', hi:'hi-IN', ta:'ta-IN', te:'te-IN', or:'or-IN'};
+const captionEl = document.getElementById("caption");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+let timeline, paused = false;
+
+// Create Stars Background
+const starGroup = document.getElementById("stars");
+for (let i = 0; i < 70; i++) {
+  const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  star.setAttribute("cx", Math.random() * 1000);
+  star.setAttribute("cy", Math.random() * 500);
+  star.setAttribute("r", Math.random() * 2);
+  star.setAttribute("fill", "white");
+  starGroup.appendChild(star);
+}
+
+function speak(text, lang) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showCaption(text) {
+  captionEl.textContent = text;
+  captionEl.classList.add("show");
+}
+
+function playAnimation() {
+  if (timeline) timeline.kill();
+  captionEl.textContent = "";
+  captionEl.classList.remove("show");
+  gsap.set(["#point","#line","#segment","#ray","#rayStart"], {opacity:0, scale:0});
+
+  let currentLang = langSelect.value;
+  let steps = captions[currentLang];
+
+  timeline = gsap.timeline({paused:false});
+  timeline.add(()=>{showCaption(steps[0]); speak(steps[0], langMap[currentLang]);}, "+=0.5");
+  timeline.to("#point",{opacity:1, scale:1, duration:0.8, ease:"back.out(1.7)", onStart:()=>{showCaption(steps[1]); speak(steps[1], langMap[currentLang]);}}, "+=2");
+  timeline.to("#line",{opacity:1, scale:1, duration:0.8, onStart:()=>{showCaption(steps[2]); speak(steps[2], langMap[currentLang]);}}, "+=2");
+  timeline.to("#segment",{opacity:1, scale:1, duration:0.8, onStart:()=>{showCaption(steps[3]); speak(steps[3], langMap[currentLang]);}}, "+=2");
+  timeline.to(["#ray","#rayStart"],{opacity:1, scale:1, duration:0.8, onStart:()=>{showCaption(steps[4]); speak(steps[4], langMap[currentLang]);}}, "+=2");
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+  if (paused) { timeline.pause(); window.speechSynthesis.cancel(); }
+  else { timeline.resume(); }
+});
+
+playBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", playAnimation);
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics Chapters - AURRAA</title>
+    <link rel="stylesheet" href="math-chapters-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-elements">
+        <div class="cloud cloud-1">☁️</div>
+        <div class="cloud cloud-2">☁️</div>
+        <div class="cloud cloud-3">☁️</div>
+        <div class="star star-1">⭐</div>
+        <div class="star star-2">⭐</div>
+        <div class="star star-3">⭐</div>
+    </div>
+
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <h1>Grade 6 – Mathematics Adventure</h1>
+            <p>Begin your magical journey through numbers and shapes!</p>
+        </header>
+
+    <!-- Navigation Bar removed per request -->
+
+        <!-- Chapter Map -->
+        <div class="chapter-map">
+            <!-- Chapter Islands -->
+            <div class="chapter-island unlocked current">
+                <a href="chapter1-numbers.html" class="island-content">
+                    <div class="progress-badge">🌟</div>
+                    <h3>Chapter 1</h3>
+                    <h2>Knowing Our Numbers</h2>
+                    <div class="island-decoration">🔢</div>
+                </a>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island unlocked">
+                <div class="island-content">
+                    <div class="progress-badge">⭐</div>
+                    <h3>Chapter 2</h3>
+                    <h2>Whole Numbers</h2>
+                    <div class="island-decoration">💯</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 3</h3>
+                    <h2>Playing with Numbers</h2>
+                    <div class="island-decoration">🎲</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 4</h3>
+                    <h2>Basic Geometrical Ideas</h2>
+                    <div class="island-decoration">📐</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 5</h3>
+                    <h2>Understanding Elementary Shapes</h2>
+                    <div class="island-decoration">⭕</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 6</h3>
+                    <h2>Integers</h2>
+                    <div class="island-decoration">➕</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 7</h3>
+                    <h2>Fractions</h2>
+                    <div class="island-decoration">🥧</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 8</h3>
+                    <h2>Decimals</h2>
+                    <div class="island-decoration">💰</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 9</h3>
+                    <h2>Data Handling</h2>
+                    <div class="island-decoration">📊</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 10</h3>
+                    <h2>Mensuration</h2>
+                    <div class="island-decoration">📏</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 11</h3>
+                    <h2>Algebra</h2>
+                    <div class="island-decoration">✖️</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 12</h3>
+                    <h2>Ratio and Proportion</h2>
+                    <div class="island-decoration">⚖️</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 13</h3>
+                    <h2>Symmetry</h2>
+                    <div class="island-decoration">🦋</div>
+                </div>
+                <div class="path-connector"></div>
+            </div>
+
+            <div class="chapter-island">
+                <div class="island-content">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Chapter 14</h3>
+                    <h2>Practical Geometry</h2>
+                    <div class="island-decoration">📝</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Menu Button -->
+        <a href="ncert-grade6.html" class="back-button">
+            <span>⬅️</span> Back to Subjects
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Galactic Numbers Quest 2.0</title>
+<style>
+:root {
+    --primary1: #00f5d4;
+    --primary2: #00bbf9;
+    --accent: #ff00d4;
+    --bg-dark: #040214;
+    --glass: rgba(255, 255, 255, 0.03);
+    --xp-glow: #ffd60a;
+    --correct: #00f5d4;
+    --incorrect: #ff4d6d;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: #e6f7ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    justify-content: center;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--xp-glow); }
+  50% { box-shadow: 0 0 20px var(--xp-glow), 0 0 30px var(--xp-glow); }
+  100% { box-shadow: 0 0 5px var(--xp-glow); }
+}
+
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.container {
+    z-index: 3;
+    width: 90%;
+    max-width: 900px;
+    margin: 2vh auto;
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.78), rgba(10, 10, 20, 0.58));
+    border-radius: 18px;
+    padding: clamp(1rem, 4vw, 1.75rem);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px) saturate(140%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 30% 20%, var(--primary1), var(--primary2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #021;
+    transform: rotate(-6deg);
+    flex-shrink: 0;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+h1 {
+    font-size: clamp(1.2rem, 5vw, 1.45rem);
+    margin: 0;
+    color: transparent;
+    background: linear-gradient(90deg, var(--primary1), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.xp {
+    font-weight: 800;
+    color: var(--xp-glow);
+    text-shadow: 0 0 8px var(--xp-glow);
+    transition: transform 0.3s ease;
+}
+.xp.updated {
+    transform: scale(1.1);
+}
+
+.xp small {
+    display: block;
+    font-weight: 600;
+    color: #bcd;
+    font-size: 0.78rem;
+    opacity: 0.9;
+}
+
+.progress-wrap {
+    width: 86px;
+    height: 86px;
+    position: relative;
+    flex-shrink: 0;
+}
+.progress-wrap .progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #dff;
+    transition: color 0.3s ease;
+}
+#progressCircle {
+    transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.game-panel {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 420px;
+    position: relative;
+    justify-content: center;
+}
+.menu, .stage {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.level-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.level-btn {
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(0, 255, 218, 0.08), rgba(0, 170, 255, 0.06));
+    color: #e9fbff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 170, 255, 0.06);
+    border: 0.5px solid rgba(255, 255, 255, 0.04);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.level-btn:hover, .level-btn:focus {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 28px 60px rgba(0, 170, 255, 0.12);
+    outline: none;
+}
+
+.stage {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: inset 0 -10px 40px rgba(0, 0, 0, 0.45);
+    min-height: 300px;
+}
+
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+.level-title { font-size: 1.05rem; font-weight: 800; color: #dff; }
+.question-counter { font-size: 0.9rem; color: #bcd; }
+
+#centerStage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 250px;
+    transition: opacity 0.4s ease;
+}
+.quest { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; text-align: center; color: #f3fbff; text-shadow: 0 4px 26px rgba(0, 255, 255, 0.03); animation: fadeIn 0.5s; }
+
+.controls { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+
+.action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, rgba(0, 245, 212, 0.12), rgba(0, 187, 249, 0.08));
+    color: #e6fbff;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0, 187, 249, 0.06);
+    transition: all 0.2s ease;
+}
+.action-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0, 187, 249, 0.1); }
+.action-btn:active:not(:disabled) { transform: translateY(-1px); }
+.action-btn:disabled { cursor: not-allowed; opacity: 0.5; transform: translateY(0); }
+.action-btn.check { background: linear-gradient(90deg, rgba(0, 245, 122, 0.15), rgba(0, 249, 142, 0.1)); }
+.action-btn.secondary { background: linear-gradient(90deg, rgba(255, 200, 40, 0.1), rgba(255, 120, 100, 0.08)); }
+.action-btn.highlight-hint {
+    animation: glow 1.5s infinite;
+}
+
+.feedback { min-height: 28px; font-weight: 800; font-size: 1.05rem; opacity: 0; transition: all 0.4s ease; transform: translateY(10px); }
+.feedback.visible { opacity: 1; transform: translateY(0); }
+.feedback.correct { color: var(--correct); text-shadow: 0 0 10px var(--correct); }
+.feedback.incorrect { color: var(--incorrect); text-shadow: 0 0 10px var(--incorrect); }
+
+.hint-box { margin-top: 8px; padding: 10px 12px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 10px; color: #bfe; font-style: italic; display: none; min-width: 40%; text-align: center; opacity: 0; transition: opacity 0.4s; }
+.hint-box.visible { display: block; opacity: 1; }
+
+/* --- INTERACTIVE GAME STYLES --- */
+.compare-game, .place-value-game, .rounding-game, .word-problem-game {
+    animation: popIn 0.5s ease-out;
+}
+
+/* Compare Game */
+.compare-game { display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 3vw, 1rem); flex-wrap: wrap; }
+.num-box { font-size: clamp(1.8rem, 8vw, 2.5rem); font-weight: 800; padding: clamp(1rem, 4vw, 1.5rem); background: var(--glass); border-radius: 12px; }
+.drop-zone { width: 80px; height: 80px; border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; transition: background 0.2s, transform 0.2s; }
+.drop-zone.over { background: rgba(0, 255, 218, 0.1); transform: scale(1.1); }
+.symbols { display: flex; gap: 1rem; margin-top: 1rem; }
+.symbol { width: 60px; height: 60px; background: #2a2a4a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: grab; user-select: none; transition: transform 0.2s, box-shadow 0.2s; }
+.symbol:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
+.symbol:active { cursor: grabbing; }
+
+.pv-number { font-size: clamp(2rem, 9vw, 3rem); letter-spacing: 0.2rem; font-weight: 800; padding: 1rem; background: var(--glass); border-radius: 12px; }
+.pv-inputs { display: flex; gap: clamp(0.5rem, 2vw, 1rem); flex-wrap: wrap; justify-content: center; }
+.pv-input-group { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.pv-input-group label { font-size: 0.8rem; text-transform: uppercase; color: #bcf; }
+.pv-input { width: 60px; padding: 0.8rem; font-size: 1.2rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; transition: border-color 0.3s, box-shadow 0.3s; }
+.pv-input:focus { border-color: var(--primary2); box-shadow: 0 0 10px var(--primary2); outline: none; }
+.pv-input.correct { border-color: var(--correct); }
+.pv-input.incorrect { border-color: var(--incorrect); }
+
+
+/* Rounding Game */
+.rounding-game { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; width: 80%; }
+.rounding-output { font-size: clamp(1.8rem, 8vw, 2.5rem); font-weight: 800; color: var(--primary1); transition: color 0.3s; }
+.slider-container { width: 100%; text-align: center; }
+.slider-labels { display: flex; justify-content: space-between; font-size: 0.9rem; color: #bcf; }
+input[type="range"] { appearance: none; -webkit-appearance: none; width: 100%; height: 8px; background: #334; border-radius: 5px; outline: none; margin: 10px 0; transition: box-shadow 0.2s; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary2); border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--primary2); }
+input[type="range"]:focus { box-shadow: 0 0 8px var(--primary1); }
+
+/* Word Problem Game */
+.word-problem-game { text-align: center; display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
+.wp-answer { width: 120px; padding: 0.8rem; font-size: 1.5rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; transition: border-color 0.3s, box-shadow 0.3s; }
+.wp-answer:focus { border-color: var(--primary2); box-shadow: 0 0 10px var(--primary2); outline: none; }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <div class="logo">GN</div>
+            <div><h1>Galactic Numbers Quest</h1></div>
+        </div>
+        <div class="status">
+            <div class="xp" id="xpDisplay">✨ XP: <span id="xpValue">0</span><small>Earn XP to level up</small></div>
+            <div class="progress-wrap">
+                <svg width="86" height="86" viewBox="0 0 100 100">
+                    <defs><linearGradient id="g1" x1="0%" x2="100%"><stop offset="0%" stop-color="#00f5d4"/><stop offset="100%" stop-color="#ff00d4"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="44" stroke="#111" stroke-width="10" fill="none"></circle>
+                    <circle id="progressCircle" cx="50" cy="50" r="44" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" transform="rotate(-90 50 50)"></circle>
+                </svg>
+                <div class="progress-text" id="progressPercent">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-panel" id="mainPanel">
+        <div id="menu" class="menu">
+            <div class="menu-title">Select difficulty — pick by confidence</div>
+            <div class="level-row">
+                <button class="level-btn" onclick="enterLevel('basic')">🟢 Basic</button>
+                <button class="level-btn" onclick="enterLevel('medium')">🟡 Medium</button>
+                <button class="level-btn" onclick="enterLevel('hard')">🟠 Hard</button>
+                <button class="level-btn" onclick="enterLevel('extreme')">🔴 Extreme</button>
+            </div>
+            <div style="margin-top:12px;font-size:0.82rem;color:#aac;opacity:0.9;text-align:center;">
+                Each level contains 4 topics with 5 interactive questions each. Earn <strong>+10 XP</strong> per correct answer.
+            </div>
+        </div>
+
+        <div id="stage" class="stage" style="display:none;">
+            <div class="level-header">
+                <div class="level-title" id="levelTitle">Level</div>
+                <div class="question-counter">Question <span id="qIndex">1</span> / <span id="qTotal">5</span></div>
+            </div>
+            <div id="centerStage"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="hint-box" id="hintBox" role="status" aria-live="polite"></div>
+            <div class="controls" id="controls">
+                <button class="action-btn secondary" onclick="backToMenu()">↩️ Menu</button>
+                <button id="hintBtn" class="action-btn" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn" onclick="skipQuestion()">Skip ➡️</button>
+                <button class="action-btn check" id="checkBtn" onclick="checkAnswer()">🚀 Check Answer</button>
+                <button class="action-btn" id="nextBtn" onclick="nextStep()" style="display:none;">Continue ➡️</button>
+            </div>
+            <div id="levelMessage" style="margin-top:8px;font-weight:800;color:#ffd; animation: fadeIn 1s;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Canvas Stars Animation =====
+const canvas = document.getElementById('bgCanvas'),
+    ctx = canvas.getContext('2d');
+let W = canvas.width = innerWidth,
+    H = canvas.height = innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; initStars(); });
+let stars = [];
+const STAR_COUNT_BASE = 80;
+function getStarCount() {
+    return Math.floor((W * H) / 40000) + STAR_COUNT_BASE;
+}
+let STAR_COUNT = getStarCount();
+
+function initStars() {
+    STAR_COUNT = getStarCount();
+    stars = [];
+    for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+            x: Math.random() * W, y: Math.random() * H,
+            r: Math.random() * 1.6 + 0.2, speed: (Math.random() * 0.4) + 0.08,
+            alpha: 0.15 + Math.random() * 0.85, tw: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+function drawStars() {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+        s.x += s.speed;
+        if (s.x > W) s.x = 0;
+        s.alpha += Math.sin(s.tw) * 0.012; s.tw += 0.02;
+        if(s.alpha < 0.1) s.alpha = 0.1; if(s.alpha > 1) s.alpha = 1;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 255, ${s.alpha})`; ctx.fill();
+    }
+}
+function animate() { drawStars(); requestAnimationFrame(animate); }
+initStars(); animate();
+
+// ===== Game State =====
+let gameState = {
+    currentLevel: "",
+    currentTopicIndex: 0,
+    questionIndex: 0,
+    xp: 0,
+    incorrectStreak: 0,
+    correctAnswers: 0
+};
+const topicList = ["Compare", "PlaceValue", "Rounding", "WordProblems"];
+let currentQuestions = [];
+const QUESTIONS_PER_TOPIC = 5;
+
+// Load saved game state
+function loadGameState() {
+    try {
+        const savedState = localStorage.getItem('galaxyNumbersGameState');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            // Merge to current state (only expected fields)
+            gameState = Object.assign(gameState, parsed);
+            // sanity checks
+            if (!topicList[gameState.currentTopicIndex]) gameState.currentTopicIndex = 0;
+            if (typeof gameState.questionIndex !== 'number') gameState.questionIndex = 0;
+            if (typeof gameState.xp !== 'number') gameState.xp = 0;
+            if (typeof gameState.correctAnswers !== 'number') gameState.correctAnswers = 0;
+        }
+    } catch (e) {
+        console.warn("Failed to load saved game state", e);
+    }
+    updateXP();
+    updateProgress();
+}
+
+// Save game state
+function saveGameState() {
+    try {
+        localStorage.setItem('galaxyNumbersGameState', JSON.stringify(gameState));
+    } catch (e) {
+        console.warn("Failed to save game state", e);
+    }
+}
+
+// ===== DOM Elements =====
+const dom = {
+    menu: document.getElementById('menu'), stage: document.getElementById('stage'),
+    levelTitle: document.getElementById('levelTitle'), qIndex: document.getElementById('qIndex'),
+    qTotal: document.getElementById('qTotal'), centerStage: document.getElementById('centerStage'),
+    feedback: document.getElementById('feedback'), hintBox: document.getElementById('hintBox'),
+    hintBtn: document.getElementById('hintBtn'),
+    checkBtn: document.getElementById('checkBtn'), nextBtn: document.getElementById('nextBtn'),
+    levelMessage: document.getElementById('levelMessage'), xpDisplay: document.getElementById('xpDisplay'),
+    xpValue: document.getElementById('xpValue'), progressCircle: document.getElementById('progressCircle'),
+    progressPercent: document.getElementById('progressPercent'), controls: document.getElementById('controls')
+};
+
+// ===== Utility Functions =====
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ===== Question Bank =====
+const questionBank = {
+    Compare: {
+        basic: [
+            { num1: 42, num2: 37, ans: '>', hint: "Compare the tens place first: 4 is greater than 3" },
+            { num1: 15, num2: 29, ans: '<', hint: "Compare the tens place: 1 is less than 2" },
+            { num1: 63, num2: 63, ans: '=', hint: "Both numbers are exactly the same" },
+            { num1: 88, num2: 79, ans: '>', hint: "Compare the tens place: 8 is greater than 7" },
+            { num1: 50, num2: 56, ans: '<', hint: "Tens are equal, compare ones: 0 is less than 6" }
+        ],
+        medium: [
+            { num1: 127, num2: 134, ans: '<', hint: "Compare hundreds first, then tens" },
+            { num1: 256, num2: 248, ans: '>', hint: "Hundreds are equal, compare tens: 5 > 4" },
+            { num1: 309, num2: 309, ans: '=', hint: "Both numbers are exactly the same" },
+            { num1: 415, num2: 425, ans: '<', hint: "Hundreds and tens equal, compare ones carefully" },
+            { num1: 672, num2: 628, ans: '>', hint: "Hundreds equal, compare tens: 7 > 2" }
+        ],
+        hard: [
+            { num1: 1245, num2: 1321, ans: '<', hint: "Compare thousands first: 1 = 1, then hundreds: 2 < 3" },
+            { num1: 3567, num2: 3498, ans: '>', hint: "Thousands equal, compare hundreds: 5 > 4" },
+            { num1: 4096, num2: 4096, ans: '=', hint: "Both numbers are exactly the same" },
+            { num1: 5823, num2: 5899, ans: '<', hint: "Thousands and hundreds equal, compare tens: 2 < 9" },
+            { num1: 7001, num2: 6999, ans: '>', hint: "Compare thousands: 7 > 6" }
+        ],
+        extreme: [
+            { num1: 12345, num2: 12444, ans: '<', hint: "Compare ten thousands, thousands, then hundreds" },
+            { num1: 25678, num2: 25499, ans: '>', hint: "Ten thousands and thousands equal, compare hundreds: 6 > 4" },
+            { num1: 38001, num2: 38001, ans: '=', hint: "Both numbers are exactly the same" },
+            { num1: 49235, num2: 49300, ans: '<', hint: "Compare digits left to right to find first difference" },
+            { num1: 56789, num2: 56788, ans: '>', hint: "All digits same except ones: 9 > 8" }
+        ]
+    },
+    PlaceValue: {
+        basic: [
+            { num: 42, breakdown: { tens: 4, ones: 2 }, hint: "4 tens and 2 ones make 42" },
+            { num: 17, breakdown: { tens: 1, ones: 7 }, hint: "1 ten and 7 ones make 17" },
+            { num: 95, breakdown: { tens: 9, ones: 5 }, hint: "9 tens and 5 ones make 95" },
+            { num: 63, breakdown: { tens: 6, ones: 3 }, hint: "6 tens and 3 ones make 63" },
+            { num: 30, breakdown: { tens: 3, ones: 0 }, hint: "3 tens and 0 ones make 30" }
+        ],
+        medium: [
+            { num: 127, breakdown: { hundreds: 1, tens: 2, ones: 7 }, hint: "1 hundred, 2 tens, and 7 ones make 127" },
+            { num: 304, breakdown: { hundreds: 3, tens: 0, ones: 4 }, hint: "3 hundreds, 0 tens, and 4 ones make 304" },
+            { num: 560, breakdown: { hundreds: 5, tens: 6, ones: 0 }, hint: "5 hundreds, 6 tens, and 0 ones make 560" },
+            { num: 489, breakdown: { hundreds: 4, tens: 8, ones: 9 }, hint: "4 hundreds, 8 tens, and 9 ones make 489" },
+            { num: 201, breakdown: { hundreds: 2, tens: 0, ones: 1 }, hint: "2 hundreds, 0 tens, and 1 one make 201" }
+        ],
+        hard: [
+            { num: 1245, breakdown: { thousands: 1, hundreds: 2, tens: 4, ones: 5 }, hint: "1 thousand, 2 hundreds, 4 tens, and 5 ones make 1245" },
+            { num: 3007, breakdown: { thousands: 3, hundreds: 0, tens: 0, ones: 7 }, hint: "3 thousands, 0 hundreds, 0 tens, and 7 ones make 3007" },
+            { num: 5820, breakdown: { thousands: 5, hundreds: 8, tens: 2, ones: 0 }, hint: "5 thousands, 8 hundreds, 2 tens, and 0 ones make 5820" },
+            { num: 4096, breakdown: { thousands: 4, hundreds: 0, tens: 9, ones: 6 }, hint: "4 thousands, 0 hundreds, 9 tens, and 6 ones make 4096" },
+            { num: 7503, breakdown: { thousands: 7, hundreds: 5, tens: 0, ones: 3 }, hint: "7 thousands, 5 hundreds, 0 tens, and 3 ones make 7503" }
+        ],
+        extreme: [
+            { num: 12345, breakdown: { tenThousands: 1, thousands: 2, hundreds: 3, tens: 4, ones: 5 }, hint: "1 ten-thousand, 2 thousands, 3 hundreds, 4 tens, and 5 ones make 12345" },
+            { num: 30789, breakdown: { tenThousands: 3, thousands: 0, hundreds: 7, tens: 8, ones: 9 }, hint: "3 ten-thousands, 0 thousands, 7 hundreds, 8 tens, and 9 ones make 30789" },
+            { num: 45000, breakdown: { tenThousands: 4, thousands: 5, hundreds: 0, tens: 0, ones: 0 }, hint: "4 ten-thousands, 5 thousands, 0 hundreds, 0 tens, and 0 ones make 45000" },
+            { num: 68214, breakdown: { tenThousands: 6, thousands: 8, hundreds: 2, tens: 1, ones: 4 }, hint: "6 ten-thousands, 8 thousands, 2 hundreds, 1 ten, and 4 ones make 68214" },
+            { num: 99999, breakdown: { tenThousands: 9, thousands: 9, hundreds: 9, tens: 9, ones: 9 }, hint: "9 ten-thousands, 9 thousands, 9 hundreds, 9 tens, and 9 ones make 99999" }
+        ]
+    },
+    Rounding: {
+        basic: [
+            { num: 37, roundTo: 10, ans: 40, min: 30, max: 50, hint: "Look at the ones digit: 7 is 5 or more, so round up" },
+            { num: 42, roundTo: 10, ans: 40, min: 30, max: 50, hint: "Look at the ones digit: 2 is less than 5, so round down" },
+            { num: 15, roundTo: 10, ans: 20, min: 10, max: 30, hint: "5 is exactly 5, so we round up" },
+            { num: 89, roundTo: 10, ans: 90, min: 80, max: 100, hint: "9 is greater than 5, so round up" },
+            { num: 63, roundTo: 10, ans: 60, min: 60, max: 70, hint: "3 is less than 5, so round down" }
+        ],
+        medium: [
+            { num: 127, roundTo: 100, ans: 100, min: 100, max: 200, hint: "Look at the tens digit: 2 is less than 5, so round down" },
+            { num: 156, roundTo: 100, ans: 200, min: 100, max: 200, hint: "Look at the tens digit: 5 is 5 or more, so round up" },
+            { num: 349, roundTo: 100, ans: 300, min: 300, max: 400, hint: "Look at the tens digit: 4 is less than 5, so round down" },
+            { num: 785, roundTo: 100, ans: 800, min: 700, max: 800, hint: "Look at the tens digit: 8 is greater than 5, so round up" },
+            { num: 950, roundTo: 100, ans: 1000, min: 900, max: 1000, hint: "Look at the tens digit: 5 is exactly 5, so round up" }
+        ],
+        hard: [
+            { num: 1245, roundTo: 100, ans: 1200, min: 1200, max: 1300, hint: "Look at the tens digit: 4 is less than 5, so round down" },
+            { num: 1378, roundTo: 100, ans: 1400, min: 1300, max: 1400, hint: "Look at the tens digit: 7 is greater than 5, so round up" },
+            { num: 2650, roundTo: 100, ans: 2700, min: 2600, max: 2700, hint: "Look at the tens digit: 5 is exactly 5, so round up" },
+            { num: 3499, roundTo: 100, ans: 3500, min: 3400, max: 3500, hint: "Look at the tens digit: 9 is greater than 5, so round up" },
+            { num: 4823, roundTo: 100, ans: 4800, min: 4800, max: 4900, hint: "Look at the tens digit: 2 is less than 5, so round down" }
+        ],
+        extreme: [
+            { num: 12345, roundTo: 1000, ans: 12000, min: 12000, max: 13000, hint: "Look at the hundreds digit: 3 is less than 5, so round down" },
+            { num: 15789, roundTo: 1000, ans: 16000, min: 15000, max: 16000, hint: "Look at the hundreds digit: 7 is greater than 5, so round up" },
+            { num: 28500, roundTo: 1000, ans: 29000, min: 28000, max: 29000, hint: "Look at the hundreds digit: 5 is exactly 5, so round up" },
+            { num: 34999, roundTo: 1000, ans: 35000, min: 34000, max: 35000, hint: "Look at the hundreds digit: 9 is greater than 5, so round up" },
+            { num: 47234, roundTo: 1000, ans: 47000, min: 47000, max: 48000, hint: "Look at the hundreds digit: 2 is less than 5, so round down" }
+        ]
+    },
+    WordProblems: {
+        basic: [
+            { q: "A spaceship has 3 cabins, and each cabin can hold 5 astronauts. How many astronauts can the spaceship carry?", ans: 15, hint: "Multiply 3 cabins by 5 astronauts per cabin" },
+            { q: "If a robot can assemble 4 gadgets per hour, how many gadgets can it assemble in 6 hours?", ans: 24, hint: "Multiply 4 gadgets by 6 hours" },
+            { q: "There are 8 planets in our solar system. If a explorer visits 2 planets each month, how many months will it take to visit all planets?", ans: 4, hint: "Divide 8 planets by 2 planets per month" },
+            { q: "A crate contains 6 boxes of space rations. If each box has 7 meals, how many meals are in the crate?", ans: 42, hint: "Multiply 6 boxes by 7 meals per box" },
+            { q: "A moon base uses 9 solar panels each day. How many solar panels will they use in 5 days?", ans: 45, hint: "Multiply 9 solar panels by 5 days" }
+        ],
+        medium: [
+            { q: "A spaceship travels 125 km in one hour. How far will it travel in 8 hours?", ans: 1000, hint: "Multiply 125 km by 8 hours" },
+            { q: "There are 144 astronauts training at the space center. If they are divided into teams of 12, how many teams are there?", ans: 12, hint: "Divide 144 astronauts by 12 per team" },
+            { q: "A satellite orbits Earth 15 times per day. How many orbits will it complete in 30 days?", ans: 450, hint: "Multiply 15 orbits by 30 days" },
+            { q: "A space station has 7 modules, and each module has 16 computers. How many computers are in the space station?", ans: 112, hint: "Multiply 7 modules by 16 computers" },
+            { q: "A cargo ship delivers 25 boxes to each of 9 space stations. How many boxes does it deliver in total?", ans: 225, hint: "Multiply 25 boxes by 9 space stations" }
+        ],
+        hard: [
+            { q: "A Mars colony produces 325 units of oxygen per day. How much oxygen will be produced in 3 weeks?", ans: 6825, hint: "Multiply 325 units by 21 days (3 weeks)" },
+            { q: "A space telescope takes 48 photos per hour. How many photos will it take in 5 days?", ans: 5760, hint: "Multiply 48 photos by 24 hours, then by 5 days" },
+            { q: "A fleet of 12 spaceships each carry 45 passengers. How many passengers are in the fleet?", ans: 540, hint: "Multiply 12 spaceships by 45 passengers" },
+            { q: "A lunar base uses 275 liters of water per day. How much water will it use in 4 weeks?", ans: 7700, hint: "Multiply 275 liters by 28 days (4 weeks)" },
+            { q: "An asteroid mining operation extracts 150 kg of minerals per hour. How many kg will be extracted in 2 weeks of continuous operation?", ans: 50400, hint: "Multiply 150 kg by 24 hours, then by 14 days" }
+        ],
+        extreme: [
+            { q: "A interstellar probe travels at 12,500 km per hour. How far will it travel in 3 months (90 days)?", ans: 27000000, hint: "Multiply 12,500 km by 24 hours, then by 90 days" },
+            { q: "A space colony has a population of 12,800 people. If the population grows by 5% each year, what will the population be after 1 year?", ans: 13440, hint: "Calculate 12,800 + (12,800 × 0.05)" },
+            { q: "A spaceship carries 15 crates of supplies. Each crate contains 24 boxes, and each box contains 36 items. How many items does the spaceship carry?", ans: 12960, hint: "Multiply 15 crates by 24 boxes, then by 36 items" },
+            { q: "A space station orbits Earth 16 times per day. How many orbits will it complete in 5 years (1,825 days)?", ans: 29200, hint: "Multiply 16 orbits by 1,825 days" },
+            { q: "A lunar mining operation extracts 2,450 kg of minerals per day. How much will be extracted in 2 years (730 days)?", ans: 1788500, hint: "Multiply 2,450 kg by 730 days" }
+        ]
+    }
+};
+
+// ===== Game Flow =====
+function enterLevel(level) {
+    // Start new run for level: reset topic index & question index, keep persistent xp if desired.
+    gameState.currentLevel = level;
+    gameState.currentTopicIndex = 0;
+    gameState.questionIndex = 0;
+    gameState.incorrectStreak = 0;
+    gameState.correctAnswers = 0;
+    gameState.xp = 0; // original behavior reset XP per playthrough; keep if you want persistent XP remove this line
+    saveGameState();
+
+    updateXP();
+    updateProgress();
+    dom.menu.style.display = 'none';
+    dom.stage.style.display = 'flex';
+    dom.levelMessage.innerText = '';
+    prepareTopic();
+}
+
+function backToMenu() {
+    dom.stage.style.display = 'none';
+    dom.menu.style.display = 'block';
+    dom.levelMessage.innerText = '';
+    // save state so user can return later
+    saveGameState();
+}
+
+function prepareTopic() {
+    // Reset streak and hint highlight
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+
+    const currTopicKey = topicList[gameState.currentTopicIndex];
+    const lvl = gameState.currentLevel;
+    dom.levelTitle.innerText = `${lvl.toUpperCase()} - ${currTopicKey}`;
+    // Get questions for this topic and level (safe copy)
+    let topicQuestions = [];
+    if (questionBank[currTopicKey] && questionBank[currTopicKey][lvl]) {
+        topicQuestions = [...questionBank[currTopicKey][lvl]];
+    } else {
+        // fallback: no questions found
+        topicQuestions = [];
+    }
+
+    // Shuffle questions to ensure randomness
+    shuffleArray(topicQuestions);
+
+    // Select first QUESTIONS_PER_TOPIC
+    currentQuestions = topicQuestions.slice(0, QUESTIONS_PER_TOPIC);
+    gameState.questionIndex = 0;
+    saveGameState();
+    renderQuestion();
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function skipQuestion() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function nextStep() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function finishTopic() {
+    dom.levelMessage.innerText = `Topic Complete! ✨`;
+    dom.levelMessage.style.animation = 'pulse 1s';
+    // move to next topic or finish
+    if (gameState.currentTopicIndex < topicList.length - 1) {
+        gameState.currentTopicIndex++;
+        gameState.questionIndex = 0;
+        saveGameState();
+        setTimeout(() => {
+            dom.levelMessage.innerText = '';
+            prepareTopic();
+        }, 900);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    // Show final results
+    dom.centerStage.innerHTML = `<div class="quest">🚀 Mission Complete! 🚀</div><div style="font-size: 1.2rem; color: var(--xp-glow);">Total XP: ${gameState.xp}</div><div style="margin-top:10px;font-weight:700;color:#bdf;">Correct answers: ${gameState.correctAnswers} / ${topicList.length * QUESTIONS_PER_TOPIC}</div>`;
+    dom.levelMessage.innerText = `Great job! You've completed all topics for this level.`;
+    dom.controls.innerHTML = `<button class="action-btn" onclick="location.reload()">🎉 Play Again</button><button class="action-btn secondary" onclick="backToMenu()">↩️ Back to Menu</button>`;
+    // Save final state
+    saveGameState();
+}
+
+// ===== Rendering Interactive Questions =====
+function renderQuestion() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) {
+        dom.centerStage.innerHTML = `<div class="quest">No question available.</div>`;
+        return;
+    }
+
+    // type derivation
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase(); // 'compare', 'placevalue', 'rounding', 'wordproblems'
+    // convert to expected switch cases:
+    if (qtype === 'wordproblems') qtype = 'wordproblem';
+    if (qtype === 'placevalue') qtype = 'placevalue';
+    // UI transition
+    dom.centerStage.style.opacity = 0;
+    setTimeout(() => {
+        let html = '';
+        switch (qtype) {
+            case 'compare':
+                html = `<div class="quest">Drag or click the correct symbol:</div><div class="compare-game"><div class="num-box">${q.num1}</div><div id="dropZone" class="drop-zone" tabindex="0" aria-label="Drop zone">?</div><div class="num-box">${q.num2}</div></div><div class="symbols"><div class="symbol" tabindex="0" data-symbol="<">&lt;</div><div class="symbol" tabindex="0" data-symbol=">">&gt;</div><div class="symbol" tabindex="0" data-symbol="=">=</div></div>`;
+                break;
+            case 'placevalue':
+                const breakdown = q.breakdown || {};
+                const lvl = gameState.currentLevel;
+                // Build inputs depending on level
+                if (lvl === 'extreme') {
+                    html = `<div class="quest">Build the number ${q.num}:</div><div class="place-value-game"><div class="pv-inputs">
+                        <div class="pv-input-group"><input type="number" id="tenThousands" class="pv-input" placeholder="0"><label>Ten-Thousands</label></div>
+                        <div class="pv-input-group"><input type="number" id="thousands" class="pv-input" placeholder="0"><label>Thousands</label></div>
+                        <div class="pv-input-group"><input type="number" id="hundreds" class="pv-input" placeholder="0"><label>Hundreds</label></div>
+                        <div class="pv-input-group"><input type="number" id="tens" class="pv-input" placeholder="0"><label>Tens</label></div>
+                        <div class="pv-input-group"><input type="number" id="ones" class="pv-input" placeholder="0"><label>Ones</label></div>
+                    </div></div>`;
+                } else if (lvl === 'hard') {
+                    html = `<div class="quest">Build the number ${q.num}:</div><div class="place-value-game"><div class="pv-inputs">
+                        <div class="pv-input-group"><input type="number" id="thousands" class="pv-input" placeholder="0"><label>Thousands</label></div>
+                        <div class="pv-input-group"><input type="number" id="hundreds" class="pv-input" placeholder="0"><label>Hundreds</label></div>
+                        <div class="pv-input-group"><input type="number" id="tens" class="pv-input" placeholder="0"><label>Tens</label></div>
+                        <div class="pv-input-group"><input type="number" id="ones" class="pv-input" placeholder="0"><label>Ones</label></div>
+                    </div></div>`;
+                } else if (lvl === 'medium') {
+                    html = `<div class="quest">Build the number ${q.num}:</div><div class="place-value-game"><div class="pv-inputs">
+                        <div class="pv-input-group"><input type="number" id="hundreds" class="pv-input" placeholder="0"><label>Hundreds</label></div>
+                        <div class="pv-input-group"><input type="number" id="tens" class="pv-input" placeholder="0"><label>Tens</label></div>
+                        <div class="pv-input-group"><input type="number" id="ones" class="pv-input" placeholder="0"><label>Ones</label></div>
+                    </div></div>`;
+                } else {
+                    html = `<div class="quest">Build the number ${q.num}:</div><div class="place-value-game"><div class="pv-inputs">
+                        <div class="pv-input-group"><input type="number" id="tens" class="pv-input" placeholder="0"><label>Tens</label></div>
+                        <div class="pv-input-group"><input type="number" id="ones" class="pv-input" placeholder="0"><label>Ones</label></div>
+                    </div></div>`;
+                }
+                break;
+            case 'rounding':
+                html = `<div class="quest">Round ${q.num} to the nearest ${q.roundTo}:</div><div class="rounding-game"><div id="roundingOutput" class="rounding-output">${q.min}</div><div class="slider-container"><input type="range" id="roundingSlider" min="${q.min}" max="${q.max}" value="${q.min}" step="${q.roundTo === 10 ? 5 : q.roundTo / 2}"><div class="slider-labels"><span>${q.min}</span><span>${q.max}</span></div></div></div>`;
+                break;
+            case 'wordproblem':
+            default:
+                // wordproblem
+                const prompt = q.q || q.question || "";
+                html = `<div class="word-problem-game"><div class="quest">${prompt}</div><input type="number" id="wpAnswer" class="wp-answer" placeholder="Answer" inputmode="numeric"></div>`;
+                break;
+        }
+
+        dom.centerStage.innerHTML = html;
+        attachEventListeners(qtype);
+        resetUIState();
+        dom.centerStage.style.opacity = 1;
+    }, 250);
+}
+
+function handleKeyboardNavigation(e, element) {
+    if ((e.key === 'Enter' || e.key === ' ') && element) {
+        e.preventDefault();
+        if (element.classList.contains('symbol')) {
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) dropZone.textContent = element.dataset.symbol;
+        } else if (element.id === 'dropZone') {
+            // if drop zone focused and user presses enter, toggles nothing - ignore
+        }
+    }
+}
+
+function attachEventListeners(type) {
+    // Accessible keyboard on symbol elements
+    document.querySelectorAll('.symbol').forEach(symbol => {
+        symbol.addEventListener('keydown', (e) => handleKeyboardNavigation(e, symbol));
+        // click for non-drag users
+        symbol.addEventListener('click', (e) => {
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) dropZone.textContent = e.currentTarget.dataset.symbol;
+        });
+    });
+
+    if (type === 'compare') {
+        const dropZone = document.getElementById('dropZone');
+        let draggedSymbol = null;
+
+        // Desktop drag and drop
+        document.querySelectorAll('.symbol').forEach(symbol => {
+            symbol.setAttribute('draggable','true');
+            symbol.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', e.target.dataset.symbol);
+                draggedSymbol = e.target;
+            });
+
+            // Touch support:
+            symbol.addEventListener('touchstart', e => {
+                draggedSymbol = e.currentTarget;
+                e.currentTarget.classList.add('dragging');
+            });
+
+            symbol.addEventListener('touchend', e => {
+                const touch = e.changedTouches[0];
+                const dropZoneRect = dropZone.getBoundingClientRect();
+                if (touch.clientX >= dropZoneRect.left && touch.clientX <= dropZoneRect.right && touch.clientY >= dropZoneRect.top && touch.clientY <= dropZoneRect.bottom) {
+                    dropZone.textContent = draggedSymbol.dataset.symbol;
+                }
+                e.currentTarget.classList.remove('dragging');
+            });
+        });
+
+        // Desktop drop events
+        if (dropZone) {
+            dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+            dropZone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropZone.classList.remove('over');
+                const data = e.dataTransfer.getData('text/plain');
+                if (data) dropZone.textContent = data;
+            });
+            // also allow clicking dropZone and pressing Enter to clear
+            dropZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') dropZone.textContent = '?';
+            });
+        }
+    } else if (type === 'rounding') {
+        const slider = document.getElementById('roundingSlider');
+        if (slider) slider.addEventListener('input', () => {
+            const out = document.getElementById('roundingOutput');
+            if (out) out.textContent = slider.value;
+        });
+    }
+
+    // focus first input if available
+    const firstInput = dom.centerStage.querySelector('input');
+    if (firstInput) firstInput.focus();
+}
+
+function resetUIState() {
+    dom.qIndex.innerText = gameState.questionIndex + 1;
+    dom.qTotal.innerText = QUESTIONS_PER_TOPIC;
+    dom.feedback.classList.remove('visible', 'correct', 'incorrect');
+    dom.hintBox.classList.remove('visible');
+    dom.checkBtn.style.display = 'inline-block'; dom.checkBtn.disabled = false;
+    dom.nextBtn.style.display = 'none';
+    dom.levelMessage.style.animation = '';
+    dom.levelMessage.innerText = '';
+}
+
+// ===== Answer Checking Logic =====
+function checkAnswer() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) return;
+    let isCorrect = false; let userAnswer;
+
+    // determine q type (topic)
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase();
+    if (qtype === 'wordproblems') qtype = 'wordproblem';
+
+    switch (qtype) {
+        case 'compare':
+            const dz = document.getElementById('dropZone');
+            userAnswer = dz ? dz.textContent.trim() : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'placevalue':
+            let allCorrect = true;
+            let allFilled = true;
+            // iterate expected breakdown keys
+            for (const [place, value] of Object.entries(q.breakdown)) {
+                const input = document.getElementById(place);
+                if (input) {
+                    const inputValue = input.value.trim();
+                    if (inputValue === '') {
+                        allFilled = false;
+                        input.classList.remove('correct');
+                        input.classList.add('incorrect');
+                        continue;
+                    }
+                    const numValue = parseInt(inputValue, 10);
+                    if (isNaN(numValue) || numValue !== value) {
+                        allCorrect = false;
+                        input.classList.remove('correct');
+                        input.classList.add('incorrect');
+                    } else {
+                        input.classList.remove('incorrect');
+                        input.classList.add('correct');
+                    }
+                }
+            }
+            if (!allFilled) {
+                dom.feedback.innerText = "Please fill in all values";
+                dom.feedback.className = 'feedback visible incorrect';
+                // keep check button enabled so user can fix
+                dom.checkBtn.disabled = false;
+                return;
+            }
+            isCorrect = allCorrect;
+            break;
+        case 'rounding':
+            const sliderVal = document.getElementById('roundingSlider');
+            userAnswer = sliderVal ? parseInt(sliderVal.value, 10) : null;
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'wordproblem':
+        default:
+            const wp = document.getElementById('wpAnswer');
+            userAnswer = wp ? parseInt(wp.value, 10) : NaN;
+            isCorrect = (userAnswer === q.ans);
+            break;
+    }
+
+    dom.checkBtn.disabled = true;
+    if (isCorrect) handleCorrect();
+    else handleIncorrect();
+}
+
+function handleCorrect() {
+    gameState.xp += 10;
+    gameState.correctAnswers++;
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+    updateXP();
+    updateProgress();
+    dom.feedback.innerText = "✅ Correct!";
+    dom.feedback.className = 'feedback visible correct';
+    particleEffect(dom.checkBtn, true);
+    saveGameState();
+    setTimeout(() => {
+        // automatically go next
+        nextStep();
+    }, 900);
+}
+
+function handleIncorrect() {
+    gameState.incorrectStreak++;
+    if (gameState.incorrectStreak >= 3) {
+        dom.hintBtn.classList.add('highlight-hint');
+    }
+
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    let correctAnswerText = q.ans;
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase();
+    if (qtype === 'wordproblems') qtype = 'wordproblem';
+
+    if (qtype === 'placevalue') {
+        correctAnswerText = Object.entries(q.breakdown)
+            .map(([place, value]) => `${place.charAt(0).toUpperCase() + place.slice(1)}: ${value}`)
+            .join(', ');
+
+        for (const [place, value] of Object.entries(q.breakdown)) {
+            const input = document.getElementById(place);
+            if (input) {
+                input.value = value;
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+            }
+        }
+    } else if (qtype === 'rounding') {
+        const slider = document.getElementById('roundingSlider');
+        const out = document.getElementById('roundingOutput');
+        if (slider && out) {
+            slider.value = q.ans;
+            out.textContent = q.ans;
+        }
+        correctAnswerText = q.ans;
+    } else if (qtype === 'compare') {
+        correctAnswerText = q.ans;
+        const dz = document.getElementById('dropZone');
+        if (dz) dz.textContent = q.ans;
+    } else {
+        // wordproblem / general
+        correctAnswerText = q.ans;
+        const wp = document.getElementById('wpAnswer');
+        if (wp) wp.value = q.ans;
+    }
+
+    dom.feedback.innerText = `❌ The answer is ${correctAnswerText}.`;
+    dom.feedback.className = 'feedback visible incorrect';
+    particleEffect(dom.checkBtn, false);
+    dom.nextBtn.style.display = 'inline-block';
+    saveGameState();
+}
+
+// ===== UI Updates & Effects =====
+function updateProgress() {
+    const totalQuestionsInGame = topicList.length * QUESTIONS_PER_TOPIC;
+    const totalProgress = (gameState.correctAnswers / totalQuestionsInGame) * 100;
+    const dash = 276.46;
+    dom.progressCircle.style.strokeDashoffset = dash - (dash * totalProgress / 100);
+    dom.progressPercent.innerText = `${Math.round(totalProgress)}%`;
+}
+
+function updateXP() {
+    dom.xpValue.innerText = gameState.xp;
+    dom.xpDisplay.classList.add('updated');
+    setTimeout(() => dom.xpDisplay.classList.remove('updated'), 300);
+}
+
+function showHint() {
+    const q = currentQuestions[gameState.questionIndex];
+    if (!q) return;
+    dom.hintBox.innerText = q.hint || 'No hint available';
+    dom.hintBox.classList.add('visible');
+}
+
+// ===== Visual Particle Effect (small) =====
+function particleEffect(elm, correct) {
+    try {
+        const rect = elm.getBoundingClientRect();
+        const c = document.createElement('canvas');
+        c.width = rect.width * 3; c.height = rect.height * 3;
+        c.style.cssText = `position: fixed; left: ${rect.left - rect.width}px; top: ${rect.top - rect.height}px; pointer-events: none; z-index: 30;`;
+        document.body.appendChild(c);
+
+        const pCtx = c.getContext('2d');
+        let particles = Array.from({ length: 40 }, () => ({
+            x: c.width / 2, y: c.height / 2,
+            vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+            r: Math.random() * 3 + 2, alpha: 1
+        }));
+
+        const anim = setInterval(() => {
+            pCtx.clearRect(0, 0, c.width, c.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pCtx.fillStyle = correct ? `rgba(0, 255, 200, ${p.alpha})` : `rgba(255, 100, 100, ${p.alpha})`;
+                pCtx.fill();
+            });
+            particles = particles.filter(p => p.alpha > 0);
+            if (particles.length === 0) {
+                clearInterval(anim);
+                if (c.parentNode) c.parentNode.removeChild(c);
+            }
+        }, 20);
+    } catch (e) {
+        // fail silently if canvas creation not allowed
+        console.warn('Particle effect failed', e);
+    }
+}
+
+// ===== Init =====
+loadGameState();
+</script>
+<!-- Finish button (top-right) -->
+<button id="finish-btn-quiz" title="Finish and go to chapter" style="position:fixed; top:12px; right:12px; z-index:9999; background:linear-gradient(90deg,#00f5d4,#00bbf9); color:#012; border:none; padding:10px 14px; border-radius:10px; font-weight:700; box-shadow:0 6px 18px rgba(0,0,0,0.3); cursor:pointer;">🏁 Finish</button>
+<script>
+    (function(){
+        var b = document.getElementById('finish-btn-quiz');
+        if (!b) return;
+        b.addEventListener('click', function(){
+            try { localStorage.setItem('quiz-g6-last-action','finished'); } catch(e){}
+            window.location.href = '../chapter1-numbers.html'.replace(/^\.\//,'');
+        });
+    })();
+</script>
+</body>
+</html>

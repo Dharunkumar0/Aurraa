@@ -1,0 +1,261 @@
+garde 12-ch-1-phy-Coloumb's law : <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coulomb's Law — Animated</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #fff;
+  flex-direction: column;
+}
+
+h2, h3 { margin: 5px 0; }
+
+.card {
+  padding: 16px;
+  text-align: center;
+  max-width: 900px;
+  width: 95%;
+}
+
+.chargeCard {
+  background: rgba(0,0,0,0.6);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  padding: 12px;
+  margin-top: 16px;
+  height: 380px;
+}
+
+svg { width: 100%; height: auto; }
+
+.particle { fill: white; opacity: 0.5; filter: blur(1.5px); }
+
+.numText { font-weight: bold; font-size: 16px; fill: #fff; }
+.planet { stroke-width: 3; }
+
+button {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn:hover { background: #ff5722; }
+#pauseBtn:hover { background: #2e7d32; }
+
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  display: inline-block;
+  color: #fff;
+  background: rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+
+<h2>Coulomb's Law</h2>
+<h3>Grade 12 NCERT Physics — Ch.1</h3>
+
+<label for="langSelect">🌐 Choose Language: </label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी (Hindi)</option>
+  <option value="ta">தமிழ் (Tamil)</option>
+  <option value="te">తెలుగు (Telugu)</option>
+  <option value="or">ଓଡ଼ିଆ (Odia)</option>
+</select>
+
+<div class="card">
+  <div class="chargeCard">
+    <svg viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+      <!-- Glow particles -->
+      <g id="particles">
+        <circle class="particle" cx="50" cy="50" r="2"/>
+        <circle class="particle" cx="200" cy="80" r="1.5"/>
+        <circle class="particle" cx="400" cy="40" r="2"/>
+        <circle class="particle" cx="600" cy="70" r="1.2"/>
+        <circle class="particle" cx="750" cy="90" r="1.8"/>
+        <circle class="particle" cx="850" cy="50" r="1.3"/>
+      </g>
+
+      <!-- Charges -->
+      <g id="charge1" transform="translate(275,200)">
+        <circle r="50" fill="#FFEB3B" stroke="#FBC02D" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">q₁</text>
+      </g>
+      <g id="charge2" transform="translate(625,200)">
+        <circle r="50" fill="#FF5722" stroke="#E64A19" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">q₂</text>
+      </g>
+
+      <!-- Forces -->
+      <g id="F1" transform="translate(200,150)" style="opacity:0">
+        <circle r="25" fill="#8BC34A" stroke="#689F38" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">F = 9N</text>
+      </g>
+      <g id="F2" transform="translate(350,250)" style="opacity:0">
+        <circle r="25" fill="#E91E63" stroke="#C2185B" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">F = 12N</text>
+      </g>
+      <g id="F3" transform="translate(550,150)" style="opacity:0">
+        <circle r="25" fill="#03A9F4" stroke="#0288D1" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">F = 15N</text>
+      </g>
+      <g id="F4" transform="translate(700,250)" style="opacity:0">
+        <circle r="25" fill="#9C27B0" stroke="#6A1B9A" class="planet"/>
+        <text class="numText" x="0" y="5" text-anchor="middle">F = 18N</text>
+      </g>
+
+      <!-- Equation -->
+      <g id="equation" transform="translate(450, 150)" style="opacity:0">
+        <text class="numText" x="0" y="0" text-anchor="middle" font-size="24px">
+          F = k * (q₁ * q₂) / r²
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <div id="caption" class="caption">Let's learn about Coulomb's Law!</div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const caption = document.getElementById("caption");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+let paused = false, currentStepIndex = 0, currentLang = "en";
+
+const captions = {
+  en: [
+    "Let's learn about Coulomb's Law!",
+    "Coulomb's Law describes the force between two charges.",
+    "The force is directly proportional to the product of the charges.",
+    "And inversely proportional to the square of the distance between them.",
+    "For example, q₁ and q₂ exert forces F = 9N, 12N, 15N, 18N."
+  ],
+  hi: [
+    "आइए कूलॉम्ब का नियम सीखें!",
+    "कूलॉम्ब का नियम दो आवेशों के बीच बल बताता है।",
+    "बल आवेशों के गुणनफल के अनुपाती होता है।",
+    "और उनके बीच की दूरी के वर्ग के व्युत्क्रमी अनुपाती।",
+    "उदाहरण: q₁ और q₂ द्वारा बल F = 9N, 12N, 15N, 18N।"
+  ],
+  ta: [
+    "கூலம்பின் விதியை கற்றுக்கொள்வோம்!",
+    "இரு சார்ஜுகளுக்கிடையிலான விசையைக் கூறுகிறது.",
+    "விசை சார்ஜுகளின் பெருக்குதலுக்கு நேர்கோட்டாக இருக்கும்.",
+    "அவை இடைவெளியின் வேர் சதவுக்கு பின்கோட்டாக இருக்கும்.",
+    "எடுத்துக்காட்டு: q₁ மற்றும் q₂ விசைகள் F = 9N, 12N, 15N, 18N."
+  ],
+  te: [
+    "కూలంబ్ చట్టం నేర్చుకోండి!",
+    "రెండు ఛార్జీల మధ్య శక్తిని వివరిస్తుంది.",
+    "శక్తి ఛార్జీల గుణకానికి సూటిగా సంబంధించినది.",
+    "మరియు వాటి దూరపు చతురస్రానికి వ్యతిరేకంగా ఉంటుంది.",
+    "ఉదాహరణ: q₁ మరియు q₂ F = 9N, 12N, 15N, 18N."
+  ],
+  or: [
+    "କୁଲମ୍ବ ନିୟମ ଶିଖିବା!",
+    "ଦୁଇ ଚାର୍ଜ ମଧ୍ୟରେ ଶକ୍ତି ବର୍ଣ୍ଣନା କରେ।",
+    "ଶକ୍ତି ଚାର୍ଜର ଗୁଣନ ଅନୁପାତୀ।",
+    "ଏବଂ ଦୁଇ ଚାର୍ଜ ମଧ୍ୟ ଦୂରତ୍ୱର ବର୍ଗରେ ପରିବର୍ତ୍ତନଶୀଳ।",
+    "ଉଦାହରଣ: q₁ ଏବଂ q₂ ଦ୍ୱାରା ଶକ୍ତି F = 9N, 12N, 15N, 18N।"
+  ]
+};
+
+// Male English voice
+function getEnglishMaleVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("male")) 
+      || voices.find(v => v.lang.startsWith("en"));
+}
+
+function speak(text, lang, callback) {
+  if(paused) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1;
+  if(lang === "en") utter.voice = getEnglishMaleVoice();
+  else utter.lang = lang + "-IN";
+  utter.onend = () => { if(!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showForces() {
+  gsap.to(["#F1","#F2","#F3","#F4"],{opacity:1,duration:1.5, stagger:0.5});
+}
+
+function runStep() {
+  if(currentStepIndex >= captions[currentLang].length) {
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+  caption.textContent = captions[currentLang][currentStepIndex];
+
+  if(currentStepIndex===2 || currentStepIndex===3)
+    gsap.to("#equation",{opacity:1,duration:1});
+  else
+    gsap.to("#equation",{opacity:0,duration:0.5});
+  if(currentStepIndex===1) gsap.to(["#charge1","#charge2"],{duration:1.5, scale:1.2, yoyo:true, repeat:1});
+  if(currentStepIndex===4) showForces();
+
+  speak(captions[currentLang][currentStepIndex], currentLang, () => {
+    currentStepIndex++;
+    if(!paused) runStep();
+  });
+}
+
+function resetAnimation() {
+  gsap.set(["#charge1","#charge2"], {scale: 1});
+  gsap.set(["#F1","#F2","#F3","#F4","#equation"], {opacity:0});
+  currentStepIndex = 0;
+  caption.textContent = captions[currentLang][0];
+  paused = false;
+  replayBtn.style.display = "none";
+  window.speechSynthesis.cancel();
+  runStep();
+}
+
+// Language change
+langSelect.addEventListener("change", () => {
+  currentLang = langSelect.value;
+  resetAnimation();
+});
+
+// Pause & Replay buttons
+pauseBtn.addEventListener("click", ()=>{
+  paused = !paused;
+  if(paused) window.speechSynthesis.cancel();
+  else runStep();
+  pauseBtn.textContent = paused?"▶ Resume":"⏸ Pause";
+});
+
+replayBtn.addEventListener("click", resetAnimation);
+
+// Start after voices load
+window.speechSynthesis.onvoiceschanged = () => runStep();
+</script>
+</body>
+</html>

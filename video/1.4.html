@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Estimation & Rounding Off</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+    position: relative;
+  }
+  .card {
+    position: relative;
+    background: rgba(255,255,255,0.95);
+    color: #222;
+    border-radius: 16px;
+    padding: 20px;
+    width: 85%;
+    max-width: 900px;
+    text-align: center;
+    z-index: 1;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  }
+  h1 { color: #facc15; margin-bottom: 10px; }
+  svg { width: 100%; height: auto; margin: 10px 0; }
+  .caption {
+    margin-top: 15px;
+    background: rgba(0,0,0,0.1);
+    padding: 8px 16px;
+    border-radius: 10px;
+    display: inline-block;
+    min-height: 40px;
+  }
+  select, button {
+    margin: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button { background: linear-gradient(135deg,#a78bfa,#60a5fa); color:white; }
+  select { background:#1e293b; color:white; }
+  .rounded, .rule { opacity: 0; font-weight: bold; }
+  .rounded { fill: green; font-size: 24px; }
+  .rule { fill: blue; font-size: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧮 Estimation & Rounding Off</h1>
+
+  <label for="langSelect">🌐 Language:</label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ta">தமிழ்</option>
+    <option value="te">తెలుగు</option>
+    <option value="or">ଓଡ଼ିଆ</option>
+  </select>
+
+  <svg viewBox="0 0 1000 500">
+    <g id="example1">
+      <rect x="350" y="50" width="250" height="90" rx="15" fill="#FFD93D"/>
+      <text x="475" y="110" text-anchor="middle" font-size="28" font-weight="bold">76,543</text>
+    </g>
+    <text id="round10" class="rounded" x="475" y="200" text-anchor="middle">Nearest 10 → 76,540</text>
+    <text id="round100" class="rounded" x="475" y="250" text-anchor="middle">Nearest 100 → 76,500</text>
+    <text id="round1000" class="rounded" x="475" y="300" text-anchor="middle">Nearest 1000 → 77,000</text>
+    <text id="rule" class="rule" x="500" y="360" text-anchor="middle">Rule: If digit < 5 → Round Down | If digit ≥ 5 → Round Up</text>
+  </svg>
+
+  <div id="caption" class="caption">Welcome! Let's learn rounding off numbers.</div>
+  <br>
+  <button id="playBtn">▶ Play Animation</button>
+  <button id="pauseBtn">⏸ Pause</button>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Welcome! Let's learn rounding off numbers.",
+    "We start with the number seventy-six thousand five hundred forty-three.",
+    "Rounding to the nearest 10: look at ones digit (3). 3 < 5 → round down to 76,540.",
+    "Rounding to the nearest 100: look at tens digit (4). 4 < 5 → round down to 76,500.",
+    "Rounding to the nearest 1000: look at hundreds digit (5). 5 ≥ 5 → round up to 77,000.",
+    "Rule: If digit < 5 → Round Down. If digit ≥ 5 → Round Up."
+  ],
+  hi: [
+    "स्वागत है! आइए राउंड ऑफ़ सीखते हैं।",
+    "हम संख्या 76,543 से शुरू करते हैं।",
+    "निकटतम 10 पर राउंडिंग: इकाई अंक देखें (3). 3 < 5 → 76,540 तक राउंड करें।",
+    "निकटतम 100 पर राउंडिंग: दसियों अंक देखें (4). 4 < 5 → 76,500 तक राउंड करें।",
+    "निकटतम 1000 पर राउंडिंग: सैकड़ों अंक देखें (5). 5 ≥ 5 → 77,000 तक राउंड करें।",
+    "नियम: अंक < 5 → नीचे राउंड करें। अंक ≥ 5 → ऊपर राउंड करें।"
+  ],
+  ta: [
+    "வரவேற்கிறோம்! வட்டமாக்கலை கற்கலாம்.",
+    "நாம் 76,543 எண்ணிலிருந்து தொடங்குகிறோம்.",
+    "சூழலான 10க்கு வட்டமாக்கல்: ஒன்றுக் குண்டு பார்க்கவும் (3). 3 < 5 → 76,540.",
+    "சூழலான 100க்கு வட்டமாக்கல்: பத்துக் குண்டு பார்க்கவும் (4). 4 < 5 → 76,500.",
+    "சூழலான 1000க்கு வட்டமாக்கல்: நூற்றுக் குண்டு பார்க்கவும் (5). 5 ≥ 5 → 77,000.",
+    "நியமம்: 5க்கு குறைவான எண்ணுகள் → கீழே வட்டமாக்கவும், ≥5 → மேலே வட்டமாக்கவும்."
+  ],
+  te: [
+    "స్వాగతం! రౌండింగ్ నేర్చుకుందాం.",
+    "మనం 76,543 నుండి ప్రారంభించాము.",
+    "సరిహద్దు 10కి రౌండింగ్: ఒకల సంఖ్య చూడండి (3). 3 < 5 → 76,540.",
+    "సరిహద్దు 100కి రౌండింగ్: పది సంఖ్య చూడండి (4). 4 < 5 → 76,500.",
+    "సరిహద్దు 1000కి రౌండింగ్: శతక సంఖ్య చూడండి (5). 5 ≥ 5 → 77,000.",
+    "నియమం: అంకె < 5 → కింద రౌండ్ చేయండి, ≥5 → పైకి రౌండ్ చేయండి."
+  ],
+  or: [
+    "ସ୍ୱାଗତ! ରାଉଣ୍ଡ ଅଫ୍ ଶିଖିବା।",
+    "ଆମେ 76,543 ରୁ ଆରମ୍ଭ କରୁଛୁ।",
+    "ସବୁଠାରୁ ନିକଟତମ 10 ରେ ରାଉଣ୍ଡ: ଏକକ ଦେଖନ୍ତୁ (3). 3 < 5 → 76,540.",
+    "ସବୁଠାରୁ ନିକଟତମ 100 ରେ ରାଉଣ୍ଡ: ଦଶକ ଦେଖନ୍ତୁ (4). 4 < 5 → 76,500.",
+    "ସବୁଠାରୁ ନିକଟତମ 1000 ରେ ରାଉଣ୍ଡ: ସହସ୍ର ଦେଖନ୍ତୁ (5). 5 ≥ 5 → 77,000.",
+    "ନିୟମ: ଅଙ୍କ < 5 → ତଳକୁ ରାଉଣ୍ଡ କରନ୍ତୁ | ଅଙ୍କ ≥ 5 → ଉପରକୁ ରାଉଣ୍ଡ କରନ୍ତୁ।"
+  ]
+};
+
+const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+let currentStep = 0;
+let paused = false;
+
+const captionEl = document.getElementById("caption");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+function speak(text, lang, callback){
+  if(paused) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = voicesMap[lang];
+  utter.rate = 0.95;
+  utter.onend = callback;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function showStep(){
+  const lang = langSelect.value;
+  if(currentStep >= captions[lang].length) return;
+  captionEl.textContent = captions[lang][currentStep];
+
+  // Show animation for step
+  if(currentStep === 2) gsap.to("#round10",{opacity:1,duration:1,y:-10});
+  if(currentStep === 3) gsap.to("#round100",{opacity:1,duration:1,y:-10});
+  if(currentStep === 4) gsap.to("#round1000",{opacity:1,duration:1,y:-10});
+  if(currentStep === 5) gsap.to("#rule",{opacity:1,duration:1});
+
+  speak(captions[lang][currentStep], lang, ()=>{
+    if(!paused){
+      currentStep++;
+      showStep();
+    }
+  });
+}
+
+playBtn.addEventListener("click", ()=>{
+  paused = false;
+  currentStep = 0;
+  gsap.set(["#round10","#round100","#round1000","#rule"],{opacity:0,y:0});
+  showStep();
+});
+
+pauseBtn.addEventListener("click", ()=>{
+  paused = !paused;
+  if(paused){
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent = "▶ Resume";
+  } else {
+    pauseBtn.textContent = "⏸ Pause";
+    showStep();
+  }
+});
+</script>
+</body>
+</html>

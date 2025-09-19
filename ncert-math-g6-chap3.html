@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2 - Whole Numbers | AURRAA</title>
+    <link rel="stylesheet" href="chapter1-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="badge.css">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-elements">
+        <div class="float-element num-1">123</div>
+        <div class="float-element num-2">π</div>
+        <div class="float-element num-3">∞</div>
+        <div class="float-element num-4">÷</div>
+        <div class="float-element num-5">×</div>
+        <div class="float-element num-6">%</div>
+    </div>
+
+    <div class="chapter-container">
+        <!-- Header -->
+        <header class="chapter-header">
+            <h1>Chapter 3 - Playing with Numbers</h1>
+            <p>Let's explore the magical world of numbers! 🚀</p>
+        </header>
+
+        <!-- Topic Buttons -->
+        <div class="topics-grid">
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="indian-system">
+                    <span class="topic-icon">🌏</span>
+                    <span class="topic-text">Factors and multiples</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="indian-system-content">
+                    <div class="content-card">
+                        <h3>Learn about:</h3>
+                        <ul>
+                            <li>Factors</li>
+                            <li>Multiples</li>
+                        </ul>
+                        <a href="video-g6-factors-multiples.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="international">
+                    <span class="topic-icon">🎯</span>
+                    <span class="topic-text">Prime and composite numbers</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="international-content">
+                    <div class="content-card">
+                        <h3>Discover:</h3>
+                        <ul>
+                            <li>Prime Numbers</li>
+                            <li>Composite Numbers</li>
+                        </ul>
+                        <a href="video-g6-math-properties-operation.html" class="practice-btn">Practice Now ▶️</a>
+                </div>
+            </div>
+
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="estimation">
+                    <span class="topic-icon">🎲</span>
+                    <span class="topic-text">Divisibility tests</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="estimation-content">
+                    <div class="content-card">
+                        <h3>Master:</h3>
+                        <ul>
+                            <li>Divisibility by 2</li>
+                            <li>Divisibility by 3</li>
+                            <li>Divisibility by 5</li>
+                        </ul>
+                        <a href="video-g6-math-patterns-wholenumber.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="estimation">
+                    <span class="topic-icon">🎲</span>
+                    <span class="topic-text">Prime factorisation</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="estimation-content">
+                    <div class="content-card">
+                        <h3>Master:</h3>
+                        <ul>
+                            <li>Prime factorisation</li>
+                            <li>unique prime factorisation</li>
+                        </ul>
+                        <a href="video-g6-math-linepattern.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+            <div class="topic-wrapper">
+                <button class="topic-btn" data-topic="estimation">
+                    <span class="topic-icon">🚀</span>
+                    <span class="topic-text">HCF and LCM (methods and applications)</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <div class="topic-content" id="estimation-content">
+                    <div class="content-card">
+                        <h3>Master:</h3>
+                        <ul>
+                            <li>HCF (Highest Common Factor)</li>
+                            <li>LCM (Lowest Common Multiple)</li>
+                        </ul>
+                        <a href="video-g6-math-linepattern.html" class="practice-btn">Practice Now ▶️</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="game-controls">
+            <!-- Avoid nesting <a> inside <button> (invalid). Use button content and JS navigation -->
+            <button id="startGameBtn" class="topic-btn start-game" data-target="ncert-games/math-g6-ch1-game.html">
+                <span class="topic-icon">🎮</span>
+                <span class="topic-text" href="ncert-games/math-g6-ch1-game.html">Start Game</span>
+                <div class="btn-glow"></div>
+            </button>
+        </div>
+
+
+        <!-- Navigation -->
+        <nav class="chapter-nav">
+            <a href="math-g6-chapters.html" class="nav-btn back-btn">
+                <span class="nav-icon">⬅️</span>
+                <span class="nav-text">Back to Chapters</span>
+            </a>
+            <a href="#" class="nav-btn next-btn">
+                <span class="nav-text">Next Chapter</span>
+                <span class="nav-icon">➡️</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Topic expand/collapse — ignore buttons that are not inside a .topic-wrapper
+        document.querySelectorAll('.topic-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const wrapper = button.closest('.topic-wrapper');
+                if (!wrapper) return; // guard: some buttons (like Start Game) live outside wrappers
+                const content = wrapper.querySelector('.topic-content');
+
+                // Remove active class from all wrappers
+                document.querySelectorAll('.topic-wrapper').forEach(w => {
+                    if (w !== wrapper) {
+                        w.classList.remove('active');
+                    }
+                });
+
+                // Toggle active class on clicked wrapper
+                wrapper.classList.toggle('active');
+            });
+        });
+
+        // Start-game buttons: navigate to the URL in data-target (supports modifier keys)
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest && e.target.closest('.start-game');
+            if (!btn) return;
+            const target = btn.getAttribute('data-target') || btn.dataset.target;
+            if (!target) return;
+            if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                window.open(target, '_blank');
+            } else {
+                window.location.href = target;
+            }
+        }, { passive: true });
+    </script>
+  <script src="badge.js"></script>
+</body>
+</html>

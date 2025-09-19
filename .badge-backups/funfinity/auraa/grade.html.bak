@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade - Continue Your Tasks</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-logo">AURRAA</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="signup.html">Sign Up</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </header>
+
+    <main class="grade-container">
+        <h2>Welcome to Your Grade</h2>
+        <p>Continue your tasks and track your progress here.</p>
+
+        <section class="task-list">
+            <h3>Your Tasks</h3>
+            <ul>
+                <li>Task 1: Complete Chapter 1 Exercises</li>
+                <li>Task 2: Watch the video on Large Numbers</li>
+                <li>Task 3: Attempt Practice Quiz</li>
+            </ul>
+        </section>
+
+        <section class="task-actions">
+            <button class="task-btn">Start New Task</button>
+            <button class="task-btn">View Progress</button>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 AURRAA. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // GSAP Animations
+        gsap.from(".app-logo", { duration: 1, y: -50, opacity: 0, ease: "bounce" });
+        gsap.from("nav a", { duration: 1, x: -50, opacity: 0, stagger: 0.2 });
+        gsap.from(".grade-container h2", { duration: 1, x: 50, opacity: 0, delay: 0.5 });
+        gsap.from(".task-list li", { duration: 1, x: -50, opacity: 0, stagger: 0.3, delay: 1 });
+        gsap.from(".task-actions button", { duration: 1, scale: 0.8, opacity: 0, stagger: 0.2, delay: 1.5 });
+    </script>
+</body>
+</html>

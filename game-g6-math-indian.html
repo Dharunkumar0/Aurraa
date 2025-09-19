@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Line Race - 5 Levels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: auto;
+            padding: 20px;
+            color: white;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 42px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #b21f1f;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #b21f1f;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .level-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .level-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #555;
+            border: 2px solid #FFD700;
+        }
+        
+        .level-dot.active {
+            background: #FFD700;
+        }
+        
+        .level-dot.completed {
+            background: #43cea2;
+        }
+        
+        .game-area {
+            position: relative;
+            height: 250px;
+            margin: 20px 0;
+            background: linear-gradient(to bottom, #2b5876, #4e4376);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        #number-line-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .challenge-container {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .challenge-text {
+            font-size: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            margin-bottom: 10px;
+        }
+        
+        .challenge-number {
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: #1a2a6c;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 0 #1a2a6c;
+            font-size: 18px;
+        }
+        
+        .instructions p {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .keyboard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .key {
+            background: linear-gradient(135deg, #434343, #000000);
+            color: #FFD700;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #FFD700;
+        }
+        
+        .feedback {
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .feedback.correct {
+            color: #43cea2;
+        }
+        
+        .feedback.incorrect {
+            color: #ff6b6b;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .game-over.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over h2 {
+            font-size: 48px;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0 #b21f1f;
+            margin-bottom: 15px;
+        }
+        
+        .game-over p {
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .slider-container {
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80%;
+            height: 15px;
+            border-radius: 10px;
+            background: #d3d3d3;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            border: 2px solid #1a2a6c;
+        }
+        
+        .slider-label {
+            color: #FFD700;
+            font-size: 16px;
+            margin-top: 5px;
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .game-area {
+                height: 200px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1 class="title">NUMBER LINE RACE</h1>
+            <p class="subtitle">5 Levels - Convert Indian to International Numbers!</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">SCORE</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">LEVEL</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="lives">5</div>
+                <div class="stat-label">LIVES</div>
+            </div>
+        </div>
+        
+        <div class="level-indicator">
+            <div class="level-dot active" id="level-1"></div>
+            <div class="level-dot" id="level-2"></div>
+            <div class="level-dot" id="level-3"></div>
+            <div class="level-dot" id="level-4"></div>
+            <div class="level-dot" id="level-5"></div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <p>Convert the Indian number to International system and move the car to the correct position!</p>
+            <p>Example: 1 crore 20 lakh → 12,000,000</p>
+            <div class="keyboard-controls">
+                <div class="key">←</div>
+                <div class="key">→</div>
+                <div class="key">Space</div>
+            </div>
+        </div>
+        
+        <div class="challenge-container">
+            <div class="challenge-text">Find the International equivalent of:</div>
+            <div class="challenge-number" id="challenge-number">25 lakh</div>
+        </div>
+        
+        <div class="slider-container">
+            <input type="range" min="0" max="100000000" value="0" class="slider" id="car-slider">
+            <div class="slider-label">Move the slider to position your car</div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="number-line-canvas"></canvas>
+            <div class="game-over" id="game-over">
+                <h2>GAME OVER</h2>
+                <p>Your final score: <span id="final-score">0</span></p>
+                <p>You reached level: <span id="final-level">1</span></p>
+                <div style="display:flex;gap:12px;align-items:center;justify-content:center;">
+                    <button id="restart-btn"><i class="fas fa-redo"></i> Play Again</button>
+                    <button id="finish-btn" style="background:linear-gradient(135deg,#34d399,#10b981);"><i class="fas fa-check"></i> Finish</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="controls">
+            <button id="start-btn"><i class="fas fa-play"></i> Start Game</button>
+            <button id="hint-btn"><i class="fas fa-lightbulb"></i> Show Hint</button>
+            <button id="check-btn"><i class="fas fa-check-circle"></i> Check Answer</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let lives = 5;
+        let currentChallenge = "";
+        let targetPosition = 0;
+        let carPosition = 0;
+        let numberLineMin = 0;
+        let numberLineMax = 100000000;
+        let isGameActive = false;
+        let canvas, ctx;
+        let animationId;
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const livesElement = document.getElementById('lives');
+        const challengeNumberElement = document.getElementById('challenge-number');
+        const feedbackElement = document.getElementById('feedback');
+        const startButton = document.getElementById('start-btn');
+        const hintButton = document.getElementById('hint-btn');
+        const checkButton = document.getElementById('check-btn');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalLevelElement = document.getElementById('final-level');
+        const restartButton = document.getElementById('restart-btn');
+        const carSlider = document.getElementById('car-slider');
+        const finishButton = document.getElementById('finish-btn');
+
+        
+        // Level indicators
+        const levelIndicators = [
+            document.getElementById('level-1'),
+            document.getElementById('level-2'),
+            document.getElementById('level-3'),
+            document.getElementById('level-4'),
+            document.getElementById('level-5')
+        ];
+        
+        // Initialize the game
+        function initGame() {
+            // Initialize game state
+            score = 0;
+            level = 1;
+            lives = 5;
+            isGameActive = true;
+            numberLineMax = 100000000;
+            
+            // Reset level indicators
+            levelIndicators.forEach((indicator, index) => {
+                indicator.classList.remove('active', 'completed');
+                if (index === 0) indicator.classList.add('active');
+            });
+            
+            // Set up canvas
+            canvas = document.getElementById('number-line-canvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            
+            updateUI();
+            generateChallenge();
+            drawNumberLine();
+            
+            // Hide game over screen
+            gameOverScreen.classList.remove('active');
+            
+            // Start game loop
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            gameLoop();
+            
+            // Update button text
+            startButton.innerHTML = '<i class="fas fa-redo"></i> Restart Game';
+        }
+        
+        // Generate a random challenge based on level
+        function generateChallenge() {
+            let numberValue;
+            
+            // Different difficulty for each level
+            switch(level) {
+                case 1:
+                    // Level 1: Only lakhs (10-99 lakh)
+                    const lakhs1 = Math.floor(Math.random() * 90) + 10;
+                    numberValue = lakhs1 * 100000;
+                    currentChallenge = `${lakhs1} lakh`;
+                    numberLineMax = 100000000;
+                    break;
+                case 2:
+                    // Level 2: Only crores (1-9 crore)
+                    const crores2 = Math.floor(Math.random() * 9) + 1;
+                    numberValue = crores2 * 10000000;
+                    currentChallenge = `${crores2} crore`;
+                    numberLineMax = 100000000;
+                    break;
+                case 3:
+                    // Level 3: Crores and lakhs (1-5 crore, 0-99 lakh)
+                    const crores3 = Math.floor(Math.random() * 5) + 1;
+                    const lakhs3 = Math.floor(Math.random() * 100);
+                    numberValue = crores3 * 10000000 + lakhs3 * 100000;
+                    currentChallenge = `${crores3} crore ${lakhs3} lakh`;
+                    numberLineMax = 100000000;
+                    break;
+                case 4:
+                    // Level 4: Larger numbers (5-9 crore, 0-99 lakh)
+                    const crores4 = Math.floor(Math.random() * 5) + 5;
+                    const lakhs4 = Math.floor(Math.random() * 100);
+                    numberValue = crores4 * 10000000 + lakhs4 * 100000;
+                    currentChallenge = `${crores4} crore ${lakhs4} lakh`;
+                    numberLineMax = 1000000000;
+                    break;
+                case 5:
+                    // Level 5: Mixed with thousands (1-9 crore, 0-99 lakh, 0-999 thousand)
+                    const crores5 = Math.floor(Math.random() * 9) + 1;
+                    const lakhs5 = Math.floor(Math.random() * 100);
+                    const thousands5 = Math.floor(Math.random() * 1000);
+                    numberValue = crores5 * 10000000 + lakhs5 * 100000 + thousands5 * 1000;
+                    currentChallenge = `${crores5} crore ${lakhs5} lakh ${thousands5} thousand`;
+                    numberLineMax = 1000000000;
+                    break;
+            }
+            
+            targetPosition = numberValue;
+            challengeNumberElement.textContent = currentChallenge;
+            
+            // Reset car position to a random starting point
+            carPosition = Math.random() * (numberLineMax - numberLineMin) + numberLineMin;
+            carSlider.max = numberLineMax;
+            carSlider.value = carPosition;
+            
+            // Update level indicator
+            updateLevelIndicator();
+        }
+        
+        // Update level indicator
+        function updateLevelIndicator() {
+            levelIndicators.forEach((indicator, index) => {
+                indicator.classList.remove('active', 'completed');
+                if (index + 1 === level) {
+                    indicator.classList.add('active');
+                } else if (index + 1 < level) {
+                    indicator.classList.add('completed');
+                }
+            });
+        }
+        
+        // Draw the number line
+        function drawNumberLine() {
+            if (!canvas || !ctx) return;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const lineY = height * 0.7;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw background
+            ctx.fillStyle = '#2b5876';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw road
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(0, lineY - 10, width, 20);
+            
+            // Draw road markings
+            ctx.fillStyle = '#FFFFFF';
+            for (let i = 0; i < width; i += 30) {
+                ctx.fillRect(i, lineY, 15, 3);
+            }
+            
+            // Draw number line ticks and labels
+            const scale = width / (numberLineMax - numberLineMin);
+            const tickInterval = (numberLineMax - numberLineMin) / 10;
+            
+            for (let i = 0; i <= 10; i++) {
+                const value = numberLineMin + i * tickInterval;
+                const x = i * (width / 10);
+                
+                // Draw tick
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, lineY - 15);
+                ctx.lineTo(x, lineY + 15);
+                ctx.stroke();
+                
+                // Draw label
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(formatInternationalSystem(value), x, lineY + 30);
+            }
+            
+            // Draw target marker
+            const targetX = (targetPosition - numberLineMin) * scale;
+            ctx.fillStyle = '#43cea2';
+            ctx.beginPath();
+            ctx.arc(targetX, lineY - 25, 10, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw target value
+            ctx.fillStyle = '#43cea2';
+            ctx.font = '14px Arial';
+            ctx.fillText(formatInternationalSystem(targetPosition), targetX, lineY - 40);
+            
+            // Draw car
+            const carX = (carPosition - numberLineMin) * scale;
+            drawCar(carX, lineY);
+            
+            // Draw car position value
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '14px Arial';
+            ctx.fillText(formatInternationalSystem(Math.round(carPosition)), carX, lineY - 60);
+        }
+        
+        // Draw the car
+        function drawCar(x, y) {
+            // Car body
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(x - 20, y - 15, 40, 10);
+            
+            // Car top
+            ctx.fillStyle = '#FF3333';
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y - 15);
+            ctx.lineTo(x - 5, y - 25);
+            ctx.lineTo(x + 15, y - 25);
+            ctx.lineTo(x + 15, y - 15);
+            ctx.fill();
+            
+            // Wheels
+            ctx.fillStyle = '#333333';
+            ctx.beginPath();
+            ctx.arc(x - 10, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 10, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Headlights
+            ctx.fillStyle = '#FFFF00';
+            ctx.beginPath();
+            ctx.arc(x - 18, y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 18, y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Format number in International system
+        function formatInternationalSystem(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Check if the car is at the correct position
+        function checkPosition() {
+            const tolerance = (numberLineMax - numberLineMin) * 0.05; // 5% tolerance (easier)
+            const isCorrect = Math.abs(carPosition - targetPosition) < tolerance;
+            
+            if (isCorrect) {
+                // Correct position
+                score += level * 50;
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Correct! +' + (level * 50) + ' points 🎉';
+                feedbackElement.className = 'feedback correct';
+                feedbackElement.style.opacity = '1';
+                
+                // Level up after 3 correct answers
+                if (score >= level * 100) {
+                    levelUp();
+                } else {
+                    // Generate new challenge after a delay
+                    setTimeout(() => {
+                        if (isGameActive) {
+                            generateChallenge();
+                            feedbackElement.style.opacity = '0';
+                        }
+                    }, 2000);
+                }
+            } else {
+                // Incorrect position
+                lives--;
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Wrong position! Try again. 😢';
+                feedbackElement.className = 'feedback incorrect';
+                feedbackElement.style.opacity = '1';
+                
+                // Game over if no lives left
+                if (lives <= 0) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Level up function
+        function levelUp() {
+            if (level < 5) {
+                level++;
+                
+                // Visual feedback
+                feedbackElement.textContent = 'Level ' + level + '! Numbers get larger!';
+                feedbackElement.className = 'feedback correct';
+                feedbackElement.style.opacity = '1';
+                
+                updateUI();
+                updateLevelIndicator();
+                
+                // Generate new challenge after a delay
+                setTimeout(() => {
+                    if (isGameActive) {
+                        generateChallenge();
+                        feedbackElement.style.opacity = '0';
+                    }
+                }, 2000);
+            } else {
+                // Game completed
+                feedbackElement.textContent = 'Congratulations! You completed all 5 levels! 🏆';
+                feedbackElement.className = 'feedback correct';
+                feedbackElement.style.opacity = '1';
+                
+                // Show game over screen after delay
+                setTimeout(() => {
+                    gameOver();
+                }, 3000);
+            }
+        }
+        
+        // Game over function
+        function gameOver() {
+            isGameActive = false;
+            
+            // Show game over screen
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = level;
+            gameOverScreen.classList.add('active');
+        }
+        
+        // Update the UI elements
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            livesElement.textContent = lives;
+        }
+        
+        // Show hint to the player
+        function showHint() {
+            if (!isGameActive) return;
+            
+            // Visual feedback
+            feedbackElement.textContent = 'Target: ' + formatInternationalSystem(targetPosition);
+            feedbackElement.className = 'feedback correct';
+            feedbackElement.style.opacity = '1';
+            
+            // Hide hint after a delay
+            setTimeout(() => {
+                feedbackElement.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (!isGameActive) return;
+                
+                if (e.key === 'ArrowLeft') {
+                    carPosition -= (numberLineMax - numberLineMin) * 0.01;
+                    carSlider.value = carPosition;
+                } else if (e.key === 'ArrowRight') {
+                    carPosition += (numberLineMax - numberLineMin) * 0.01;
+                    carSlider.value = carPosition;
+                } else if (e.key === ' ') {
+                    checkPosition();
+                }
+            });
+            
+            // Slider control
+            carSlider.addEventListener('input', () => {
+                if (!isGameActive) return;
+                carPosition = parseInt(carSlider.value);
+            });
+            
+            // Button controls
+            startButton.addEventListener('click', initGame);
+            hintButton.addEventListener('click', showHint);
+            checkButton.addEventListener('click', checkPosition);
+            restartButton.addEventListener('click', initGame);
+            // Finish button navigates back to chapter1-numbers
+            finishButton?.addEventListener('click', () => {
+                try { localStorage.setItem('game-g6-last-score', String(score)); } catch(e) {}
+                window.location.href = 'chapter1-numbers.html';
+            });
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (isGameActive) {
+                // Keep car within bounds
+                carPosition = Math.max(numberLineMin, Math.min(numberLineMax, carPosition));
+                
+                // Redraw number line
+                drawNumberLine();
+            }
+            
+            // Continue game loop
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Resize canvas when window resizes
+        function resizeCanvas() {
+            if (canvas) {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawNumberLine();
+            }
+        }
+        
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            // Set up canvas
+            canvas = document.getElementById('number-line-canvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+                resizeCanvas();
+                
+                // Draw initial number line
+                drawNumberLine();
+                
+                // Set up event listeners
+                setupEventListeners();
+            }
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>

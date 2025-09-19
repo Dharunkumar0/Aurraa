@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Measuring Line Segments - Space Adventure</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #000000, #0d0d2a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    svg {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+    }
+
+    .caption {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+
+    button,
+    select {
+      margin: 10px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    #pauseBtn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #replayBtn {
+      background-color: #ff7b54;
+      color: white;
+      display: none;
+    }
+
+    .star {
+      fill: white;
+      opacity: 0.7;
+      animation: twinkle 2.5s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      from {
+        opacity: 0.3;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .line {
+      stroke: #FFD700;
+      stroke-width: 5;
+    }
+
+    .point {
+      fill: #FFD700;
+      stroke: #fff;
+      stroke-width: 2;
+    }
+
+    .ruler {
+      stroke: #00ffff;
+      stroke-width: 3;
+      stroke-dasharray: 10 5;
+      opacity: 0.7;
+    }
+
+    .measurement {
+      fill: #00ffff;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .pointLabel {
+      fill: #FFD700;
+      font-weight: bold;
+      font-size: 18px;
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Elementary Shapes: Measuring Line Segments</h2>
+
+    <label for="langSelect">🌐 Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+    </select>
+
+    <svg viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+      <g id="stars">
+        <circle class="star" cx="50" cy="50" r="2"></circle>
+        <circle class="star" cx="200" cy="80" r="1.5"></circle>
+        <circle class="star" cx="400" cy="40" r="2"></circle>
+        <circle class="star" cx="600" cy="70" r="1.8"></circle>
+        <circle class="star" cx="750" cy="50" r="1.2"></circle>
+      </g>
+
+      <!-- Line Segment -->
+      <line id="lineSegment" class="line" x1="150" y1="150" x2="650" y2="150"></line>
+
+      <!-- Points -->
+      <circle id="pointA" class="point" cx="150" cy="150" r="7"></circle>
+      <circle id="pointB" class="point" cx="650" cy="150" r="7"></circle>
+
+      <!-- Point Labels -->
+      <text id="labelA" class="pointLabel" x="140" y="140">A</text>
+      <text id="labelB" class="pointLabel" x="640" y="140">B</text>
+
+      <!-- Ruler -->
+      <line id="ruler" class="ruler" x1="150" y1="160" x2="650" y2="160"></line>
+
+      <!-- Measurement -->
+      <text id="measureLabel" class="measurement" x="400" y="130" text-anchor="middle">?</text>
+    </svg>
+
+    <div id="caption" class="caption">Let’s learn to measure a line segment.</div>
+
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+
+  <script>
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+    const measureLabel = document.getElementById("measureLabel");
+    const ruler = document.getElementById("ruler");
+    const labelA = document.getElementById("labelA");
+    const labelB = document.getElementById("labelB");
+
+    let paused = false;
+    let stepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Welcome! Let's measure line segments in geometry.",
+        "A line segment connects two points: Point A and Point B.",
+        "Observe the glowing ruler below the line segment.",
+        "Example Measurement: AB = 500 units."
+      ],
+      hi: [
+        "स्वागत है! चलिए ज्यामिति में रेखा खंड मापते हैं।",
+        "रेखा खंड दो बिंदु A और B को जोड़ता है।",
+        "रेखा खंड के नीचे चमकता हुआ पैमाना देखें।",
+        "उदाहरण: AB = 500 इकाइयाँ।"
+      ],
+      ta: [
+        "வரவேற்பு! கோடு செக்மென்டுகளை அளவிட கற்போம்.",
+        "கோடு செக்மென்ட் இரண்டு புள்ளிகள் A மற்றும் B ஐ இணைக்கிறது.",
+        "கோடு செக்மென்ட் கீழ் பிரகாசிக்கும் ருலரை கவனிக்கவும்.",
+        "உதாரணம்: AB = 500 யூனிட்ஸ்."
+      ],
+      te: [
+        "స్వాగతం! లైన్ సెగ్మెంట్లను కొలవడం నేర్చుకుందాం.",
+        "లైన్ సెగ్మెంట్ A మరియు B అనే రెండు బిందువులను కలుపుతుంది.",
+        "లైన్ సెగ్మెంట్ కింద ప్రకాశించే ruler ను గమనించండి.",
+        "ఉదాహరణ: AB = 500 యూనిట్స్."
+      ],
+      or: [
+        "ସ୍ୱାଗତ! ରେଖା ଖଣ୍ଡ ମାପିବା ଶିଖିବା.",
+        "ରେଖା ଖଣ୍ଡ ଦୁଇଟି ବିନ୍ଦୁ A ଏବଂ B କୁ ଯୋଡ଼େ।",
+        "ରେଖା ଖଣ୍ଡ ତଳେ ଜ୍ୱଳନ୍ତ ରୁଲରକୁ ଦେଖନ୍ତୁ।",
+        "ଉଦାହରଣ: AB = 500 ଇଉନିଟ୍."
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function nextStep() {
+      if (stepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+
+      caption.textContent = captions[currentLang][stepIndex];
+
+      if (stepIndex === 2) {
+        // Show ruler
+        gsap.fromTo(ruler, { opacity: 0 }, { opacity: 1, duration: 1.5, repeat: 1, yoyo: true });
+        // Show point labels
+        gsap.to([labelA, labelB], { opacity: 1, duration: 1 });
+      }
+
+      if (stepIndex === 3) {
+        measureLabel.textContent = "500 units";
+        gsap.fromTo(measureLabel, { scale: 0 }, { scale: 1.5, duration: 1, yoyo: true, repeat: 1 });
+      }
+
+      speak(captions[currentLang][stepIndex], currentLang, () => {
+        stepIndex++;
+        if (!paused) nextStep();
+      });
+    }
+
+    function startAnimation() {
+      paused = false;
+      replayBtn.style.display = "none";
+      stepIndex = 0;
+      currentLang = langSelect.value;
+      measureLabel.textContent = "?";
+      gsap.set(measureLabel, { scale: 1, opacity: 1 });
+      gsap.set(ruler, { opacity: 0 });
+      gsap.set([labelA, labelB], { opacity: 0 });
+
+      nextStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) {
+        paused = true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent = "▶ Play";
+      } else {
+        paused = false;
+        pauseBtn.textContent = "⏸ Pause";
+        nextStep();
+      }
+    });
+
+    replayBtn.addEventListener("click", startAnimation);
+
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) startAnimation();
+      else caption.textContent = captions[currentLang][stepIndex] || captions[currentLang][0];
+    });
+
+    startAnimation();
+  </script>
+</body>
+
+</html>

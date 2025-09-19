@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Mission: Interstellar Number Journey</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: #000 url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1951&q=80') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: auto;
+            padding: 20px;
+            color: white;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 20, 0.85);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            padding: 25px;
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(100, 150, 255, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 42px;
+            color: #4fc3f7;
+            text-shadow: 0 0 15px #4fc3f7, 0 0 25px #4fc3f7;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: #bb86fc;
+            text-shadow: 0 0 10px #bb86fc;
+            margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 20, 40, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            color: #4fc3f7;
+            text-shadow: 0 0 8px #4fc3f7;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .mission-container {
+            background: rgba(0, 20, 40, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .mission-text {
+            font-size: 22px;
+            color: #4fc3f7;
+            text-shadow: 0 0 8px #4fc3f7;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .mission-distance {
+            font-size: 28px;
+            color: #ff9800;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff9800;
+            margin: 15px 0;
+        }
+        
+        .destination {
+            font-size: 24px;
+            color: #bb86fc;
+            text-shadow: 0 0 8px #bb86fc;
+            margin: 10px 0;
+        }
+        
+        .input-container {
+            background: rgba(0, 20, 40, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .input-label {
+            font-size: 20px;
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            text-shadow: 0 0 8px #4fc3f7;
+        }
+        
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 20px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #4fc3f7;
+        }
+        
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px #4fc3f7;
+        }
+        
+        .journey-container {
+            position: relative;
+            height: 120px;
+            background: rgba(0, 10, 30, 0.7);
+            border-radius: 15px;
+            margin: 25px 0;
+            overflow: hidden;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .journey-path {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #4fc3f7, #bb86fc);
+            box-shadow: 0 0 10px #4fc3f7;
+        }
+        
+        .spaceship {
+            position: absolute;
+            bottom: 25px;
+            left: 30px;
+            font-size: 40px;
+            text-shadow: 0 0 15px #4fc3f7;
+            transition: left 1s ease-in-out;
+            z-index: 10;
+        }
+        
+        .planet {
+            position: absolute;
+            bottom: 15px;
+            font-size: 30px;
+            z-index: 5;
+        }
+        
+        .earth {
+            left: 20px;
+            color: #4caf50;
+            text-shadow: 0 0 10px #4caf50;
+        }
+        
+        .destination-planet {
+            right: 20px;
+            color: #ff9800;
+            text-shadow: 0 0 10px #ff9800;
+        }
+        
+        .fuel-container {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .fuel-level {
+            height: 100%;
+            background: linear-gradient(90deg, #4fc3f7, #00bcd4);
+            border-radius: 10px;
+            width: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4fc3f7, #0277bd);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+        }
+        
+        .feedback {
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        .feedback.correct {
+            color: #69f0ae;
+            text-shadow: 0 0 10px #69f0ae;
+        }
+        
+        .feedback.incorrect {
+            color: #ff5252;
+            text-shadow: 0 0 10px #ff5252;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .game-over.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over h2 {
+            font-size: 48px;
+            color: #4fc3f7;
+            text-shadow: 0 0 15px #4fc3f7;
+            margin-bottom: 20px;
+        }
+        
+        .game-over p {
+            font-size: 22px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+        
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1 class="title">SPACE MISSION</h1>
+            <p class="subtitle">Interstellar Number Journey</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">SCORE</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">LEVEL</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="fuel">100%</div>
+                <div class="stat-label">FUEL</div>
+            </div>
+        </div>
+        
+        <div class="mission-container">
+            <div class="mission-text" id="mission-text">Your spaceship travels 250,000 km per day. How many days will it take to reach your destination?</div>
+            <div class="destination" id="destination">Destination: Mars</div>
+            <div class="mission-distance" id="mission-distance">78,000,000 km</div>
+        </div>
+        
+        <div class="journey-container">
+            <div class="journey-path"></div>
+            <div class="spaceship float" id="spaceship">🚀</div>
+            <div class="planet earth">🌍</div>
+            <div class="planet destination-planet" id="destination-planet">🪐</div>
+        </div>
+        
+        <div class="fuel-container">
+            <div class="fuel-level" id="fuel-level"></div>
+        </div>
+        
+        <div class="input-container">
+            <div class="input-label">Enter your answer:</div>
+            <input type="number" id="answer-input" placeholder="Number of days">
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="controls">
+            <button id="launch-btn"><i class="fas fa-rocket"></i> Launch Answer</button>
+            <button id="hint-btn"><i class="fas fa-lightbulb"></i> Show Hint</button>
+            <button id="start-btn"><i class="fas fa-play"></i> New Mission</button>
+        </div>
+        
+        <div class="game-over" id="game-over">
+            <h2>MISSION COMPLETE</h2>
+            <p>Your final score: <span id="final-score">0</span></p>
+            <p>You completed <span id="final-level">0</span> missions</p>
+            <div style="display:flex;gap:12px;align-items:center;">
+                <button id="restart-btn"><i class="fas fa-redo"></i> New Mission</button>
+                <button id="finish-btn"><i class="fas fa-flag-checkered"></i> Finish</button>
+            </div>
+        </div>
+        
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let fuel = 100;
+        let currentMission = {};
+        let isGameActive = false;
+        
+        // Celestial bodies with distances from Earth (in km)
+        const destinations = [
+            { name: "the Moon", distance: 384400, emoji: "🌕", dailyDistance: 50000 },
+            { name: "Mars", distance: 78340000, emoji: "🔴", dailyDistance: 250000 },
+            { name: "Jupiter", distance: 628730000, emoji: "🪐", dailyDistance: 500000 },
+            { name: "Saturn", distance: 1275000000, emoji: "🪐", dailyDistance: 750000 },
+            { name: "Proxima Centauri", distance: 4.014e13, emoji: "⭐", dailyDistance: 1000000 }
+        ];
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const fuelElement = document.getElementById('fuel');
+        const fuelLevelElement = document.getElementById('fuel-level');
+        const missionTextElement = document.getElementById('mission-text');
+        const destinationElement = document.getElementById('destination');
+        const missionDistanceElement = document.getElementById('mission-distance');
+        const destinationPlanetElement = document.getElementById('destination-planet');
+        const spaceshipElement = document.getElementById('spaceship');
+        const answerInput = document.getElementById('answer-input');
+        const feedbackElement = document.getElementById('feedback');
+        const launchButton = document.getElementById('launch-btn');
+        const hintButton = document.getElementById('hint-btn');
+        const startButton = document.getElementById('start-btn');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalLevelElement = document.getElementById('final-level');
+        const restartButton = document.getElementById('restart-btn');
+        const starsElement = document.getElementById('stars');
+        
+        // Initialize the game
+        function initGame() {
+            // Initialize game state
+            score = 0;
+            level = 1;
+            fuel = 100;
+            isGameActive = true;
+            
+            // Update UI
+            updateUI();
+            generateMission();
+            updateFuelDisplay();
+            
+            // Hide game over screen
+            gameOverScreen.classList.remove('active');
+            
+            // Reset spaceship position
+            spaceshipElement.style.left = '30px';
+            
+            // Create stars
+            createStars();
+        }
+        
+        // Generate a random mission
+        function generateMission() {
+            const destinationIndex = Math.min(level - 1, destinations.length - 1);
+            currentMission = destinations[destinationIndex];
+            
+            // Calculate correct answer (rounded to nearest integer)
+            currentMission.correctAnswer = Math.round(currentMission.distance / currentMission.dailyDistance);
+            
+            // Update mission display
+            missionTextElement.textContent = `Your spaceship travels ${formatNumber(currentMission.dailyDistance)} km per day. How many days will it take to reach your destination?`;
+            destinationElement.textContent = `Destination: ${currentMission.name}`;
+            missionDistanceElement.textContent = `${formatNumber(currentMission.distance)} km`;
+            destinationPlanetElement.textContent = currentMission.emoji;
+            
+            // Clear input
+            answerInput.value = "";
+            answerInput.focus();
+            
+            // Hide feedback
+            feedbackElement.style.opacity = '0';
+        }
+        
+        // Format large numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Check the player's answer
+        function checkAnswer() {
+            if (!isGameActive) return;
+            
+            const playerAnswer = parseInt(answerInput.value);
+            
+            if (isNaN(playerAnswer)) {
+                feedbackElement.textContent = "Please enter a valid number";
+                feedbackElement.className = "feedback incorrect";
+                feedbackElement.style.opacity = '1';
+                return;
+            }
+            
+            // Calculate how close the answer is (within 5% is acceptable)
+            const difference = Math.abs(playerAnswer - currentMission.correctAnswer);
+            const tolerance = currentMission.correctAnswer * 0.05;
+            const isCorrect = difference <= tolerance;
+            
+            if (isCorrect) {
+                // Correct answer
+                score += level * 100;
+                feedbackElement.textContent = `Correct! It takes ${currentMission.correctAnswer} days. +${level * 100} points!`;
+                feedbackElement.className = "feedback correct";
+                feedbackElement.style.opacity = '1';
+                
+                // Move spaceship
+                moveSpaceship();
+                
+                // Level up after a delay
+                setTimeout(() => {
+                    levelUp();
+                }, 2000);
+            } else {
+                // Incorrect answer
+                fuel -= 20;
+                feedbackElement.textContent = `Incorrect! Try again. -20% fuel`;
+                feedbackElement.className = "feedback incorrect";
+                feedbackElement.style.opacity = '1';
+                
+                updateFuelDisplay();
+                
+                // Game over if no fuel left
+                if (fuel <= 0) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Move the spaceship along the journey path
+        function moveSpaceship() {
+            const journeyContainer = document.querySelector('.journey-container');
+            const journeyWidth = journeyContainer.offsetWidth - 60; // Adjust for spaceship size
+            spaceshipElement.style.left = `${journeyWidth}px`;
+        }
+        
+        // Level up function
+        function levelUp() {
+            if (level < 5) {
+                level++;
+                
+                // Reset spaceship position
+                spaceshipElement.style.left = '30px';
+                
+                // Generate new mission
+                generateMission();
+                
+                // Hide feedback
+                feedbackElement.style.opacity = '0';
+            } else {
+                // Game completed
+                gameOver();
+            }
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Update fuel display
+        function updateFuelDisplay() {
+            fuelElement.textContent = `${fuel}%`;
+            fuelLevelElement.style.width = `${fuel}%`;
+            
+            // Change color based on fuel level
+            if (fuel > 50) {
+                fuelLevelElement.style.background = 'linear-gradient(90deg, #4fc3f7, #00bcd4)';
+            } else if (fuel > 25) {
+                fuelLevelElement.style.background = 'linear-gradient(90deg, #ff9800, #ff5722)';
+            } else {
+                fuelLevelElement.style.background = 'linear-gradient(90deg, #f44336, #d32f2f)';
+                fuelLevelElement.classList.add('pulse');
+            }
+        }
+        
+        // Game over function
+        function gameOver() {
+            isGameActive = false;
+            
+            // Show game over screen
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = level - 1;
+            gameOverScreen.classList.add('active');
+        }
+        
+        // Show hint to the player
+        function showHint() {
+            if (!isGameActive) return;
+            
+            // Calculate days without revealing the exact answer
+            const approxAnswer = Math.round(currentMission.correctAnswer / 100) * 100;
+            feedbackElement.textContent = `Hint: The journey will take approximately ${formatNumber(approxAnswer)} days`;
+            feedbackElement.className = "feedback correct";
+            feedbackElement.style.opacity = '1';
+            
+            // Hide hint after a delay
+            setTimeout(() => {
+                feedbackElement.style.opacity = '0';
+            }, 4000);
+        }
+        
+        // Update the UI elements
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+        }
+        
+        // Create background stars
+        function createStars() {
+            starsElement.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.opacity = Math.random();
+                starsElement.appendChild(star);
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            launchButton.addEventListener('click', checkAnswer);
+            hintButton.addEventListener('click', showHint);
+            startButton.addEventListener('click', initGame);
+            restartButton.addEventListener('click', initGame);
+            // Finish button: save last score and go back to chapter list
+            const finishButton = document.getElementById('finish-btn');
+            finishButton?.addEventListener('click', () => {
+                try { localStorage.setItem('game-g6-last-score', String(score)); } catch (e) {}
+                window.location.href = 'chapter1-numbers.html';
+            });
+            
+            // Allow pressing Enter to submit answer
+            answerInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+        
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            setupEventListeners();
+            initGame();
+        });
+    </script>
+</body>
+</html>

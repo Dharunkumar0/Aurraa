@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="teacher-dashboard-responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="header-left">
+            <h1>Teacher Dashboard</h1>
+            <p>Monitor student progress and performance</p>
+        </div>
+        <div class="header-right">
+            <button class="action-btn export"><span class="btn-icon">⬇</span> Export Data</button>
+            <button class="action-btn filter">Filter</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- Dashboard Metrics Section -->
+        <section class="dashboard-metrics">
+            <div class="metric-card">
+                <div class="metric-content">
+                    <div>
+                        <p class="metric-label">Total Students</p>
+                        <p class="metric-value">0</p>
+                    </div>
+                    <div class="metric-icon-wrap purple"><span class="metric-icon">👥</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-content">
+                    <div>
+                        <p class="metric-label">Average Score</p>
+                        <p class="metric-value">0.0%</p>
+                    </div>
+                    <div class="metric-icon-wrap green"><span class="metric-icon">📈</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-content">
+                    <div>
+                        <p class="metric-label">Completion Rate</p>
+                        <p class="metric-value">0.0%</p>
+                    </div>
+                    <div class="metric-icon-wrap orange"><span class="metric-icon">📘</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-content">
+                    <div>
+                        <p class="metric-label">Active Modules</p>
+                        <p class="metric-value">12</p>
+                    </div>
+                    <div class="metric-icon-wrap violet"><span class="metric-icon">📊</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Performers & Recent Quiz Results Section -->
+        <section class="performers-quiz">
+            <div class="card top-performers">
+                <div class="card-header"><span class="head-icon">🏅</span><h3>Top Performers</h3><button class="view-all">View All</button></div>
+                <p class="muted center">No student data available yet.</p>
+                <p class="muted center small">Students will appear here once they start completing modules.</p>
+            </div>
+            <div class="card recent-quiz-results">
+                <div class="card-header"><span class="head-icon">📊</span><h3>Recent Quiz Results</h3><button class="view-all">View All</button></div>
+                <p class="muted center">No quiz results yet.</p>
+                <p class="muted center small">Results will appear here as students complete quizzes.</p>
+            </div>
+        </section>
+
+        <!-- Subject Performance Overview Section -->
+        <h3 class="section-title">Subject Performance Overview</h3>
+        <section class="subject-performance">
+            <div class="subject-card">
+                <h3>Physics</h3>
+                <p class="subject-score">83%</p>
+                <div class="progress-bar green" style="width: 83%;"></div>
+            </div>
+            <div class="subject-card">
+                <h3>Chemistry</h3>
+                <p class="subject-score">79%</p>
+                <div class="progress-bar green" style="width: 79%;"></div>
+            </div>
+            <div class="subject-card">
+                <h3>Mathematics</h3>
+                <p class="subject-score">74%</p>
+                <div class="progress-bar orange" style="width: 74%;"></div>
+            </div>
+            <div class="subject-card">
+                <h3>Biology</h3>
+                <p class="subject-score">65%</p>
+                <div class="progress-bar red" style="width: 65%;"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom-right toast: Switched to teacher view -->
+    <div class="switch-toast" role="status" aria-live="polite">
+        <span class="dot"></span>
+        <span>Switched to teacher view</span>
+        <button class="toast-close" aria-label="Close">✕</button>
+    </div>
+
+    <script>
+    (function(){
+        var close = document.querySelector('.toast-close');
+        if(close){ close.addEventListener('click', function(){
+            var t = document.querySelector('.switch-toast');
+            if(t) t.style.display = 'none';
+        }); }
+    })();
+    </script>
+</body>
+</html>

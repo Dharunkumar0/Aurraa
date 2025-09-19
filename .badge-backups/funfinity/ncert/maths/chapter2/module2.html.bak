@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Properties of Operations</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: Poppins, sans-serif;
+  background: linear-gradient(135deg,#dfe9f3,#ffffff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.card {
+  width: 95%;
+  max-width: 1100px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+h1 {
+  margin: 0;
+  font-size: 24px;
+  text-align: center;
+  background: linear-gradient(90deg,#6c5ce7,#00b894);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.controls {
+  text-align: center;
+  margin: 15px 0;
+}
+select, button {
+  padding: 8px 14px;
+  margin: 4px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  font-weight: 600;
+}
+#pauseBtn { background: #00b894; color: #fff; border: none; }
+#replayBtn { background: #ff7675; color: #fff; border: none; display: none; }
+.caption {
+  background: #f7f9ff;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 10px;
+  font-weight: 500;
+}
+.svg-container {
+  width: 100%;
+  height: 70vh;
+  overflow-y: auto;
+}
+svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.tick { font-size: 32px; fill: #2ecc71; opacity: 0; transform-origin: center center; }
+.example { font-size: 20px; fill: #333; opacity: 0; }
+rect { filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.1)); }
+@media(max-width:768px){
+  h1{ font-size: 20px }
+  .example{ font-size: 16px }
+  .caption{ font-size: 0.9rem }
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Properties of Operations</h1>
+  <div class="controls">
+    <label>🌐 Language:</label>
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+    </select>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+  <div class="svg-container" id="svgContainer">
+    <svg viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet" id="mainSvg">
+      <g id="closure" transform="translate(0,0)">
+        <rect width="900" height="120" rx="12" fill="#fffbe6" stroke="#ffd580"></rect>
+        <text x="450" y="50" text-anchor="middle" font-size="18">Closure: If a,b ∈ N ⇒ a+b ∈ N</text>
+        <text id="closureEx" x="450" y="90" class="example" text-anchor="middle">Example: 2 + 3 = 5 ∈ N</text>
+        <text id="closureTick" x="880" y="90" class="tick">✔</text>
+      </g>
+      <g id="commutative" transform="translate(0,150)">
+        <rect width="900" height="140" rx="12" fill="#f1f7ff" stroke="#cfe6ff"></rect>
+        <text x="450" y="50" text-anchor="middle" font-size="18">Commutative: a+b = b+a</text>
+        <text id="commEx1" x="450" y="90" class="example" text-anchor="middle">2 + 3 = 5</text>
+        <text id="commEx2" x="450" y="120" class="example" text-anchor="middle">3 + 2 = 5</text>
+        <text id="commTick" x="880" y="90" class="tick">✔</text>
+      </g>
+      <g id="associative" transform="translate(0,320)">
+        <rect width="900" height="140" rx="12" fill="#fff7ff" stroke="#f1d6ff"></rect>
+        <text x="450" y="50" text-anchor="middle" font-size="18">Associative: (a+b)+c = a+(b+c)</text>
+        <text id="assocEx1" x="450" y="90" class="example" text-anchor="middle">(2+3)+4 = 9</text>
+        <text id="assocEx2" x="450" y="120" class="example" text-anchor="middle">2+(3+4) = 9</text>
+        <text id="assocTick" x="880" y="90" class="tick">✔</text>
+      </g>
+      <g id="distributive" transform="translate(0,490)">
+        <rect width="900" height="160" rx="12" fill="#f7fff0" stroke="#d3ffd6"></rect>
+        <text x="450" y="50" text-anchor="middle" font-size="18">Distributive: a×(b+c) = a×b + a×c</text>
+        <text id="distEx1" x="450" y="90" class="example" text-anchor="middle">2 × (3+4)</text>
+        <text id="distEx2" x="450" y="120" class="example" text-anchor="middle">= 2×3 + 2×4</text>
+        <text id="distEx3" x="450" y="150" class="example" text-anchor="middle">= 6 + 8 = 14</text>
+        <text id="distTick" x="880" y="90" class="tick">✔</text>
+      </g>
+    </svg>
+  </div>
+  <div id="caption" class="caption">Welcome! Let's explore the properties with examples.</div>
+</div>
+
+<script>
+const captions = {
+  en: [
+    "Closure: Adding 2 and 3 gives 5. All are natural numbers, so closure holds.",
+    "Commutative: 2 plus 3 equals 5. Also 3 plus 2 equals 5. Order does not matter.",
+    "Associative: Grouping does not change the result. (2+3)+4 = 9, and 2+(3+4) = 9.",
+    "Distributive: Multiply 2 with (3+4). This equals 2×3 + 2×4 = 14."
+  ],
+  hi: [
+    "समापन: किसी भी दो संख्याएँ लें, उनका जोड़ या गुणन भी उसी सेट में होगा।",
+    "परिवर्तनीय: क्रम बदलने से परिणाम नहीं बदलता। a+b = b+a।",
+    "सहसंयोजक: समूह बदलने से परिणाम नहीं बदलता। (a+b)+c = a+(b+c)।",
+    "वितरणीय: गुणा जोड़ पर वितरित होता है। a×(b+c) = a×b+a×c।"
+  ]
+};
+
+const voices = { en: "en-IN", hi: "hi-IN" };
+const steps = [
+  { panel: "#closure", ex: ["#closureEx"], tick: "#closureTick" },
+  { panel: "#commutative", ex: ["#commEx1", "#commEx2"], tick: "#commTick" },
+  { panel: "#associative", ex: ["#assocEx1", "#assocEx2"], tick: "#assocTick" },
+  { panel: "#distributive", ex: ["#distEx1", "#distEx2", "#distEx3"], tick: "#distTick" }
+];
+
+const captionEl = document.getElementById("caption");
+const langSel = document.getElementById("lang");
+const pauseBtn = document.getElementById("pauseBtn");
+const replayBtn = document.getElementById("replayBtn");
+const svgContainer = document.getElementById("svgContainer");
+
+let step = 0, paused = false, utterance = null;
+
+function speak(text, callback){
+  if(utterance) window.speechSynthesis.cancel();
+  utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = voices[langSel.value] || "en-IN";
+  utterance.rate = 0.9;
+  utterance.onend = callback;
+  window.speechSynthesis.speak(utterance);
+}
+
+function animateExamples(exs, callback){
+  if(exs.length === 0){ callback(); return; }
+  let i = 0;
+  function next(){
+    if(i >= exs.length){ callback(); return; }
+    gsap.to(exs[i], {opacity:1, y:-5, duration:0.8, onComplete: ()=>{ i++; next(); }});
+  }
+  next();
+}
+
+function scrollToPanel(panel){
+  const rect = panel.getBoundingClientRect();
+  const containerRect = svgContainer.getBoundingClientRect();
+  const offset = rect.top - containerRect.top - 20; // 20px padding
+  svgContainer.scrollBy({top: offset, behavior: 'smooth'});
+}
+
+function runStep(i){
+  if(i >= steps.length){
+    replayBtn.style.display = "inline-block";
+    paused = true;
+    return;
+  }
+  step = i;
+  captionEl.textContent = captions[langSel.value][i];
+  const s = steps[i];
+  const panelEl = document.querySelector(s.panel);
+  const exEls = s.ex.map(id => document.querySelector(id));
+  const tickEl = document.querySelector(s.tick);
+
+  gsap.to(panelEl, {opacity:1, duration:0.8});
+  gsap.set(tickEl, {opacity:0, scale:1});
+  animateExamples(exEls, ()=>{
+    speak(captions[langSel.value][i], ()=>{
+      gsap.to(tickEl, {opacity:1, scale:1.2, duration:0.6, yoyo:true, repeat:1, onComplete:()=>{
+        scrollToPanel(panelEl);
+        if(i === steps.length -1){
+          replayBtn.style.display = "inline-block";
+          paused = true;
+        } else if(!paused){
+          runStep(i+1);
+        }
+      }});
+    });
+  });
+}
+
+function start(){
+  gsap.set([...steps.map(s=>document.querySelector(s.panel)),
+           ...steps.flatMap(s=>s.ex.map(id=>document.querySelector(id))),
+           ...steps.map(s=>document.querySelector(s.tick))], {opacity:0, scale:1});
+  replayBtn.style.display = "none"; 
+  paused = false; 
+  pauseBtn.textContent = "⏸ Pause";
+  step = 0; 
+  svgContainer.scrollTop = 0;
+  runStep(0);
+}
+
+pauseBtn.onclick = ()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ Play" : "⏸ Pause";
+  if(!paused) runStep(step);
+};
+replayBtn.onclick = start;
+langSel.onchange = start;
+
+start();
+</script>
+</body>
+</html>
