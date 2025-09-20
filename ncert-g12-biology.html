@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Class 12 Chemistry - NCERT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2c5aa0;
+      --secondary: #6a3093;
+      --accent: #4a86e8;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gradient-start: #4a86e8;
+      --gradient-end: #6a3093;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(ellipse at top, #e6f0ff, #f0e6ff, #fff0f5);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      border-radius: 25px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      position: relative;
+      overflow: visible;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 5px;
+      background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+      border-radius: 3px;
+      box-shadow: 0 4px 12px rgba(74, 134, 232, 0.4);
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #666;
+      margin-top: 20px;
+      font-weight: 300;
+    }
+
+    .chapters-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 35px;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    /* SVG Arrow System */
+    .arrow-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .arrow-path {
+      fill: none;
+      stroke: url(#gradient);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      filter: drop-shadow(0 4px 8px rgba(74, 134, 232, 0.3));
+      animation: drawPath 2s ease-out forwards;
+    }
+
+    .arrow-glow {
+      fill: none;
+      stroke: rgba(74, 134, 232, 0.6);
+      stroke-width: 8;
+      stroke-linecap: round;
+      opacity: 0;
+      animation: glowPulse 3s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    .arrow-marker {
+      animation: fadeInMarker 0.5s ease-out 2s forwards;
+      opacity: 0;
+    }
+
+    .floating-dot {
+      r: 3;
+      fill: var(--gradient-end);
+      opacity: 0;
+      animation: floatDot 4s ease-in-out infinite;
+    }
+
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.6; }
+    }
+
+    @keyframes fadeInMarker {
+      from { opacity: 0; transform: scale(0); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes floatDot {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .chapter-card {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      padding: 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(74, 134, 232, 0.3);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .chapter-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
+    .chapter-card:hover::before {
+      transform: translateX(100%);
+    }
+
+    .chapter-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(74, 134, 232, 0.4);
+    }
+
+    .chapter-number {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+
+    .chapter-title {
+      font-size: 19px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .chapter-icon {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      font-size: 28px;
+      opacity: 0.8;
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .subtopics {
+      max-height: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+      color: var(--dark);
+      margin-top: 20px;
+      border-radius: 15px;
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      padding: 0 25px;
+      box-shadow: inset 0 0 20px rgba(74, 134, 232, 0.1);
+      grid-column: 1 / -1;
+      border: 2px solid transparent;
+    }
+
+    .subtopics.open {
+      max-height: 600px;
+      padding: 25px;
+      border-color: rgba(74, 134, 232, 0.2);
+    }
+
+    .subtopics ul {
+      padding-left: 25px;
+      margin: 10px 0;
+    }
+
+    .subtopics li {
+      margin-bottom: 12px;
+      font-size: 16px;
+      position: relative;
+      padding-left: 15px;
+      line-height: 1.5;
+    }
+
+    .subtopics li::before {
+      content: "✦";
+      color: var(--primary);
+      font-weight: bold;
+      display: inline-block;
+      width: 1.2em;
+      margin-left: -1.2em;
+    }
+
+    .practice-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 25px;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, var(--success), #20c997);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .practice-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .practice-btn:hover::before {
+      left: 100%;
+    }
+
+    .practice-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(40, 167, 69, 0.5);
+    }
+
+    .floating-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .floating-element {
+      position: absolute;
+      font-size: 32px;
+      animation: floaty 12s infinite ease-in-out;
+      opacity: 0.3;
+      filter: blur(0.5px);
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+      25% { transform: translateY(-30px) rotate(5deg) scale(1.1); }
+      50% { transform: translateY(-20px) rotate(-5deg) scale(0.9); }
+      75% { transform: translateY(-40px) rotate(3deg) scale(1.05); }
+    }
+
+    .search-container {
+      margin-bottom: 35px;
+      position: relative;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 18px 25px 18px 55px;
+      border-radius: 15px;
+      border: 2px solid #e2e8f0;
+      font-size: 16px;
+      background: linear-gradient(135deg, #ffffff, #f8f9ff);
+      color: var(--dark);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(74, 134, 232, 0.1), 0 8px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 18px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 40px;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, var(--light), #e2e8f0);
+      color: var(--primary);
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(74, 134, 232, 0.2);
+      background: linear-gradient(135deg, #f0f4ff, #e6f0ff);
+    }
+
+    /* Chapter color variations with more vibrant gradients */
+    .chapter-card:nth-child(4n+1) {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .chapter-card:nth-child(4n+2) {
+      background: linear-gradient(135deg, #0beafa, #f5576c);
+    }
+
+    .chapter-card:nth-child(4n+3) {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+
+    .chapter-card:nth-child(4n+4) {
+      background: linear-gradient(135deg, #6443e9, #38f9d7);
+    }
+
+    /* Animation for cards */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chapter-card {
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .chapters-map {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+      
+      h1 {
+        font-size: 36px;
+      }
+      
+      .container {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-flask"></i> Class 12 Chemistry</h1>
+      <p class="subtitle">Explore the fascinating world of atoms, molecules, and reactions</p>
+    </div>
+
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-box" placeholder="Search chapters and topics..." id="search-input">
+    </div>
+
+    <div class="chapters-map">
+      <svg class="arrow-svg">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+          </linearGradient>
+          <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto" markerUnits="strokeWidth">
+            <polygon points="0,0 0,8 12,4" fill="url(#gradient)" class="arrow-marker"/>
+          </marker>
+        </defs>
+      </svg>
+      
+      <div class="chapter-card" style="animation-delay: 0.1s">
+        <div class="chapter-number">Chapter 1</div>
+        <div class="chapter-title">Solid State</div>
+        <div class="chapter-icon">⛓️</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Types of Solids: Crystalline & Amorphous</li>
+          <li>Unit Cell & Crystal Lattices (Primitive, bcc, fcc)</li>
+          <li>Packing Efficiency & Voids (hcp, ccp)</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.2s">
+        <div class="chapter-number">Chapter 2</div>
+        <div class="chapter-title">Solutions</div>
+        <div class="chapter-icon">🧪</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Concentration Terms: Molarity, Molality, Mole Fraction</li>
+          <li>Raoult's Law, Relative Lowering of Vapour Pressure</li>
+          <li>Elevation of Boiling Point, Depression of Freezing Point (Colligative Properties)</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.3s">
+        <div class="chapter-number">Chapter 3</div>
+        <div class="chapter-title">Electrochemistry</div>
+        <div class="chapter-icon">⚡</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Electrolytic & Galvanic Cells</li>
+          <li>Nernst Equation & Applications</li>
+          <li>Conductance (Molar, Equivalent, Specific)</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.4s">
+        <div class="chapter-number">Chapter 4</div>
+        <div class="chapter-title">Chemical Kinetics</div>
+        <div class="chapter-icon">⏱️</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Rate of reaction</li>
+          <li>Factors affecting rate</li>
+          <li>Order and molecularity</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.5s">
+        <div class="chapter-number">Chapter 5</div>
+        <div class="chapter-title">Surface Chemistry</div>
+        <div class="chapter-icon">🧲</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Adsorption: Physisorption & Chemisorption</li>
+          <li>Factors affecting adsorortion</li>
+          <li>Applications of adsorption</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.6s">
+        <div class="chapter-number">Chapter 6</div>
+        <div class="chapter-title">General Principles & Processes of Isolation of Elements</div>
+        <div class="chapter-icon">⛏️</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Concentration of Ores (Froth Flotation, Magnetic Separation)</li>
+          <li>Roasting, Calcination, Smelting</li>
+          <li>Electrolytic & Chemical Reduction</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.7s">
+        <div class="chapter-number">Chapter 7</div>
+        <div class="chapter-title">The p-Block Element (Group 15,16,17,18)</div>
+        <div class="chapter-icon">🧪</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Group 15</li>
+          <li>Group 16</li>
+          <li>Group 17 & 18</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.8s">
+        <div class="chapter-number">Chapter 8</div>
+        <div class="chapter-title">The d-Block Element (Transition Elements)</div>
+        <div class="chapter-icon">⚗️</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Variable Oxidation State</li>
+          <li>Magnetic Properties</li>
+          <li>Electronic effects</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+
+      <div class="chapter-card" style="animation-delay: 0.9s">
+        <div class="chapter-number">Chapter 9</div>
+        <div class="chapter-title">The f-Block Element (Lanthanides & Actinides)</div>
+        <div class="chapter-icon">🧫</div>
+      </div>
+      <div class="subtopics">
+        <ul>
+          <li>Lanthanides</li>
+          <li>Actinides</li>
+        </ul>
+        <button class="practice-btn"><i class="fas fa-brain"></i> Practice Now</button>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 50px;">
+      <a href="#" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Subjects
+      </a>
+    </div>
+
+    <div class="floating-elements">
+      <div class="floating-element" style="top:8%; left:3%; animation-delay: 0s;">⚗️</div>
+      <div class="floating-element" style="top:15%; right:8%; animation-delay: 2s;">🧪</div>
+      <div class="floating-element" style="bottom:12%; left:12%; animation-delay: 4s;">🔬</div>
+      <div class="floating-element" style="bottom:25%; right:15%; animation-delay: 6s;">🧫</div>
+      <div class="floating-element" style="top:45%; left:35%; animation-delay: 1s;">🧬</div>
+      <div class="floating-element" style="top:25%; left:18%; animation-delay: 3s;">🌡️</div>
+      <div class="floating-element" style="bottom:35%; right:8%; animation-delay: 5s;">⚛️</div>
+    </div>
+  </div>
+
+  <script>
+    const chapterCards = document.querySelectorAll(".chapter-card");
+    
+    chapterCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const subtopics = card.nextElementSibling;
+        subtopics.classList.toggle("open");
+      });
+    });
+
+    const buttons = document.querySelectorAll(".practice-btn");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const chapter = btn.closest('.subtopics').previousElementSibling;
+        const chapterName = chapter.querySelector('.chapter-title').textContent;
+        alert(`🚀 Starting practice for ${chapterName}...`);
+      });
+    });
+
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      chapterCards.forEach(card => {
+        const chapterText = card.textContent.toLowerCase();
+        const subtopics = card.nextElementSibling;
+        const subtopicsText = subtopics.textContent.toLowerCase();
+        
+        if (chapterText.includes(searchTerm) || subtopicsText.includes(searchTerm)) {
+          card.style.display = 'flex';
+          subtopics.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+          subtopics.style.display = 'none';
+        }
+      });
+      
+      setTimeout(createCurvedArrows, 200);
+    });
+
+    function createCurvedArrows() {
+      const svg = document.querySelector('.arrow-svg');
+      const cards = Array.from(document.querySelectorAll('.chapter-card')).filter(card => 
+        card.style.display !== 'none'
+      );
+      
+      // Clear existing paths
+      const existingPaths = svg.querySelectorAll('path, circle');
+      existingPaths.forEach(el => el.remove());
+      
+      if (cards.length < 2) return;
+      
+      const container = document.querySelector('.chapters-map');
+      const containerRect = container.getBoundingClientRect();
+      
+      for (let i = 0; i < cards.length - 1; i++) {
+        const currentCard = cards[i];
+        const nextCard = cards[i + 1];
+        
+        const currentRect = currentCard.getBoundingClientRect();
+        const nextRect = nextCard.getBoundingClientRect();
+        
+        const x1 = currentRect.right - containerRect.left - 10;
+        const y1 = currentRect.top + currentRect.height/2 - containerRect.top;
+        const x2 = nextRect.left - containerRect.left + 10;
+        const y2 = nextRect.top + nextRect.height/2 - containerRect.top;
+        
+        const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        
+        if (distance > 20 && distance < 800) {
+          // Create curved path
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          const offsetY = Math.sin(i * 0.5) * 30; // Curve variation
+          
+          const controlX1 = x1 + (midX - x1) * 0.5;
+          const controlY1 = y1 + offsetY;
+          const controlX2 = x2 - (x2 - midX) * 0.5;
+          const controlY2 = y2 + offsetY;
+          
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${x1} ${y1} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${x2} ${y2}`);
+          path.setAttribute('class', 'arrow-path');
+          path.setAttribute('marker-end', 'url(#arrowhead)');
+          path.style.animationDelay = `${i * 0.3}s`;
+          
+          // Add glow effect
+          const glowPath = path.cloneNode();
+          glowPath.setAttribute('class', 'arrow-glow');
+          glowPath.removeAttribute('marker-end');
+          glowPath.style.animationDelay = `${i * 0.3 + 2}s`;
+          
+          svg.appendChild(glowPath);
+          svg.appendChild(path);
+          
+          // Add floating dots along the path
+          for (let j = 0; j < 3; j++) {
+            const t = (j + 1) / 4;
+            const dotX = Math.pow(1-t, 3)*x1 + 3*Math.pow(1-t, 2)*t*controlX1 + 3*(1-t)*Math.pow(t, 2)*controlX2 + Math.pow(t, 3)*x2;
+            const dotY = Math.pow(1-t, 3)*y1 + 3*Math.pow(1-t, 2)*t*controlY1 + 3*(1-t)*Math.pow(t, 2)*controlY2 + Math.pow(t, 3)*y2;
+            
+            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.setAttribute('cx', dotX);
+            dot.setAttribute('cy', dotY);
+            dot.setAttribute('class', 'floating-dot');
+            dot.style.animationDelay = `${i * 0.3 + j * 0.5 + 2.5}s`;
+            
+            svg.appendChild(dot);
+          }
+        }
+      }
+    }
+
+    // Initialize arrows after page load
+    window.addEventListener('load', () => {
+      setTimeout(createCurvedArrows, 1000);
+    });
+    
+    window.addEventListener('resize', () => {
+      setTimeout(createCurvedArrows, 100);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Electric Dipole & Torque — Animated</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  text-align:center;
+}
+h2,h3{margin:5px 0;}
+.card{
+  padding:16px;
+  max-width:900px;
+  width:95%;
+}
+.propsCard{
+  background:rgba(0,0,0,0.6);
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  padding:20px;
+  margin-top:16px;
+  min-height:400px;
+  position:relative;
+}
+.animationBox{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  pointer-events:none;
+}
+button, select{
+  margin:8px;
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  font-size:0.9rem;
+  font-weight:bold;
+  cursor:pointer;
+}
+#replayBtn{background:#ff7b54;color:#fff;display:none;}
+#pauseBtn{background:#4CAF50;color:#fff;}
+#replayBtn:hover{background:#ff5722;}
+#pauseBtn:hover{background:#2e7d32;}
+select{
+  border:1px solid #fff;
+  font-weight:normal;
+  padding:6px 12px;
+  color:#fff;
+  background:rgba(0,0,0,0.2);
+}
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: inline-block;
+  color: #fff;
+  background: rgba(0,0,0,0.4);
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  opacity: 0;
+}
+.caption .formula {
+  margin-top: 6px;
+  font-size: 1.1rem;
+  color: #ffeb3b;
+  font-weight: bold;
+  background: rgba(255,255,255,0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  opacity: 0;
+}
+svg line{stroke:#fff; stroke-width:2; marker-end:url(#arrowhead);}
+</style>
+</head>
+<body>
+
+<h2>Electric Dipole & Torque</h2>
+<h3>Physics — Electrostatics</h3>
+
+<label for="langSelect">🌐 Choose Language: </label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+
+<div class="card">
+  <div class="propsCard">
+
+    <svg width="0" height="0">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#fff"></polygon>
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- Animation 1: Dipole representation -->
+    <div id="anim1" class="animationBox" style="width:420px;height:200px;">
+      <svg width="420" height="200">
+        <circle cx="150" cy="100" r="10" fill="#ff5252"/>
+        <circle cx="270" cy="100" r="10" fill="#448aff"/>
+        <line x1="150" y1="100" x2="270" y2="100" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Animation 2: Dipole in uniform field -->
+    <div id="anim2" class="animationBox" style="width:420px;height:200px;">
+      <svg width="420" height="200">
+        <line x1="50" y1="40" x2="50" y2="160" class="arrow"/>
+        <line x1="110" y1="40" x2="110" y2="160" class="arrow"/>
+        <line x1="170" y1="40" x2="170" y2="160" class="arrow"/>
+        <line x1="230" y1="40" x2="230" y2="160" class="arrow"/>
+        <circle cx="150" cy="100" r="10" fill="#ff5252"/>
+        <circle cx="270" cy="100" r="10" fill="#448aff"/>
+        <line x1="150" y1="100" x2="270" y2="100" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Animation 3: Dipole aligns -->
+    <div id="anim3" class="animationBox" style="width:420px;height:200px;">
+      <svg width="420" height="200">
+        <line x1="50" y1="40" x2="50" y2="160" class="arrow"/>
+        <line x1="110" y1="40" x2="110" y2="160" class="arrow"/>
+        <line x1="170" y1="40" x2="170" y2="160" class="arrow"/>
+        <line x1="230" y1="40" x2="230" y2="160" class="arrow"/>
+        <circle cx="200" cy="100" r="10" fill="#ff5252"/>
+        <circle cx="280" cy="100" r="10" fill="#448aff"/>
+        <line x1="200" y1="100" x2="280" y2="100" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Animation 4: Dipole at angle experiences torque -->
+    <div id="anim4" class="animationBox" style="width:420px;height:200px;">
+      <svg width="420" height="200">
+        <line x1="50" y1="40" x2="50" y2="160" class="arrow"/>
+        <line x1="110" y1="40" x2="110" y2="160" class="arrow"/>
+        <line x1="170" y1="40" x2="170" y2="160" class="arrow"/>
+        <line x1="230" y1="40" x2="230" y2="160" class="arrow"/>
+        <circle cx="180" cy="100" r="10" fill="#ff5252"/>
+        <circle cx="260" cy="60" r="10" fill="#448aff"/>
+        <line x1="180" y1="100" x2="260" y2="60" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Animation 5: Dipole rotates under torque -->
+    <div id="anim5" class="animationBox" style="width:420px;height:200px;">
+      <svg width="420" height="200">
+        <line x1="50" y1="40" x2="50" y2="160" class="arrow"/>
+        <line x1="110" y1="40" x2="110" y2="160" class="arrow"/>
+        <line x1="170" y1="40" x2="170" y2="160" class="arrow"/>
+        <line x1="230" y1="40" x2="230" y2="160" class="arrow"/>
+        <line x1="200" y1="100" x2="300" y2="80" stroke="#fff" stroke-width="2" id="dipole"/>
+        <circle cx="200" cy="100" r="10" fill="#ff5252" id="posCharge"/>
+        <circle cx="300" cy="80" r="10" fill="#448aff" id="negCharge"/>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- Caption + Formula Box -->
+  <div id="captionBox" class="caption">
+    <div id="captionText">Let's learn Electric Dipole!</div>
+    <div id="formulaText" class="formula">τ = p × E = p E sinθ</div>
+  </div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const captionBox = document.getElementById("captionBox");
+const captionText = document.getElementById("captionText");
+const formulaText = document.getElementById("formulaText");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+let paused = false, stepIndex = 0, currentLang = "en";
+
+const captions = {
+  en:[
+    "Let's learn Electric Dipole!",
+    "A dipole consists of two equal and opposite charges separated by a distance.",
+    "Dipole placed in uniform electric field aligns with the field.",
+    "When dipole is at an angle, it experiences torque.",
+    "Torque on a dipole is τ = p × E = p E sinθ.",
+    "Observe how the dipole rotates due to torque in the field."
+  ],
+  hi:[
+    "आइए इलेक्ट्रिक डाइपोल सीखें!",
+    "डाइपोल में दो समान और विपरीत चार्ज़ अलग दूरी पर होते हैं।",
+    "डाइपोल को समान विद्युत क्षेत्र में रखने पर यह क्षेत्र के अनुरूप होता है।",
+    "जब डाइपोल कोण पर होता है, तो इसे टॉर्क लगता है।",
+    "डाइपोल पर टॉर्क τ = p × E = p E sinθ।",
+    "देखें कि डाइपोल टॉर्क के कारण कैसे घूमता है।"
+  ],
+  ta:[
+    "மின்தடங்கு பற்றி கற்போம்!",
+    "ஒரு டிபோலில் சமமான எதிர்மறை சார்ஜுகள் இரண்டு புள்ளிகளாக இருக்கும்.",
+    "மின்வீதி நிலையான வயலில் டிபோல் சீரான கோட்டில் அமைந்திருக்கும்.",
+    "டிபோல் சாய்ந்தால், அதற்கு சுற்றல் சக்தி ஏற்படும்.",
+    "டிபோலின் சுற்றல் சக்தி τ = p × E = p E sinθ.",
+    "டிபோல் எப்படி சுற்றல் சக்தி காரணமாக சுழல்கிறது என்பதை பாருங்கள்."
+  ],
+  te:[
+    "ఎలక్ట్రిక్ డిపోల్ ను నేర్చుకుందాం!",
+    "డిపోల్ అంటే సమానమైన మరియు విరుద్ధ ఆవేశాలతో రెండు చార్జ్‌లు వేరుగా ఉంటాయి.",
+    "డిపోల్ ని యూనిఫామ్ ఫీల్డ్ లో ఉంచితే, అది ఫీల్డ్ కు సరియైన క్రమంలో ఉంటుంది.",
+    "డిపోల్ కొంత కోణంలో ఉంచితే, దానికి టార్క్ ఏర్పడుతుంది.",
+    "డిపోల్ పై టార్క్ τ = p × E = p E sinθ.",
+    "డిపోల్ ఫీల్డ్ లో టార్క్ కారణంగా ఎలా తిప్పుకుంటుందో చూడండి."
+  ],
+  or:[
+    "ବିଦ୍ୟୁତ୍ ଡିପୋଲ୍ ବିଷୟରେ ଶିଖନ୍ତୁ!",
+    "ଡିପୋଲ୍ ହେଉଛି ସମାନ ଏବଂ ବିପରୀତ ଆବେଶ ଦୁଇଟି ଚାର୍ଜ ଯାହା ଦୂରତା ଦ୍ୱାରା ବିଭକ୍ତ।",
+    "ଏକ ଡିପୋଲ୍ ସମାନ ବିଦ୍ୟୁତ୍ କ୍ଷେତ୍ରରେ ସମାନ ଦିଶାରେ ଅବସ୍ଥିତ ହୁଏ।",
+    "ଡିପୋଲ୍ କୋଣରେ ଥିଲେ, ଏହାକୁ ଟର୍କ୍ ଲାଗେ।",
+    "ଡିପୋଲ୍ ପାଇଁ ଟର୍କ୍ τ = p × E = p E sinθ।",
+    "ଡିପୋଲ୍ କିପରି ଟର୍କ୍ ଦ୍ୱାରା ଘୂରେ ତାହା ଦେଖନ୍ତୁ।"
+  ]
+};
+
+const voicesMap = {en:"en-IN",hi:"hi-IN",ta:"ta-IN",te:"te-IN",or:"or-IN"};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang=voicesMap[lang]||"en-IN";
+  utter.rate=1.1;
+  utter.onend=()=>{ if(!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function hideAllAnimations(){
+  for(let i=1;i<=5;i++){
+    gsap.to("#anim"+i,{opacity:0,duration:0.5});
+  }
+}
+
+function runStep() {
+  if(stepIndex >= captions[currentLang].length){
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+
+  gsap.to([captionBox, formulaText], {opacity: 0, duration: 0.3, onComplete: () => {
+    captionText.textContent = captions[currentLang][stepIndex];
+    formulaText.textContent = (stepIndex>=3) ? "τ = p × E = p E sinθ" : "";
+
+    gsap.to(captionBox, {opacity: 1, duration: 0.5});
+    gsap.to(formulaText, {opacity: 1, duration: 0.5, delay: 0.2});
+
+    hideAllAnimations();
+    gsap.to("#anim"+Math.min(stepIndex+1,5), {opacity:1, duration:1});
+
+    // Animate dipole rotation for step 5
+    if(stepIndex===5){
+      gsap.to("#dipole",{rotation:30, transformOrigin:"200px 100px", duration:0.5, yoyo:true, repeat:-1});
+      gsap.to("#posCharge",{rotation:30, transformOrigin:"200px 100px", duration:0.5, yoyo:true, repeat:-1});
+      gsap.to("#negCharge",{rotation:30, transformOrigin:"200px 100px", duration:0.5, yoyo:true, repeat:-1});
+    }
+
+    speak(captions[currentLang][stepIndex], currentLang, ()=> {
+      stepIndex++;
+      if(!paused) runStep();
+    });
+  }});
+}
+
+function resetAnimation(){
+  hideAllAnimations();
+  stepIndex = 0;
+  captionText.textContent = captions[currentLang][0];
+  formulaText.textContent = "";
+  gsap.to([captionBox, formulaText], {opacity: 1, duration: 0.5});
+}
+
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  paused=false;
+  window.speechSynthesis.cancel();
+  resetAnimation();
+  replayBtn.style.display="none";
+  runStep();
+});
+
+pauseBtn.addEventListener("click",()=>{
+  paused=!paused;
+  if(paused) window.speechSynthesis.cancel();
+  else runStep();
+  pauseBtn.textContent=paused?"▶ Resume":"⏸ Pause";
+});
+
+replayBtn.addEventListener("click",()=>{
+  window.speechSynthesis.cancel();
+  resetAnimation();
+  paused=false;
+  replayBtn.style.display="none";
+  runStep();
+});
+
+runStep();
+</script>
+</body>
+</html>

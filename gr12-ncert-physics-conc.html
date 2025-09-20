@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class 12 Physics - Chapter 1: Electric Charges and Fields | AURRAA</title>
+  <style>
+    /* Global */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      color: #222;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Floating particles background */
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Container */
+    .chapter-container {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+    }
+
+    .chapter-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
+      z-index: -1;
+    }
+
+    .chapter-header { 
+      text-align: center; 
+      margin-bottom: 35px;
+      position: relative;
+    }
+    
+    .chapter-header h1 { 
+      font-size: 2.8rem; 
+      font-weight: 700; 
+      margin-bottom: 12px; 
+      color: #333;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .chapter-header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+    
+    .chapter-header p { 
+      font-size: 1.2rem; 
+      opacity: 0.9; 
+      color:#444;
+      font-weight: 500;
+    }
+
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .topic-wrapper { 
+      display:flex; 
+      flex-direction:column;
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .topic-wrapper:nth-child(1) { animation-delay: 0.1s; }
+    .topic-wrapper:nth-child(2) { animation-delay: 0.2s; }
+    .topic-wrapper:nth-child(3) { animation-delay: 0.3s; }
+    .topic-wrapper:nth-child(4) { animation-delay: 0.4s; }
+    .topic-wrapper:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .topic-btn {
+      width:100%; 
+      padding:18px 20px;
+      border-radius:16px; 
+      border: none;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      color:#333; 
+      text-align:left;
+      font-weight:600; 
+      display:flex; 
+      align-items:center; 
+      gap:15px;
+      cursor:pointer; 
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topic-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+      transition: width 0.3s ease;
+    }
+
+    .topic-btn:hover::before {
+      width: 100%;
+      opacity: 0.1;
+    }
+    
+    .topic-btn:hover { 
+      background: #fff; 
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    
+    .topic-icon { 
+      font-size: 1.8rem; 
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .topic-text {
+      flex: 1;
+      font-size: 1.1rem;
+    }
+
+    .topic-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, padding 0.5s ease;
+    }
+
+    .topic-wrapper.active .topic-content {
+      max-height: 500px;
+      padding-top: 15px;
+    }
+
+    .content-card {
+      padding:20px;
+      border-radius:16px; 
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.5);
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .topic-wrapper.active .content-card {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .content-card h3 { 
+      margin-bottom: 12px; 
+      font-size: 1.2rem; 
+      font-weight:600; 
+      color:#222;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .content-card h3::before {
+      content: '✨';
+      font-size: 1rem;
+    }
+    
+    .content-card ul { 
+      margin-left: 20px; 
+      line-height: 1.8; 
+      font-size: 1rem; 
+      color:#333;
+    }
+
+    .content-card li {
+      position: relative;
+      padding-left: 10px;
+      margin-bottom: 8px;
+    }
+
+    .content-card li::before {
+      content: '•';
+      color: #667eea;
+      font-weight: bold;
+      position: absolute;
+      left: -15px;
+    }
+
+    .practice-btn {
+      display:inline-flex; 
+      align-items: center;
+      gap: 8px;
+      margin-top:15px;
+      padding:12px 18px; 
+      border-radius:10px;
+      background:linear-gradient(135deg, #667eea, #764ba2); 
+      color:#fff; 
+      text-decoration:none;
+      font-size:1rem; 
+      font-weight:600; 
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .practice-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .practice-btn:hover::before {
+      left: 100%;
+    }
+
+    .practice-btn:hover { 
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .game-controls { 
+      text-align:center; 
+      margin-top:35px;
+      position: relative;
+    }
+
+    .start-game {
+      padding:16px 30px; 
+      border-radius:50px;
+      border:none; 
+      background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+      color:#fff;
+      font-weight:600; 
+      font-size:1.1rem;
+      cursor:pointer; 
+      transition:0.4s;
+      box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-game::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .start-game:hover::before {
+      opacity: 1;
+    }
+
+    .start-game:hover { 
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(245, 87, 108, 0.6);
+    }
+
+    .chapter-nav { 
+      display:flex; 
+      justify-content:space-between; 
+      margin-top:35px;
+    }
+
+    .nav-btn {
+      padding:12px 20px; 
+      border-radius:50px;
+      background:rgba(255,255,255,0.9);
+      color:#333; 
+      text-decoration:none; 
+      font-weight:600;
+      display:flex; 
+      align-items:center; 
+      gap:10px;
+      transition:0.3s;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .nav-btn:hover { 
+      background:#fff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* SVG Icons */
+    .icon {
+      width: 1.8rem;
+      height: 1.8rem;
+      fill: currentColor;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .chapter-header h1 { 
+        font-size: 2.2rem; 
+      }
+      
+      .topics-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .chapter-nav { 
+        flex-direction: column; 
+        gap: 15px;
+      }
+      
+      .nav-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating particles background -->
+  <div class="particles" id="particles"></div>
+
+  <div class="chapter-container">
+    <!-- Header -->
+    <header class="chapter-header">
+      <h1>
+        <svg class="icon" style="width: 2.2rem; height: 2.2rem; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24">
+          <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+        </svg>
+        Class 12 Physics - Chapter 1
+      </h1>
+      <p>Electric Charges and Fields ⚡ | Explore the fundamental concepts of electromagnetism</p>
+    </header>
+
+    <!-- Topic Buttons -->
+    <div class="topics-grid">
+      <div class="topic-wrapper">
+        <button class="topic-btn" data-topic="electric-charge">
+          <span class="topic-icon">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+            </svg>
+          </span>
+          <span class="topic-text">Electric Charge</span>
+        </button>
+        <div class="topic-content" id="electric-charge-content">
+          <div class="content-card">
+            <h3>Key Points:</h3>
+            <ul>
+              <li>Conservation of charge</li>
+              <li>Quantization of charge</li>
+            </ul>
+            <a href="video-g12-electriccharge.html" class="practice-btn">
+              Practice Now 
+              <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic-wrapper">
+        <button class="topic-btn" data-topic="coulombs-law">
+          <span class="topic-icon">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+            </svg>
+          </span>
+          <span class="topic-text">Coulomb's Law</span>
+        </button>
+        <div class="topic-content" id="coulombs-law-content">
+          <div class="content-card">
+            <h3>Key Points:</h3>
+            <ul>
+              <li>Vector form of Coulomb's law</li>
+              <li>Superposition principle</li>
+            </ul>
+            <a href="video-g12-coulombs.html" class="practice-btn">
+              Practice Now 
+              <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic-wrapper">
+        <button class="topic-btn" data-topic="electric-field">
+          <span class="topic-icon">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M13,2.03V2.05L13,4.05C17.39,4.59 20.87,8.14 21,12.5C20.88,16.85 17.39,20.41 13,20.95V22.95C18.5,22.45 22.72,17.89 23,12.5C22.72,7.11 18.5,2.55 13,2.03M11,2.06C5.95,2.56 2,6.84 2,12C2,17.16 5.95,21.44 11,21.94V19.94C7.06,19.45 4,16.08 4,12C4,7.92 7.05,4.55 11,4.06V2.06M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/>
+            </svg>
+          </span>
+          <span class="topic-text">Electric Field & Field Lines</span>
+        </button>
+        <div class="topic-content" id="electric-field-content">
+          <div class="content-card">
+            <h3>Key Points:</h3>
+            <ul>
+              <li>Definition of electric field</li>
+              <li>Electric field lines and their properties</li>
+            </ul>
+            <a href="video-g12-electric-field.html" class="practice-btn">
+              Practice Now 
+              <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic-wrapper">
+        <button class="topic-btn" data-topic="gauss-law">
+          <span class="topic-icon">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+            </svg>
+          </span>
+          <span class="topic-text">Electric Flux & Gauss's Law</span>
+        </button>
+        <div class="topic-content" id="gauss-law-content">
+          <div class="content-card">
+            <h3>Key Points:</h3>
+            <ul>
+              <li>Electric flux</li>
+              <li>Gauss's law and applications</li>
+              <li>Spherical, cylindrical, and plane symmetry</li>
+            </ul>
+            <a href="video-g12-electric-flux.html" class="practice-btn">
+              Practice Now 
+              <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic-wrapper">
+        <button class="topic-btn" data-topic="electric-dipole">
+          <span class="topic-icon">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+            </svg>
+          </span>
+          <span class="topic-text">Electric Dipole</span>
+        </button>
+        <div class="topic-content" id="electric-dipole-content">
+          <div class="content-card">
+            <h3>Key Points:</h3>
+            <ul>
+              <li>Electric dipole moment</li>
+              <li>Torque on a dipole in uniform electric field</li>
+            </ul>
+            <a href="video-g12-electric-dipole.html" class="practice-btn">
+              Practice Now 
+              <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <div class="game-controls">
+      <button id="startGameBtn" class="start-game" data-target="quiz/quiz-g12-phy-ch1.html">
+        <svg class="icon" style="width: 1.2rem; height: 1.2rem; vertical-align: middle; margin-right: 8px;" viewBox="0 0 24 24">
+          <path d="M21,6H3A2,2 0 0,0 1,8V16A2,2 0 0,0 3,18H21A2,2 0 0,0 23,16V8A2,2 0 0,0 21,6M21,16H3V8H21M6,15H8V13H10V11H8V9H6V11H4V13H6V15M14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5A1.5,1.5 0 0,1 14.5,12M18.5,15A1.5,1.5 0 0,1 17,16.5A1.5,1.5 0 0,1 15.5,15A1.5,1.5 0 0,1 17,13.5A1.5,1.5 0 0,1 18.5,15Z"/>
+        </svg>
+          Start Quiz
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="chapter-nav">
+      <a href="ncert-g12-physics-syllabus.html" class="nav-btn back-btn">
+        <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+          <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+        </svg>
+        Back to Chapters
+      </a>
+      <a href="physics12-ch2.html" class="nav-btn next-btn">
+        Next Chapter 
+        <svg class="icon" style="width: 1rem; height: 1rem;" viewBox="0 0 24 24">
+          <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+        </svg>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random size between 5px and 15px
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Random animation duration between 10s and 20s
+        const duration = Math.random() * 10 + 10;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
+    // Initialize particles when page loads
+    window.addEventListener('load', createParticles);
+
+    // Expand/Collapse topics
+    document.querySelectorAll('.topic-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const wrapper = button.closest('.topic-wrapper');
+        const content = wrapper.querySelector('.topic-content');
+
+        // Close others
+        document.querySelectorAll('.topic-wrapper').forEach(w => {
+          if (w !== wrapper) w.classList.remove('active');
+        });
+
+        wrapper.classList.toggle('active');
+      });
+    });
+
+    // Quiz navigation — ensure clicks on child elements (SVG/path) still navigate
+    document.getElementById('startGameBtn').addEventListener('click', e => {
+      // find the nearest element with data-target (the button itself)
+      const btn = e.target.closest && e.target.closest('#startGameBtn') ? e.target.closest('#startGameBtn') : document.getElementById('startGameBtn');
+      const target = btn ? btn.getAttribute('data-target') : null;
+      if (target) {
+        // save a small progress flag
+        try { localStorage.setItem('aurraa:grade12:physics:chapter1:start', JSON.stringify({ started: true, ts: Date.now() })); } catch (err) {}
+        window.location.href = target;
+      }
+    });
+  </script>
+</body>
+</html>

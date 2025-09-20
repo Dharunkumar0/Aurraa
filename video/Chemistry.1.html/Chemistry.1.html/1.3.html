@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Packing Efficiency & Voids: HCP & CCP - Space Theme</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 50%, #0b0c2a 0%, #000 100%);
+  color: #fff;
+  position: relative;
+}
+
+/* Card container */
+.card {
+  background: rgba(10,10,30,0.85);
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+  position: relative;
+  z-index: 2;
+}
+
+/* Caption box */
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* Buttons & Select */
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn:hover { background: #ff5722; }
+#pauseBtn:hover { background: #2e7d32; }
+select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+
+/* SVG styling */
+svg { width: 100%; height: auto; margin-top: 10px; }
+.solid-title { font-size: 18px; font-weight: bold; fill: #FFD700; }
+
+/* Atom & void gradients */
+.atom { fill: url(#hcpGradient); }
+.atom-ccp { fill: url(#ccpGradient); }
+.void { fill: rgba(255,255,255,0.1); stroke: #fff; stroke-width: 1; }
+
+/* Stars and planets */
+.star, .particle { fill: #fff; opacity: 0.7; }
+.planet { fill: radial-gradient(circle at 50% 50%, #ff6f61, #c94b4b); }
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>Packing Efficiency & Voids</h2>
+<h3>HCP & CCP Structures</h3>
+
+<label for="langSelect">🌐 Choose Language: </label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी (Hindi)</option>
+  <option value="ta">தமிழ் (Tamil)</option>
+  <option value="te">తెలుగు (Telugu)</option>
+  <option value="or">ଓଡ଼ିଆ (Odia)</option>
+</select>
+
+<svg viewBox="0 0 1000 500">
+  <defs>
+    <radialGradient id="hcpGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FFA500"/>
+    </radialGradient>
+    <radialGradient id="ccpGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4D96FF"/>
+      <stop offset="100%" stop-color="#1E90FF"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Starfield background -->
+  <g id="stars">
+    <circle class="star" cx="50" cy="50" r="1.5"/>
+    <circle class="star" cx="300" cy="120" r="2"/>
+    <circle class="star" cx="600" cy="200" r="1.2"/>
+    <circle class="star" cx="800" cy="50" r="2.5"/>
+    <circle class="star" cx="900" cy="300" r="1"/>
+  </g>
+
+  <!-- Planets -->
+  <circle class="planet" cx="200" cy="400" r="25" fill="url(#hcpGradient)"/>
+  <circle class="planet" cx="750" cy="350" r="35" fill="url(#ccpGradient)"/>
+
+  <!-- HCP Structure -->
+  <g id="hcp">
+    <text class="solid-title" x="200" y="40" text-anchor="middle">HCP (ABAB) Stacking</text>
+    <g id="hcp-atoms">
+      <circle class="atom" cx="150" cy="100" r="12"/>
+      <circle class="atom" cx="200" cy="100" r="12"/>
+      <circle class="atom" cx="250" cy="100" r="12"/>
+      <circle class="atom" cx="300" cy="100" r="12"/>
+      <circle class="atom" cx="175" cy="130" r="12"/>
+      <circle class="atom" cx="225" cy="130" r="12"/>
+      <circle class="atom" cx="275" cy="130" r="12"/>
+    </g>
+    <circle class="void" cx="200" cy="115" r="15"/>
+    <circle class="void" cx="250" cy="115" r="15"/>
+  </g>
+
+  <!-- CCP Structure -->
+  <g id="ccp">
+    <text class="solid-title" x="750" y="40" text-anchor="middle">CCP (ABCABC) Stacking</text>
+    <g id="ccp-atoms">
+      <circle class="atom-ccp" cx="650" cy="100" r="12"/>
+      <circle class="atom-ccp" cx="700" cy="100" r="12"/>
+      <circle class="atom-ccp" cx="750" cy="100" r="12"/>
+      <circle class="atom-ccp" cx="800" cy="100" r="12"/>
+      <circle class="atom-ccp" cx="675" cy="130" r="12"/>
+      <circle class="atom-ccp" cx="725" cy="130" r="12"/>
+      <circle class="atom-ccp" cx="775" cy="130" r="12"/>
+      <circle class="atom-ccp" cx="700" cy="160" r="12"/>
+      <circle class="atom-ccp" cx="750" cy="160" r="12"/>
+    </g>
+    <circle class="void" cx="700" cy="115" r="15"/>
+    <circle class="void" cx="750" cy="145" r="15"/>
+  </g>
+</svg>
+
+<div id="caption" class="caption">Exploring HCP & CCP packing...</div>
+<br>
+<button id="pauseBtn">⏸ Pause</button>
+<button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const caption = document.getElementById("caption");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+let paused = false;
+let currentStepIndex = 0;
+let currentLang = "en";
+
+const captions = {
+  en: [
+    "Atoms in HCP stack efficiently, leaving minimal voids.",
+    "The HCP structure consists of layers in an ABAB pattern, where atoms in alternate layers align perfectly.",
+    "This packing achieves a high density and 74% packing efficiency.",
+    "Voids are the small empty spaces between atoms, which can affect material properties.",
+    "CCP (FCC) structure also achieves 74% packing efficiency, with voids highlighted in dark.",
+    "CCP structure follows an ABCABC stacking pattern, allowing layers to fit more compactly.",
+    "Both HCP and CCP are examples of close-packed structures, commonly seen in metals.",
+    "Understanding packing efficiency helps predict strength, density, and conductivity of materials."
+  ],
+  hi: [
+    "HCP संरचना में परमाणु कुशलतापूर्वक पैक होते हैं, न्यूनतम शून्य स्थान छोड़ते हैं।",
+    "HCP संरचना में ABAB पैटर्न में परतें होती हैं, जहां वैकल्पिक परतों के परमाणु पूरी तरह से संरेखित होते हैं।",
+    "यह पैकिंग उच्च घनत्व और 74% पैकिंग दक्षता प्राप्त करती है।",
+    "वॉयड्स वे छोटे खाली स्थान हैं जो परमाणुओं के बीच होते हैं, और यह सामग्री के गुणों को प्रभावित कर सकते हैं।",
+    "CCP (FCC) संरचना भी 74% पैकिंग दक्षता प्राप्त करती है, जिसमें वॉयड्स को काले रंग में दिखाया गया है।",
+    "CCP संरचना ABCABC स्टैकिंग पैटर्न का पालन करती है, जिससे परतें अधिक कॉम्पैक्ट रूप से फिट होती हैं।",
+    "HCP और CCP दोनों क्लोज-पैक्ड संरचनाओं के उदाहरण हैं, जो आमतौर पर धातुओं में देखे जाते हैं।",
+    "पैकिंग दक्षता को समझना सामग्री की ताकत, घनत्व और चालकता की भविष्यवाणी करने में मदद करता है।"
+  ],
+  ta: [
+    "HCP அமைப்பில் அணுக்கள் சிறப்பாக பிணைக்கப்பட்டுள்ளன, குறைந்த வெற்றிடங்கள் உண்டு.",
+    "HCP அமைப்பு ABAB படிநிலைகள் கொண்டது, மாறி வரும் அடுக்குகளில் அணுக்கள் முறையாக ஒழுங்காக அமைந்துள்ளன.",
+    "இந்த பிணைப்பு உயர்ந்த அடர்த்தியை வழங்குகிறது மற்றும் 74% பிணைப்பு திறனை அடைகிறது.",
+    "வாயிட்ஸ் என்பது அணுக்களின் இடையில் உள்ள சிறிய வெற்றிடங்கள், இது பொருள் பண்புகளை பாதிக்கக்கூடும்.",
+    "CCP (FCC) அமைப்பும் 74% பிணைப்பு திறனை அடைகிறது, வாயிட்ஸ்கள் கருப்பு நிறத்தில் காட்டப்படுகின்றன.",
+    "CCP அமைப்பு ABCABC படிநிலை முறையை பின்பற்றுகிறது, அடுக்குகள் நன்கு பொருந்தும்.",
+    "HCP மற்றும் CCP இரண்டும் நெருக்கமான பிணைப்புச் சtructures உதாரணங்கள், பொதுவாக உலோகங்களில் காணப்படும்.",
+    "பிணைப்பு திறனை புரிந்துகொள்வது பொருளின் வலிமை, அடர்த்தி மற்றும் மின்கடத்தலுக்கு உதவும்."
+  ],
+  te: [
+    "HCP నిర్మాణంలో అణువులు సమర్థవంతంగా ప్యాక్ అవుతాయి, కనీస వాయిడ్స్ తో.",
+    "HCP నిర్మాణం ABAB ప్యాటర్న్ లో లేయర్స్ కలిగి ఉంటుంది, ప్రత్యామ్నాయ లేయర్స్ లో అణువులు సరైన సరళిలో ఉంటాయి.",
+    "ఈ ప్యాకింగ్ 74% ప్యాకింగ్ సామర్థ్యాన్ని అందిస్తుంది మరియు అధిక సాంద్రత కలిగివుంటుంది.",
+    "వాయిడ్స్ అంటే అణువుల మధ్య ఉన్న చిన్న ఖాళీ స్థలాలు, ఇవి పదార్థ లక్షణాలను ప్రభావితం చేస్తాయి.",
+    "CCP (FCC) నిర్మాణం కూడా 74% ప్యాకింగ్ సామర్థ్యాన్ని అందిస్తుంది, వాయిడ్స్ ను గాఢంగా చూపిస్తాయి.",
+    "CCP నిర్మాణం ABCABC స్టాకింగ్ ప్యాటర్న్ ను అనుసరిస్తుంది, లేయర్స్ మరింత సన్నని విధంగా సరిపోతాయి.",
+    "HCP మరియు CCP రెండూ క్లోజ్-ప్యాక్‌డ్ నిర్మాణాల ఉదాహరణలు, మేడల్‌లలో సాధారణంగా కనిపిస్తాయి.",
+    "ప్యాకింగ్ సామర్థ్యాన్ని అర్థం చేసుకోవడం పదార్థ శక్తి, సాంద్రత మరియు కండక్టివిటీని ఊహించడానికి సహాయపడుతుంది."
+  ],
+  or: [
+    "HCP ଗଠନରେ ଆଟମ୍ସ କ୍ଷମତାଶୀଳ ଭାବରେ ପ୍ୟାକ୍ ହୋଇଥାଆନ୍ତି, କମ୍ ଭଏଡ୍ସ ସହିତ।",
+    "HCP ଗଠନ ABAB ପ୍ୟାଟର୍ନ ରେ ଲେୟର୍ ରଖିଥାଏ, ବିକଳ୍ପ ଲେୟର୍ ରେ ଆଟମ୍ ସଂଖ୍ୟା ସମନ୍ୱୟରେ ରହିଥାଏ।",
+    "ଏହି ପ୍ୟାକିଂ ଉଚ୍ଚ ସଂକୀର୍ଣ୍ଣତା ଏବଂ 74% ପ୍ୟାକିଂ କ୍ଷମତା ଦେଇଥାଏ।",
+    "ଭଏଡ୍ସ ହେଉଛି ଆଟମ୍ ମଧ୍ୟରେ ଥିବା ଛୋଟ ଖାଲି ସ୍ଥାନ, ଯାହା ସାମଗ୍ରୀର ଗୁଣକୁ ପ୍ରଭାବିତ କରିପାରେ।",
+    "CCP (FCC) ଗଠନ 74% ପ୍ୟାକିଂ କ୍ଷମତା ପାଇଁ ଅଛି, ଭଏଡ୍ସ କଳାରେ ଦର୍ଶାଯାଇଛି।",
+    "CCP ଗଠନ ABCABC ଷ୍ଟ୍ୟାକିଂ ପ୍ୟାଟର୍ନକୁ ଅନୁସରିତ କରେ, ଲେୟର୍ ଅଧିକ ସଂକୁଚିତ ଭାବରେ ଫିଟ୍ ହୁଏ।",
+    "HCP ଏବଂ CCP ଦୁହିଁ କ୍ଲୋଜ୍-ପ୍ୟାକ୍ଡ ଗଠନର ଉଦାହରଣ, ସାଧାରଣତଃ ଧାତୁରେ ଦେଖାଯାଏ।",
+    "ପ୍ୟାକିଂ କ୍ଷମତା ବୁଝିବାରେ ସାମଗ୍ରୀର ଶକ୍ତି, ସଂକୀର୍ଣ୍ଣତା ଏବଂ ଚାଳକତା ପୂର୍ବାନୁମାନ କରିପାରିବ।"
+  ]
+};
+
+
+const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+function speak(text, lang, callback) {
+  if (paused) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = voicesMap[lang] || "en-IN";
+  utterance.rate = 0.95;
+  utterance.onend = () => { if (!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function animateStructures() {
+  gsap.to("#hcp-atoms circle", {y:"+=5", repeat:-1, yoyo:true, duration:1.5});
+  gsap.to("#ccp-atoms circle", {y:"+=5", repeat:-1, yoyo:true, duration:1.5});
+  gsap.to("#stars circle", {x:"+=1000", repeat:-1, duration:120, ease:"linear"});
+  gsap.to(".planet", {y:"+=20", repeat:-1, yoyo:true, duration:8, ease:"sine.inOut"});
+}
+
+function runStep() {
+  if (currentStepIndex >= captions[currentLang].length) {
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+  caption.textContent = captions[currentLang][currentStepIndex];
+
+  speak(captions[currentLang][currentStepIndex], currentLang, () => {
+    currentStepIndex++;
+    if (!paused) runStep();
+  });
+}
+
+function playAnimation() {
+  replayBtn.style.display = "none";
+  paused = false;
+  currentStepIndex = 0;
+  currentLang = langSelect.value;
+  runStep();
+  animateStructures();
+}
+
+pauseBtn.addEventListener("click", () => {
+  if (!paused) {
+    paused = true;
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent = "▶ Play";
+  } else {
+    paused = false;
+    pauseBtn.textContent = "⏸ Pause";
+    runStep();
+  }
+});
+
+replayBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", () => {
+  currentLang = langSelect.value;
+  if (!paused) playAnimation();
+  else caption.textContent = captions[currentLang][currentStepIndex] || captions[currentLang][0];
+});
+
+playAnimation();
+</script>
+</body>
+</html>

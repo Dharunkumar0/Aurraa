@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Imperfections in Solids</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 50%, #0b0c2a 0%, #000 100%);
+  color: #fff;
+  position: relative;
+}
+
+.card {
+  background: rgba(10,10,30,0.85);
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+  position: relative;
+  z-index: 2;
+}
+
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn:hover { background: #ff5722; }
+#pauseBtn:hover { background: #2e7d32; }
+select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+
+svg { width: 100%; height: auto; margin-top: 10px; }
+.defect-title { font-size: 18px; font-weight: bold; fill: #FFD700; }
+.atom { fill: url(#atomGradient); }
+.defect { fill: #FF4500; stroke: #fff; stroke-width: 1; }
+.star { fill: #fff; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>Imperfections in Solids</h2>
+<h3>Vacancy, Interstitial, Frenkel, Schottky</h3>
+
+<label for="langSelect">🌐 Choose Language: </label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी (Hindi)</option>
+  <option value="ta">தமிழ் (Tamil)</option>
+  <option value="te">తెలుగు (Telugu)</option>
+  <option value="or">ଓଡ଼ିଆ (Odia)</option>
+</select>
+
+<svg viewBox="0 0 1000 500">
+  <defs>
+    <radialGradient id="atomGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FFA500"/>
+    </radialGradient>
+  </defs>
+
+  <circle class="star" cx="50" cy="50" r="1.5"/>
+  <circle class="star" cx="300" cy="120" r="2"/>
+  <circle class="star" cx="600" cy="200" r="1.2"/>
+  <circle class="star" cx="800" cy="50" r="2.5"/>
+  <circle class="star" cx="900" cy="300" r="1"/>
+
+  <g id="atoms-grid">
+    <circle class="atom" cx="200" cy="150" r="12"/>
+    <circle class="atom" cx="250" cy="150" r="12"/>
+    <circle class="atom" cx="300" cy="150" r="12"/>
+    <circle class="atom" cx="350" cy="150" r="12"/>
+    <circle class="atom" cx="225" cy="180" r="12"/>
+    <circle class="atom" cx="275" cy="180" r="12"/>
+    <circle class="atom" cx="325" cy="180" r="12"/>
+  </g>
+
+  <circle class="defect" id="vacancy" cx="275" cy="150" r="10"/>
+  <circle class="defect" id="interstitial" cx="310" cy="165" r="8"/>
+  <circle class="defect" id="frenkel" cx="350" cy="180" r="10"/>
+  <circle class="defect" id="schottky" cx="200" cy="180" r="10"/>
+</svg>
+
+<div id="caption" class="caption">Visualizing atomic imperfections...</div>
+<br>
+<button id="pauseBtn">⏸ Pause</button>
+<button id="replayBtn">🔄 Replay</button>
+</div>
+<button id="finishBtn" class="finish-btn">Finish</button>
+</div>
+
+<script>
+const caption = document.getElementById("caption");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+let paused = false;
+let currentStepIndex = 0;
+let currentLang = "en";
+
+const captions = {
+  en: [
+    "Vacancy: An atom is missing from its lattice site.",
+    "Interstitial: An extra atom occupies a space between lattice sites.",
+    "Frenkel Defect: An atom moves to an interstitial site, leaving a vacancy.",
+    "Schottky Defect: Equal number of cations and anions are missing.",
+    "These imperfections influence the properties of solids including conductivity and density."
+  ],
+  hi: [
+    "वैकेंसी: किसी परमाणु की इसकी क्रिस्टल साइट पर कमी।",
+    "इंटरस्टिशियल: अतिरिक्त परमाणु क्रिस्टल के बीच की जगह पर।",
+    "फ्रेंकेल दोष: एक परमाणु इंटरस्टिशियल साइट पर चला जाता है, वैकेंसी छोड़ता है।",
+    "शॉटकी दोष: समान संख्या में कैटीऑन और एनीऑन गायब।",
+    "ये दोष ठोस के गुणों जैसे चालकता और घनत्व को प्रभावित करते हैं।"
+  ],
+  ta: [
+    "வெகன்சி: அணு தனது கிரிஸ்டல் தளத்தில் இல்லை.",
+    "இன்டர்ஸ்டிஷியல்: கூடுதல் அணு தளங்களுக்கு இடையில் இருக்கும் இடத்தை நிரப்புகிறது.",
+    "ஃப்ரென்கல் குறைபாடு: ஒரு அணு இடை இடத்தில் செல்கிறது, வெகன்சியை உருவாக்குகிறது.",
+    "ஷாட்ஸ்கி குறைபாடு: சம எண்ணிக்கையிலான ஆனியன்கள் மற்றும் காடியன்கள் இல்லாதவை.",
+    "இந்த குறைபாடுகள் சாலிட்ஸ் பண்புகளை, கட்டமைப்பு மற்றும் மூலக்கூறுகளை பாதிக்கின்றன."
+  ],
+  te: [
+    "వాకెన్సీ: ఒక అణువు దాని లాటిస్ సైట్ నుండి లేమి.",
+    "ఇంటర్‌స్టిషియల్: అదనపు అణువు లాటిస్ సైట్ల మధ్య స్థలంలో ఉంటుంది.",
+    "ఫ్రెంకెల్ లోపం: ఒక అణువు ఇంటర్‌స్టిషియల్ సైట్ కి కదులుతుంది, వాకెన్సీని ఉంచుతుంది.",
+    "షాట్కీ లోపం: సమాన సంఖ్యలో కాటియన్లు మరియు అనియన్లు లేని పరిస్థితి.",
+    "ఈ లోపాలు ఘనాల లక్షణాలను, కండక్టివిటీ మరియు సాంద్రతను ప్రభావితం చేస్తాయి."
+  ],
+  or: [
+    "ଭ୍ୟାକାନ୍ସି: ଏକ ଆଟମ୍ ତାହାର ଲାଟିସ୍ ସାଇଟ୍ ରୁ ନାହିଁ।",
+    "ଇଣ୍ଟରଷ୍ଟିସିଆଲ୍: ଅତିରିକ୍ତ ଆଟମ୍ ଲାଟିସ୍ ସାଇଟ୍ ମଧ୍ୟରେ ଥାଏ।",
+    "ଫ୍ରେଙ୍କେଲ୍ ତ୍ରୁଟି: ଏକ ଆଟମ୍ ଇଣ୍ଟରଷ୍ଟିସିଆଲ୍ ସାଇଟ୍ କୁ ସ୍ଥାନାନ୍ତର କରେ, ଏକ ଭ୍ୟାକେନ୍ସି ଛାଡେ।",
+    "ସ୍କଟ୍ସ୍କି ତ୍ରୁଟି: ସମାନ ସଂଖ୍ୟକ କାଟିଓନ୍ ଏବଂ ଏନିଓନ୍ ହାରାଇଯାଇଛି।",
+    "ଏହି ତ୍ରୁଟିଗୁଡିକ ଘନର ଗୁଣ, ଚାଳକତା ଏବଂ ସଂକୀର୍ଣ୍ଣତାକୁ ପ୍ରଭାବିତ କରେ।"
+  ]
+};
+
+const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+function speak(text, lang, callback) {
+  if (paused) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = voicesMap[lang] || "en-IN";
+  utterance.rate = 0.95;
+  utterance.onend = () => { if (!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function animateDefects() {
+  gsap.to("#atoms-grid circle", {y:"+=5", repeat:-1, yoyo:true, duration:1.5});
+  gsap.to(".defect", {scale:1.2, repeat:-1, yoyo:true, duration:1, ease:"sine.inOut"});
+  gsap.to(".star", {x:"+=1000", repeat:-1, duration:120, ease:"linear"});
+}
+
+function runStep() {
+  if (currentStepIndex >= captions[currentLang].length) {
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+  caption.textContent = captions[currentLang][currentStepIndex];
+  speak(captions[currentLang][currentStepIndex], currentLang, () => {
+    currentStepIndex++;
+    if (!paused) runStep();
+  });
+}
+
+function playAnimation() {
+  replayBtn.style.display = "none";
+  paused = false;
+  currentStepIndex = 0;
+  currentLang = langSelect.value;
+  runStep();
+  animateDefects();
+}
+
+pauseBtn.addEventListener("click", () => {
+  if (!paused) {
+    paused = true;
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent = "▶ Play";
+  } else {
+    paused = false;
+    pauseBtn.textContent = "⏸ Pause";
+    runStep();
+  }
+});
+
+replayBtn.addEventListener("click", playAnimation);
+langSelect.addEventListener("change", () => {
+  currentLang = langSelect.value;
+  if (!paused) playAnimation();
+  else caption.textContent = captions[currentLang][currentStepIndex] || captions[currentLang][0];
+});
+
+playAnimation();
+</script>
+<script>
+  document.getElementById('finishBtn')?.addEventListener('click', function() {
+    window.location.href = '/gr12-ncert-chem-ch-1-concept.html';
+  });
+</script>
+</body>
+</html>

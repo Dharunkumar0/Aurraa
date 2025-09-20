@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Electric Flux & Gauss's Law — Animated</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  text-align:center;
+}
+h2,h3{margin:5px 0;}
+.card{
+  padding:16px;
+  max-width:900px;
+  width:95%;
+}
+.propsCard{
+  background:rgba(0,0,0,0.6);
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  padding:20px;
+  margin-top:16px;
+  min-height:420px;
+  position:relative;
+}
+.animationBox{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  pointer-events:none;
+}
+button, select{
+  margin:8px;
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  font-size:0.9rem;
+  font-weight:bold;
+  cursor:pointer;
+}
+#replayBtn{background:#ff7b54;color:#fff;display:none;}
+#pauseBtn{background:#4CAF50;color:#fff;}
+#replayBtn:hover{background:#ff5722;}
+#pauseBtn:hover{background:#2e7d32;}
+select{
+  border:1px solid #fff;
+  font-weight:normal;
+  padding:6px 12px;
+  color:#fff;
+  background:rgba(0,0,0,0.2);
+}
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: inline-block;
+  color: #fff;
+  background: rgba(0,0,0,0.4);
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  opacity: 0;
+}
+.caption .formula {
+  margin-top: 6px;
+  font-size: 1.1rem;
+  color: #ffeb3b;
+  font-weight: bold;
+  background: rgba(255,255,255,0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  opacity: 0;
+}
+svg line{stroke:#fff; stroke-width:2; marker-end:url(#arrowhead);}
+</style>
+</head>
+<body>
+
+<h2>Electric Flux & Gauss's Law</h2>
+<h3>Physics — Electrostatics</h3>
+
+<label for="langSelect">🌐 Choose Language: </label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+
+<div class="card">
+  <div class="propsCard">
+
+    <svg width="0" height="0">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#fff"></polygon>
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- Animations for 9 steps -->
+    <div id="anim1" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="210" cy="100" r="20" fill="#ff5252"/>
+      </svg>
+    </div>
+
+    <div id="anim2" class="animationBox">
+      <svg width="420" height="200">
+        <rect x="160" y="60" width="100" height="80" fill="rgba(0,255,255,0.2)" stroke="#00fff0"/>
+        <line x1="210" y1="100" x2="210" y2="0"/>
+        <line x1="210" y1="100" x2="210" y2="200"/>
+        <line x1="210" y1="100" x2="100" y2="100"/>
+        <line x1="210" y1="100" x2="320" y2="100"/>
+      </svg>
+    </div>
+
+    <div id="anim3" class="animationBox">
+      <svg width="420" height="200">
+        <rect x="160" y="40" width="100" height="120" fill="rgba(0,255,255,0.2)" stroke="#00fff0" transform="rotate(90,210,100)"/>
+        <line x1="210" y1="100" x2="210" y2="0"/>
+        <line x1="210" y1="100" x2="210" y2="200"/>
+      </svg>
+    </div>
+
+    <div id="anim4" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="210" cy="100" r="50" fill="rgba(255,255,0,0.2)" stroke="#ffff00"/>
+        <line x1="160" y1="100" x2="260" y2="100"/>
+      </svg>
+    </div>
+
+    <div id="anim5" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="210" cy="100" r="40" fill="rgba(255,0,0,0.2)" stroke="#ff5252"/>
+        <line x1="210" y1="60" x2="210" y2="20"/>
+        <line x1="210" y1="140" x2="210" y2="180"/>
+        <line x1="170" y1="100" x2="130" y2="100"/>
+        <line x1="250" y1="100" x2="290" y2="100"/>
+      </svg>
+    </div>
+
+    <div id="anim6" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="210" cy="100" r="40" fill="rgba(0,255,255,0.2)" stroke="#00fff0"/>
+        <line x1="170" y1="100" x2="250" y2="100" stroke="#fff" stroke-width="2" marker-end="url(#arrowhead)"/>
+      </svg>
+    </div>
+
+    <div id="anim7" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="120" cy="100" r="30" fill="rgba(255,0,0,0.2)" stroke="#ff5252"/>
+        <rect x="180" y="70" width="60" height="60" fill="rgba(0,255,0,0.2)" stroke="#00ff00"/>
+        <rect x="260" y="90" width="120" height="20" fill="rgba(255,255,0,0.2)" stroke="#ffff00"/>
+      </svg>
+    </div>
+
+    <div id="anim8" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="120" cy="100" r="20" fill="rgba(255,0,0,0.2)" stroke="#ff5252"/>
+        <line x1="120" y1="100" x2="120" y2="50" stroke="#fff" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <rect x="200" y="50" width="20" height="100" fill="rgba(0,255,255,0.2)" stroke="#00fff0"/>
+      </svg>
+    </div>
+
+    <div id="anim9" class="animationBox">
+      <svg width="420" height="200">
+        <circle cx="100" cy="100" r="20" fill="rgba(255,0,0,0.2)" stroke="#ff5252"/>
+        <circle cx="200" cy="100" r="20" fill="rgba(0,255,0,0.2)" stroke="#00ff00"/>
+        <circle cx="300" cy="100" r="20" fill="rgba(0,0,255,0.2)" stroke="#448aff"/>
+        <line x1="100" y1="100" x2="100" y2="50" stroke="#fff" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <line x1="200" y1="100" x2="200" y2="50" stroke="#fff" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <line x1="300" y1="100" x2="300" y2="50" stroke="#fff" stroke-width="2" marker-end="url(#arrowhead)"/>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- Caption + Formula Box -->
+  <div id="captionBox" class="caption">
+    <div id="captionText">Let's learn Electric Flux!</div>
+    <div id="formulaText" class="formula">Φ = E · A · cosθ</div>
+  </div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+const captionBox = document.getElementById("captionBox");
+const captionText = document.getElementById("captionText");
+const formulaText = document.getElementById("formulaText");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+
+let paused=false, stepIndex=0, currentLang="en";
+
+const captions = {
+  en:[
+    "Let's learn Electric Flux!",
+    "Electric flux depends on both the electric field and the surface area.",
+    "Flux is maximum when the field is perpendicular to the surface.",
+    "Flux is zero when the field is parallel to the surface.",
+    "For closed surfaces, Gauss’s Law simplifies electric field calculations.",
+    "Gauss’s Law formula: Φ = Q_enclosed/ε₀",
+    "Spherical, cylindrical, and planar symmetries are commonly used.",
+    "Gauss’s Law is especially useful for uniformly charged shells and wires.",
+    "Understanding symmetry helps determine electric field efficiently."
+  ],
+  hi:[
+    "आइए इलेक्ट्रिक फ्लक्स सीखें!",
+    "विद्युत फ्लक्स विद्युत क्षेत्र और सतह के क्षेत्रफल दोनों पर निर्भर करता है।",
+    "फ्लक्स अधिकतम होता है जब क्षेत्र सतह के लंबवत होता है।",
+    "फ्लक्स शून्य होता है जब क्षेत्र सतह के समानांतर होता है।",
+    "बंद सतहों के लिए, गाउस का नियम विद्युत क्षेत्र की गणना सरल बनाता है।",
+    "गाउस का नियम सूत्र: Φ = Q_enclosed/ε₀",
+    "गोलाकार, सिलेंड्रिक और समतलीय सममिति आमतौर पर उपयोग होती है।",
+    "गाउस का नियम समान रूप से आवेशित शेल्स और तारों के लिए विशेष रूप से उपयोगी है।",
+    "सममिति को समझना विद्युत क्षेत्र को कुशलतापूर्वक निर्धारित करने में मदद करता है।"
+  ],
+  ta:[
+    "மின்தடங்கலை கற்போம்!",
+    "மின்தடங்கு மின்வீதி மற்றும் மேற்பரப்பின் பரப்பளவை சார்ந்தது.",
+    "மேற்பரப்பிற்கு செங்குத்தாக இருந்தால், தடங்கு அதிகமாக இருக்கும்.",
+    "மேற்பரப்பிற்கு இணையாக இருந்தால், தடங்கு சுழற்சி இல்லாமல் இருக்கும்.",
+    "மூடிய மேற்பரப்புகளுக்கு, காஸ் விதி மின்வீதியின் கணக்குகளை எளிதாக்குகிறது.",
+    "காஸ் விதி சமிக்ஞை: Φ = Q_enclosed/ε₀",
+    "வட்டார, சிலிண்டர் மற்றும் சமதள சமச்சீர்கள் பொதுவாகப் பயன்படுத்தப்படுகின்றன.",
+    "ஒரே மாதிரியாக சார்ஜ் செய்யப்பட்ட ஷெல்களுக்கும் கம்பிகளுக்கும் காஸ் விதி மிகவும் பயனுள்ளது.",
+    "சமச்சீர் முறையைப் புரிந்துகொள்வதால் மின்வீதி கணக்கீடு எளிதாக செய்யலாம்."
+  ],
+  te:[
+    "ఎలక్ట్రిక్ ఫ్లో నేర్చుకుందాం!",
+    "విద్యుత్ ప్రవాహం విద్యుత్ శక్తి మరియు ఉపరితల విస్తీర్ణంపై ఆధారపడి ఉంటుంది.",
+    "ఫీల్డ్ ఉపరితలానికి నిలువుగా ఉన్నప్పుడు ప్రవాహం గరిష్టంగా ఉంటుంది.",
+    "ఫీల్డ్ ఉపరితలానికి సమాంతరంగా ఉన్నప్పుడు ప్రవాహం శూన్యం అవుతుంది.",
+    "మూతబడిన ఉపరితలాల కోసం, గాస్ న్యాయం విద్యుత్ శక్తి లెక్కింపులను సరళం చేస్తుంది.",
+    "గాస్ న్యాయం సమీకరణం: Φ = Q_enclosed/ε₀",
+    "స్ఫెరియల్, సిలిండ్రికల్ మరియు ప్లేన్ సమమితులు సాధారణంగా ఉపయోగిస్తాయి.",
+    "సమానంగా చార్జ్ చేయబడిన షెల్స్ మరియు వైర్లకు గాస్ న్యాయం చాలా ఉపయోగకరంగా ఉంటుంది.",
+    "సమమితిని అర్థం చేసుకోవడం ద్వారా విద్యుత్ శక్తిని సమర్థవంతంగా నిర్ణయించవచ్చు."
+  ],
+  or:[
+    "ବିଦ୍ୟୁତ୍ ଫ୍ଲକ୍ସ୍ ସିଖିବା!",
+    "ବିଦ୍ୟୁତ୍ ଫ୍ଲକ୍ସ୍ ବିଦ୍ୟୁତ୍ କ୍ଷେତ୍ର ଏବଂ ସତହର ଅଞ୍ଚଳ ଉପରେ ନିର୍ଭର କରେ।",
+    "କ୍ଷେତ୍ର ସତହକୁ ଲମ୍ବ ଭାବରେ ଥିଲେ, ଫ୍ଲକ୍ସ୍ ସର୍ବାଧିକ ହୁଏ।",
+    "କ୍ଷେତ୍ର ସତହକୁ ସମାନାନ୍ତର ହେଲେ, ଫ୍ଲକ୍ସ୍ ଶୂନ୍ୟ ହୁଏ।",
+    "ବନ୍ଦ ସତହରେ, ଗାଉସ୍ ସିଦ୍ଧାନ୍ତ ମାପିବାକୁ ସହଜ କରେ।",
+    "ଗାଉସ୍ ସିଦ୍ଧାନ୍ତ ସମୀକରଣ: Φ = Q_enclosed/ε₀",
+    "ସଫଳ, ସିଲିଣ୍ଡର, ଏବଂ ସମତଳ ସମମିତି ସାଧାରଣତଃ ବ୍ୟବହୃତ ହୁଏ।",
+    "ଗାଉସ୍ ସିଦ୍ଧାନ୍ତ ସମାନ ଭାବେ ଆବେଶିତ ଶେଲ୍ ଓ ତାର ପାଇଁ ବିଶେଷ ଉପଯୁକ୍ତ।",
+    "ସମମିତି ବୁଝିବାରୁ ବିଦ୍ୟୁତ କ୍ଷେତ୍ର କୁ ଦକ୍ଷତାର ସହିତ ନିର୍ଣ୍ଣୟ କରାଯାଇପାରେ।"
+  ]
+};
+
+const voicesMap = {en:"en-IN",hi:"hi-IN",ta:"ta-IN",te:"te-IN",or:"or-IN"};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang=voicesMap[lang]||"en-IN";
+  utter.rate=1.1;
+  utter.onend=()=>{ if(!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function hideAllAnimations(){
+  for(let i=1;i<=9;i++){
+    gsap.to("#anim"+i,{opacity:0,duration:0.5});
+  }
+}
+
+function runStep() {
+  if(stepIndex >= captions[currentLang].length){
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+
+  gsap.to([captionBox, formulaText], {opacity: 0, duration: 0.3, onComplete: () => {
+    captionText.textContent = captions[currentLang][stepIndex];
+    formulaText.textContent = (stepIndex >= 1) ? "Φ = E · A · cosθ" : "Φ = E · A · cosθ";
+
+    gsap.to(captionBox, {opacity: 1, duration: 0.5});
+    gsap.to(formulaText, {opacity: 1, duration: 0.5, delay:0.2});
+
+    if(stepIndex>=1 && stepIndex<=9){
+      hideAllAnimations();
+      gsap.to("#anim"+stepIndex,{opacity:1,duration:1,scale:1});
+    }
+
+    speak(captions[currentLang][stepIndex], currentLang, ()=>{
+      stepIndex++;
+      if(!paused) runStep();
+    });
+  }});
+}
+
+function resetAnimation(){
+  hideAllAnimations();
+  stepIndex=0;
+  captionText.textContent = captions[currentLang][0];
+  formulaText.textContent = "Φ = E · A · cosθ";
+  gsap.to([captionBox, formulaText], {opacity:1,duration:0.5});
+}
+
+langSelect.addEventListener("change", ()=>{
+  currentLang=langSelect.value;
+  paused=false;
+  window.speechSynthesis.cancel();
+  resetAnimation();
+  replayBtn.style.display="none";
+  runStep();
+});
+
+pauseBtn.addEventListener("click", ()=>{
+  paused=!paused;
+  if(paused) window.speechSynthesis.cancel();
+  else runStep();
+  pauseBtn.textContent=paused?"▶ Resume":"⏸ Pause";
+});
+
+replayBtn.addEventListener("click", ()=>{
+  window.speechSynthesis.cancel();
+  resetAnimation();
+  paused=false;
+  replayBtn.style.display="none";
+  runStep();
+});
+
+runStep();
+</script>
+</body>
+</html>

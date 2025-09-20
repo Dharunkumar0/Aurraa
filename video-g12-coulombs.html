@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coulomb's Law & Superposition Principle</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #0a0a2a, #1a1a4a);
+  color: white;
+  text-align: center;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.bg-particles {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(100, 200, 255, 0.5);
+  border-radius: 50%;
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+}
+
+.card {
+  background: rgba(0,0,0,0.5);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(100, 150, 255, 0.4);
+  width: 80vw;
+  max-width: 900px;
+  min-width: 300px;
+}
+
+.animationBox {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin: 20px auto;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 20, 40, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.charge-icon {
+  width: 60px;
+  height: 60px;
+  margin: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transform: scale(0.8);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 5px;
+  position: relative;
+}
+
+.force-arrow {
+  position: absolute;
+  height: 3px;
+  background: linear-gradient(90deg, #ff3333, #ff9933);
+  transform-origin: left center;
+  z-index: -1;
+}
+
+.caption {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  opacity: 0;
+  transform: scale(0.8);
+  background: rgba(0,0,0,0.3);
+  padding: 12px 20px;
+  border-radius: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+button, select {
+  margin: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+#pauseBtn { 
+  background: #4CAF50; 
+  color: #fff; 
+}
+
+#replayBtn { 
+  background: #ff5722; 
+  color: #fff; 
+  display: none; 
+}
+
+select { 
+  background: rgba(0,0,0,0.4); 
+  color: white; 
+  border: 1px solid white; 
+  padding: 10px 20px;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(100, 150, 255, 0.5);
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #6496ff;
+}
+
+.formula {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card { 
+    width: 90vw; 
+    padding: 20px;
+  }
+  
+  .animationBox {
+    height: 180px;
+  }
+  
+  .charge-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  h2 {
+    font-size: 1.7rem;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .animationBox {
+    height: 150px;
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .charge-icon {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+  }
+  
+  .caption {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+  }
+  
+  button, select {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-particles"></div>
+
+<h2>Chapter 2: Coulomb's Law & Superposition Principle</h2>
+<h3>Vector form of Coulomb's Law and the Superposition Principle</h3>
+
+<label for="langSelect">🌐 Choose Language:</label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+
+<div class="card">
+  <div class="animationBox" id="anim">
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/color/96/positive-dynamic.png')" id="charge1"></div>
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/color/96/negative-dynamic.png')" id="charge2"></div>
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/color/96/positive-dynamic.png')" id="charge3"></div>
+    <!-- Force arrows will be added dynamically -->
+  </div>
+
+  <div class="caption" id="caption">Coulomb's Law describes the electrostatic force between two point charges.</div>
+  
+  <div class="formula" id="formula">
+    F = k·q₁q₂/r² · (r̂)
+  </div>
+  
+  <div class="controls">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+    <button id="finishBtn" style="background: #2196F3; color: #fff;">✓ Finish</button>
+  </div>
+</div>
+
+<script>
+const caption = document.getElementById("caption");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+const formula = document.getElementById("formula");
+const animBox = document.getElementById("anim");
+
+let paused = false, currentStep = 0, currentLang = "en";
+
+const captions = {
+  en: [
+    "Coulomb's Law describes the electrostatic force between two point charges.",
+    "The force is directly proportional to the product of the charges and inversely proportional to the square of the distance.",
+    "The force acts along the line joining the two charges. This is the vector form: F = k·q₁q₂/r² · (r̂)",
+    "For like charges, the force is repulsive. For opposite charges, it's attractive.",
+    "The superposition principle: The net force on a charge is the vector sum of forces from all other charges.",
+    "Multiple charges create complex force interactions that follow the superposition principle."
+  ],
+  hi: [
+    "कूलम्ब का नियम दो बिंदु आवेशों के बीच स्थिरवैद्युत बल का वर्णन करता है।",
+    "बल आवेशों के गुणनफल के अनुक्रमानुपाती और दूरी के वर्ग के व्युत्क्रमानुपाती होता है।",
+    "बल दोनों आवेशों को मिलाने वाली रेखा के अनुदिश कार्य करता है। यह सदिश रूप है: F = k·q₁q₂/r² · (r̂)",
+    "समान आवेशों के लिए, बल प्रतिकर्षणात्मक होता है। विपरीत आवेशों के लिए, यह आकर्षणात्मक होता है।",
+    "अध्यारोपण सिद्धांत: एक आवेश पर कुल बल अन्य सभी आवेशों से बलों का सदिश योग होता है।",
+    "एकाधिक आवेश जटिल बल अंतःक्रियाएँ उत्पन्न करते हैं जो अध्यारोपण सिद्धांत का पालन करती हैं।"
+  ],
+  ta: [
+    "கூலூம்பின் விதி இரண்டு புள்ளி மின்னூட்டங்களுக்கு இடையேயான நிலைமின்னியல் விசையை விவரிக்கிறது.",
+    "விசை மின்னூட்டங்களின் பெருக்கற்பலனுக்கு நேர்விகிதத்திலும், தூரத்தின் வர்க்கத்திற்கு எதிர்விகிதத்திலும் இருக்கும்.",
+    "விசை இரண்டு மின்னூட்டங்களை இணைக்கும் கோட்டில் செயல்படும். இதுவே திசையன் வடிவம்: F = k·q₁q₂/r² · (r̂)",
+    "ஒத்த மின்னூட்டங்களுக்கு, விசை விலக்கும் தன்மையுடையது. எதிர் மின்னூட்டங்களுக்கு, இது கவரும் தன்மையுடையது.",
+    "மேற்பொருந்தல் தத்துவம்: ஒரு மின்னூட்டத்தின் மீது செயல்படும் நிகர விசை, மற்ற அனைத்து மின்னூட்டங்களிலிருந்தும் வரும் விசைகளின் திசையன் தொகையாகும்.",
+    "பல மின்னூட்டங்கள் மேற்பொருந்தல் தத்துவத்தைப் பின்பற்றும் சிக்கலான விசை இடைவினைகளை உருவாக்குகின்றன."
+  ],
+  te: [
+    "కూలుంబ్ నియమం రెండు బిందు ఆవేశాల మధ్య ఎలెక్ట్రోస్టాటిక్ శక్తిని వివరిస్తుంది.",
+    "ఆవేశాల లబ్ధానికి శక్తి నేరుగా అనులోమానుపాతంలో ఉంటుంది మరియు దూరం వర్గానికి విలోమానుపాతంలో ఉంటుంది.",
+    "శక్తి రెండు ఆవేశాలను కలిపే రేఖ వెంబడి పనిచేస్తుంది. ఇది వెక్టర్ రూపం: F = k·q₁q₂/r² · (r̂)",
+    "ఇలాంటి ఆవేశాలకు, శక్తి వికర్షకంగా ఉంటుంది. వ్యతిరేక ఆవేశాలకు, ఇది ఆకర్షణీయంగా ఉంటుంది.",
+    "సూపర్పొజిషన్ సూత్రం: ఒక ఆవేశంపై నికర శక్తి అన్ని ఇతర ఆవేశాల నుండి వచ్చే శక్తుల వెక్టర్ మొత్తం.",
+    "బహుళ ఆవేశాలు సూపర్పొజిషన్ సూత్రాన్ని అనుసరించే సంక్లిష్ట శక్తి పరస్పర చర్యలను సృష్టిస్తాయి."
+  ],
+  or: [
+    "କୁଲମ୍ବର ନିୟମ ଦୁଇଟି ବିନ୍ଦୁ ଚାର୍ଜ ମଧ୍ୟରେ ଇଲେକ୍ଟ୍ରୋଷ୍ଟାଟିକ୍ ବଳ ବର୍ଣ୍ଣନା କରେ |",
+    "ଚାର୍ଜଗୁଡିକର ଗୁଣନଫଳରେ ବଳ ସିଧାସଳଖ ଭାବରେ ଅନୁପାତିକ ଏବଂ ଦୂରତାର ବର୍ଗ ସହିତ ବିପରୀତ ଭାବରେ ଅନୁପାତିକ |",
+    "ବଳ ଦୁଇଟି ଚାର୍ଜକୁ ଯୋଗକରୁଥିବା ରେଖା ବ沿着 କାର୍ଯ୍ୟକରେ | ଏହା ଭେକ୍ଟର ଫର୍ମ: F = k·q₁q₂/r² · (r̂)",
+    "ସମାନ ଚାର୍ଜଗୁଡିକ ପାଇଁ, ବଳ ବିକର୍ଷକ | ବିପରୀତ ଚାର୍ଜଗୁଡିକ ପାଇଁ, ଏହା ଆକର୍ଷଣୀୟ |",
+    "ସୁପରପୋଜିସନ୍ ସିଦ୍ଧାନ୍ତ: ଏକ ଚାର୍ଜ ଉପରେ ନିଟ୍ ବଳ ଅନ୍ୟ ସମସ୍ତ ଚାର୍ଜରୁ ବଳର ଭେକ୍ଟର ସମଷ୍ଟି |",
+    "ଏକାଧିକ ଚାର୍ଜଗୁଡିକ ଜଟିଳ ବଳ ପାରସ୍ପରିକ କ୍ରିୟା ସୃଷ୍ଟି କରେ ଯାହା ସୁପରପୋଜିସନ୍ ସିଦ୍ଧାନ୍ତକୁ ଅନୁସରଣ କରେ |"
+  ]
+};
+
+const formulas = {
+  en: [
+    "F = k·q₁q₂/r² · (r̂)",
+    "F ∝ q₁q₂",
+    "F ∝ 1/r²",
+    "F = k·q₁q₂/r² · (r̂)",
+    "F_net = Σ F_i",
+    "F_net = F₁ + F₂ + F₃ + ..."
+  ],
+  hi: [
+    "F = k·q₁q₂/r² · (r̂)",
+    "F ∝ q₁q₂",
+    "F ∝ 1/r²",
+    "F = k·q₁q₂/r² · (r̂)",
+    "F_net = Σ F_i",
+    "F_net = F₁ + F₂ + F₃ + ..."
+  ],
+  ta: [
+    "F = k·q₁q₂/r² · (r̂)",
+    "F ∝ q₁q₂",
+    "F ∝ 1/r²",
+    "F = k·q₁q₂/r² · (r̂)",
+    "F_net = Σ F_i",
+    "F_net = F₁ + F₂ + F₃ + ..."
+  ],
+  te: [
+    "F = k·q₁q₂/r² · (r̂)",
+    "F ∝ q₁q₂",
+    "F ∝ 1/r²",
+    "F = k·q₁q₂/r² · (r̂)",
+    "F_net = Σ F_i",
+    "F_net = F₁ + F₂ + F₃ + ..."
+  ],
+  or: [
+    "F = k·q₁q₂/r² · (r̂)",
+    "F ∝ q₁q₂",
+    "F ∝ 1/r²",
+    "F = k·q₁q₂/r² · (r̂)",
+    "F_net = Σ F_i",
+    "F_net = F₁ + F₂ + F₃ + ..."
+  ]
+};
+
+function speak(text, lang, callback){
+  if(paused) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  const voiceLang = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "en-IN" };
+  utter.lang = voiceLang[lang] || "en-IN";
+  utter.rate = 0.9;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+  utter.onend = () => { if(!paused) callback(); };
+}
+
+function createForceArrow(fromId, toId, color) {
+  const fromEl = document.getElementById(fromId);
+  const toEl = document.getElementById(toId);
+  
+  if (!fromEl || !toEl) return null;
+  
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+  const animRect = animBox.getBoundingClientRect();
+  
+  const fromX = fromRect.left + fromRect.width/2 - animRect.left;
+  const fromY = fromRect.top + fromRect.height/2 - animRect.top;
+  const toX = toRect.left + toRect.width/2 - animRect.left;
+  const toY = toRect.top + toRect.height/2 - animRect.top;
+  
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const distance = Math.sqrt(dx*dx + dy*dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  
+  const arrow = document.createElement('div');
+  arrow.className = 'force-arrow';
+  arrow.style.width = `${distance}px`;
+  arrow.style.left = `${fromX}px`;
+  arrow.style.top = `${fromY}px`;
+  arrow.style.transform = `rotate(${angle}deg)`;
+  arrow.style.background = color;
+  
+  animBox.appendChild(arrow);
+  return arrow;
+}
+
+function runStep(){
+  if(currentStep >= captions[currentLang].length){
+    replayBtn.style.display = "inline-block";
+    return;
+  }
+  
+  // Clear previous arrows
+  document.querySelectorAll('.force-arrow').forEach(el => el.remove());
+  
+  caption.textContent = captions[currentLang][currentStep];
+  formula.textContent = formulas[currentLang][currentStep];
+  
+  gsap.fromTo(caption, {opacity:0, scale:0.8}, {opacity:1, scale:1, duration:0.7, ease:"back.out(1.7)"});
+  gsap.fromTo(formula, {opacity:0, scale:0.8}, {opacity:1, scale:1, duration:0.7, ease:"back.out(1.7)"});
+  gsap.to("#anim", {opacity:1, duration:1});
+
+  // Create different animations based on the current step
+  if (currentStep === 0) {
+    gsap.to("#charge1, #charge2", {opacity:1, scale:1, duration:1});
+    gsap.to("#charge3", {opacity:0, duration:0.5});
+  } 
+  else if (currentStep === 1 || currentStep === 2) {
+    gsap.to("#charge1, #charge2", {opacity:1, scale:1, duration:1});
+    gsap.to("#charge3", {opacity:0, duration:0.5});
+    
+    // Show force arrows between charge1 and charge2
+    createForceArrow("charge1", "charge2", "linear-gradient(90deg, #ff3333, #ff9933)");
+    createForceArrow("charge2", "charge1", "linear-gradient(90deg, #3399ff, #33ccff)");
+  }
+  else if (currentStep === 3) {
+    // Show attraction/repulsion
+    gsap.to("#charge1", {opacity:1, x: -30, duration:1});
+    gsap.to("#charge2", {opacity:1, x: 30, duration:1});
+    gsap.to("#charge3", {opacity:0, duration:0.5});
+    
+    createForceArrow("charge1", "charge2", "linear-gradient(90deg, #ff3333, #ff9933)");
+    createForceArrow("charge2", "charge1", "linear-gradient(90deg, #3399ff, #33ccff)");
+  }
+  else if (currentStep === 4 || currentStep === 5) {
+    // Show superposition with three charges
+    gsap.to("#charge1, #charge2, #charge3", {opacity:1, scale:1, duration:1});
+    
+    // Create force arrows for superposition
+    createForceArrow("charge1", "charge2", "linear-gradient(90deg, #ff3333, #ff9933)");
+    createForceArrow("charge1", "charge3", "linear-gradient(90deg, #ff3333, #ff9933)");
+    
+    createForceArrow("charge2", "charge1", "linear-gradient(90deg, #3399ff, #33ccff)");
+    createForceArrow("charge2", "charge3", "linear-gradient(90deg, #3399ff, #33ccff)");
+    
+    createForceArrow("charge3", "charge1", "linear-gradient(90deg, #33ff99, #99ff33)");
+    createForceArrow("charge3", "charge2", "linear-gradient(90deg, #33ff99, #99ff33)");
+  }
+
+  speak(captions[currentLang][currentStep], currentLang, () => {
+    currentStep++;
+    if(!paused) runStep();
+  });
+}
+
+pauseBtn.addEventListener("click", () => {
+  paused = !paused;
+  if(paused) {
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent = "▶ Resume";
+  } else {
+    pauseBtn.textContent = "⏸ Pause";
+    runStep();
+  }
+});
+
+replayBtn.addEventListener("click", () => {
+  currentStep = 0;
+  replayBtn.style.display = "none";
+  paused = false;
+  pauseBtn.textContent = "⏸ Pause";
+  document.querySelectorAll('.force-arrow').forEach(el => el.remove());
+  gsap.set(["#charge1", "#charge2", "#charge3"], {opacity:0, x:0, y:0, scale:0.8});
+  runStep();
+});
+
+// Floating particles
+for(let i = 0; i < 30; i++){
+  let p = document.createElement("div");
+  p.classList.add("particle");
+  let size = Math.random() * 6 + 4;
+  p.style.width = p.style.height = size + "px";
+  p.style.left = Math.random() * 100 + "vw";
+  p.style.animationDuration = (Math.random() * 5 + 5) + "s";
+  p.style.animationDelay = (Math.random() * 3) + "s";
+  document.querySelector(".bg-particles").appendChild(p);
+}
+
+langSelect.addEventListener("change", () => {
+  currentLang = langSelect.value;
+  paused = false;
+  currentStep = 0;
+  pauseBtn.textContent = "⏸ Pause";
+  replayBtn.style.display = "none";
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.force-arrow').forEach(el => el.remove());
+  gsap.set(["#charge1", "#charge2", "#charge3"], {opacity:0, x:0, y:0, scale:0.8});
+  runStep();
+});
+
+// Add finish button handler
+document.getElementById("finishBtn").addEventListener("click", () => {
+  window.location.href = "game-g12-coulumns.html";
+});
+
+// Initialize animation
+runStep();
+</script>
+</body>
+</html>

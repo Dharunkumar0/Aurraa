@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Real Numbers Explorer: Math Quest</title>
+<style>
+:root {
+    --primary1: #673AB7;  /* Purple */
+    --primary2: #9C27B0;  /* Deep Purple */
+    --accent: #FF9800;    /* Orange */
+    --bg-dark: #1A237E;  /* Dark Blue */
+    --glass: rgba(255, 255, 255, 0.03);
+    --xp-glow: #FFC107;   /* Amber */
+    --correct: #4CAF50;   /* Green */
+    --incorrect: #F44336; /* Red */
+    --relation: #673AB7;  /* Purple */
+    --function: #9C27B0; /* Deep Purple */
+    --real-numbers: #3F51B5; /* Indigo */
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: #e6f7ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    justify-content: center;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--xp-glow); }
+  50% { box-shadow: 0 0 20px var(--xp-glow), 0 0 30px var(--xp-glow); }
+  100% { box-shadow: 0 0 5px var(--xp-glow); }
+}
+@keyframes mathPulse {
+  0% { box-shadow: 0 0 5px var(--real-numbers); }
+  50% { box-shadow: 0 0 20px var(--real-numbers), 0 0 30px var(--real-numbers); }
+  100% { box-shadow: 0 0 5px var(--real-numbers); }
+}
+
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.container {
+    z-index: 3;
+    width: 90%;
+    max-width: 900px;
+    margin: 2vh auto;
+    background: linear-gradient(135deg, rgba(26, 35, 126, 0.78), rgba(13, 71, 161, 0.58));
+    border-radius: 18px;
+    padding: clamp(1rem, 4vw, 1.75rem);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px) saturate(140%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 30% 20%, var(--real-numbers), var(--primary2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #fff;
+    transform: rotate(-6deg);
+    flex-shrink: 0;
+    animation: mathPulse 2s infinite;
+}
+
+h1 {
+    font-size: clamp(1.2rem, 5vw, 1.45rem);
+    margin: 0;
+    color: transparent;
+    background: linear-gradient(90deg, var(--real-numbers), var(--primary2));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.xp {
+    font-weight: 800;
+    color: var(--xp-glow);
+    text-shadow: 0 0 8px var(--xp-glow);
+    transition: transform 0.3s ease;
+}
+.xp.updated {
+    transform: scale(1.1);
+}
+
+.xp small {
+    display: block;
+    font-weight: 600;
+    color: #bcd;
+    font-size: 0.78rem;
+    opacity: 0.9;
+}
+
+.progress-wrap {
+    width: 86px;
+    height: 86px;
+    position: relative;
+    flex-shrink: 0;
+}
+.progress-wrap .progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #dff;
+    transition: color 0.3s ease;
+}
+#progressCircle {
+    transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.game-panel {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 420px;
+    position: relative;
+    justify-content: center;
+}
+.menu, .stage {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.level-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.level-btn {
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.08), rgba(103, 58, 183, 0.06));
+    color: #e9fbff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(103, 58, 183, 0.06);
+    border: 0.5px solid rgba(255, 255, 255, 0.04);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.level-btn:hover, .level-btn:focus {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 28px 60px rgba(103, 58, 183, 0.12);
+    outline: none;
+}
+
+.stage {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: inset 0 -10px 40px rgba(0, 0, 0, 0.45);
+    min-height: 300px;
+}
+
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+.level-title { font-size: 1.05rem; font-weight: 800; color: #dff; }
+.question-counter { font-size: 0.9rem; color: #bcd; }
+
+#centerStage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 250px;
+    transition: opacity 0.4s ease;
+}
+.quest { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; text-align: center; color: #f3fbff; text-shadow: 0 4px 26px rgba(103, 58, 183, 0.03); animation: fadeIn 0.5s; }
+
+.controls { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+
+.action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, rgba(156, 39, 176, 0.12), rgba(103, 58, 183, 0.08));
+    color: #e6fbff;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(103, 58, 183, 0.06);
+    transition: all 0.2s ease;
+}
+.action-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(103, 58, 183, 0.1); }
+.action-btn:active:not(:disabled) { transform: translateY(-1px); }
+.action-btn:disabled { cursor: not-allowed; opacity: 0.5; transform: translateY(0); }
+.action-btn.check { background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), rgba(103, 58, 183, 0.1)); }
+.action-btn.secondary { background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), rgba(103, 58, 183, 0.08)); }
+.action-btn.highlight-hint {
+    animation: glow 1.5s infinite;
+}
+
+.feedback { min-height: 28px; font-weight: 800; font-size: 1.05rem; opacity: 0; transition: all 0.4s ease; transform: translateY(10px); }
+.feedback.visible { opacity: 1; transform: translateY(0); }
+.feedback.correct { color: var(--correct); text-shadow: 0 0 10px var(--correct); }
+.feedback.incorrect { color: var(--incorrect); text-shadow: 0 0 10px var(--incorrect); }
+
+.hint-box { margin-top: 8px; padding: 10px 12px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 10px; color: #bfe; font-style: italic; display: none; min-width: 40%; text-align: center; opacity: 0; transition: opacity 0.4s; }
+.hint-box.visible { display: block; opacity: 1; }
+
+/* --- INTERACTIVE GAME STYLES --- */
+.relations-game, .functions-game, .inverse-game, .composition-game, .real-numbers-game {
+    animation: popIn 0.5s ease-out;
+}
+
+/* Real Numbers Game */
+.real-numbers-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.real-numbers-visual { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 1rem 0; }
+.real-numbers-type { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+.real-numbers-type.euclid { background: radial-gradient(circle at 30% 30%, var(--real-numbers), #303F9F); }
+.real-numbers-type.arithmetic { background: radial-gradient(circle at 30% 30%, #5C6BC0, #3949AB); }
+.real-numbers-type.hcf-lcm { background: radial-gradient(circle at 30% 30%, #7986CB, #5C6BC0); }
+.real-numbers-type.decimal { background: radial-gradient(circle at 30% 30%, #9FA8DA, #7986CB); }
+.real-numbers-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.real-numbers-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.real-numbers-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.real-numbers-option.selected { background: rgba(103, 58, 183, 0.3); border: 1px solid var(--real-numbers); }
+.real-numbers-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.real-numbers-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Relations Game */
+.relations-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.relations-visual { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 1rem 0; }
+.relation-type { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+.relation-type.reflexive { background: radial-gradient(circle at 30% 30%, #673AB7, #4527A0); }
+.relation-type.symmetric { background: radial-gradient(circle at 30% 30%, #9C27B0, #6A1B9A); }
+.relation-type.transitive { background: radial-gradient(circle at 30% 30%, #3F51B5, #283593); }
+.relation-type.equivalence { background: radial-gradient(circle at 30% 30%, #673AB7, #9C27B0); }
+.relation-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.relation-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.relation-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.relation-option.selected { background: rgba(103, 58, 183, 0.3); border: 1px solid var(--relation); }
+
+/* Functions Game */
+.functions-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.functions-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.function-type { position: absolute; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.function-type.one-one { background: radial-gradient(circle at 30% 30%, #673AB7, #4527A0); left: 50px; top: 80px; }
+.function-type.onto { background: radial-gradient(circle at 30% 30%, #9C27B0, #6A1B9A); right: 50px; top: 80px; }
+.function-type.bijective { background: radial-gradient(circle at 30% 30%, #3F51B5, #283593); left: 130px; top: 80px; }
+.function-arrow { position: absolute; height: 3px; background: var(--function); transform-origin: left center; }
+.function-arrow::after { content: ''; position: absolute; right: 0; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 10px solid var(--function); }
+.functions-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.functions-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Inverse Game */
+.inverse-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.inverse-canvas { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(0, 0, 0, 0.3); }
+.inverse-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.inverse-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.inverse-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.inverse-option.selected { background: rgba(103, 58, 183, 0.3); border: 1px solid var(--relation); }
+
+/* Composition Game */
+.composition-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.composition-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.composition { position: absolute; width: 120px; height: 40px; left: 90px; top: 80px; display: flex; align-items: center; justify-content: space-between; }
+.composition-type { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.composition-type.f { background: radial-gradient(circle at 30% 30%, #673AB7, #4527A0); }
+.composition-type.g { background: radial-gradient(circle at 30% 30%, #9C27B0, #6A1B9A); }
+.composition-arrow { position: absolute; height: 1px; background: rgba(103, 58, 183, 0.6); transform-origin: left center; }
+.composition-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.composition-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+.composition-field { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <div class="logo">ℝ</div>
+            <div><h1>Real Numbers Explorer</h1></div>
+        </div>
+        <div class="status">
+            <div class="xp" id="xpDisplay">✨ XP: <span id="xpValue">0</span><small>Earn XP to level up</small></div>
+            <div class="progress-wrap">
+                <svg width="86" height="86" viewBox="0 0 100 100">
+                    <defs><linearGradient id="g1" x1="0%" x2="100%"><stop offset="0%" stop-color="#FFC107"/><stop offset="100%" stop-color="#673AB7"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="44" stroke="#111" stroke-width="10" fill="none"></circle>
+                    <circle id="progressCircle" cx="50" cy="50" r="44" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" transform="rotate(-90 50 50)"></circle>
+                </svg>
+                <div class="progress-text" id="progressPercent">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-panel" id="mainPanel">
+        <div id="menu" class="menu">
+            <div class="menu-title">Select difficulty — pick by confidence</div>
+            <div class="level-row">
+                <button class="level-btn" onclick="enterLevel('basic')">🟢 Basic</button>
+                <button class="level-btn" onclick="enterLevel('medium')">🟡 Medium</button>
+                <button class="level-btn" onclick="enterLevel('hard')">🟠 Hard</button>
+                <button class="level-btn" onclick="enterLevel('extreme')">🔴 Extreme</button>
+            </div>
+            <div style="margin-top:12px;font-size:0.82rem;color:#aac;opacity:0.9;text-align:center;">
+                Each level contains 5 topics with 5 interactive questions each. Earn <strong>+10 XP</strong> per correct answer.
+            </div>
+        </div>
+
+        <div id="stage" class="stage" style="display:none;">
+            <div class="level-header">
+                <div class="level-title" id="levelTitle">Level</div>
+                <div class="question-counter">Question <span id="qIndex">1</span> / <span id="qTotal">5</span></div>
+            </div>
+            <div id="centerStage"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="hint-box" id="hintBox" role="status" aria-live="polite"></div>
+            <div class="controls" id="controls">
+                <button class="action-btn secondary" onclick="backToMenu()">↩️ Menu</button>
+                <button id="hintBtn" class="action-btn" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn" onclick="skipQuestion()">Skip ➡️</button>
+                <button class="action-btn check" id="checkBtn" onclick="checkAnswer()">🚀 Check Answer</button>
+                <button class="action-btn" id="nextBtn" onclick="nextStep()" style="display:none;">Continue ➡️</button>
+            </div>
+            <div id="levelMessage" style="margin-top:8px;font-weight:800;color:#ffd; animation: fadeIn 1s;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Canvas Math Animation =====
+const canvas = document.getElementById('bgCanvas'),
+    ctx = canvas.getContext('2d');
+let W = canvas.width = innerWidth,
+    H = canvas.height = innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; initMathParticles(); });
+let particles = [];
+const PARTICLE_COUNT_BASE = 80;
+
+function getParticleCount() {
+    return Math.floor((W * H) / 40000) + PARTICLE_COUNT_BASE;
+}
+let PARTICLE_COUNT = getParticleCount();
+
+function initMathParticles() {
+    PARTICLE_COUNT = getParticleCount();
+    particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+            x: Math.random() * W, 
+            y: Math.random() * H,
+            r: Math.random() * 1.6 + 0.2, 
+            speed: (Math.random() * 0.4) + 0.08,
+            alpha: 0.15 + Math.random() * 0.85, 
+            tw: Math.random() * Math.PI * 2,
+            color: Math.random() > 0.5 ? '#3F51B5' : '#9C27B0',
+            shape: Math.random() > 0.5 ? 'circle' : 'square'
+        });
+    }
+}
+
+function drawMathParticles() {
+    ctx.clearRect(0, 0, W, H);
+    
+    // Draw connections between nearby particles
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(63, 81, 181, ${0.2 * (1 - distance/100)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+    }
+    
+    // Draw particles
+    for (const p of particles) {
+        p.x += p.speed;
+        if (p.x > W) p.x = 0;
+        p.alpha += Math.sin(p.tw) * 0.012; 
+        p.tw += 0.02;
+        if(p.alpha < 0.1) p.alpha = 0.1; 
+        if(p.alpha > 1) p.alpha = 1;
+        
+        if (p.shape === 'circle') {
+            ctx.beginPath(); 
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color; 
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+        } else {
+            ctx.fillStyle = p.color; 
+            ctx.globalAlpha = p.alpha;
+            ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+function animate() { drawMathParticles(); requestAnimationFrame(animate); }
+initMathParticles(); animate();
+
+// ===== Game State =====
+let gameState = {
+    currentLevel: "",
+    currentTopicIndex: 0,
+    questionIndex: 0,
+    xp: 0,
+    incorrectStreak: 0,
+    correctAnswers: 0
+};
+const topicList = ["Real Numbers", "Relations", "Functions", "Inverse", "Composition"];
+let currentQuestions = [];
+const QUESTIONS_PER_TOPIC = 5;
+
+// Load saved game state
+function loadGameState() {
+    try {
+        const savedState = localStorage.getItem('realNumbersExplorerGameState');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            gameState = Object.assign(gameState, parsed);
+            if (!topicList[gameState.currentTopicIndex]) gameState.currentTopicIndex = 0;
+            if (typeof gameState.questionIndex !== 'number') gameState.questionIndex = 0;
+            if (typeof gameState.xp !== 'number') gameState.xp = 0;
+            if (typeof gameState.correctAnswers !== 'number') gameState.correctAnswers = 0;
+        }
+    } catch (e) {
+        console.warn("Failed to load saved game state", e);
+    }
+    updateXP();
+    updateProgress();
+}
+
+// Save game state
+function saveGameState() {
+    try {
+        localStorage.setItem('realNumbersExplorerGameState', JSON.stringify(gameState));
+    } catch (e) {
+        console.warn("Failed to save game state", e);
+    }
+}
+
+// ===== DOM Elements =====
+const dom = {
+    menu: document.getElementById('menu'), stage: document.getElementById('stage'),
+    levelTitle: document.getElementById('levelTitle'), qIndex: document.getElementById('qIndex'),
+    qTotal: document.getElementById('qTotal'), centerStage: document.getElementById('centerStage'),
+    feedback: document.getElementById('feedback'), hintBox: document.getElementById('hintBox'),
+    hintBtn: document.getElementById('hintBtn'),
+    checkBtn: document.getElementById('checkBtn'), nextBtn: document.getElementById('nextBtn'),
+    levelMessage: document.getElementById('levelMessage'), xpDisplay: document.getElementById('xpDisplay'),
+    xpValue: document.getElementById('xpValue'), progressCircle: document.getElementById('progressCircle'),
+    progressPercent: document.getElementById('progressPercent'), controls: document.getElementById('controls')
+};
+
+// ===== Utility Functions =====
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ===== Question Bank =====
+const questionBank = {
+    "Real Numbers": {
+        basic: [
+            { 
+                q: "What is Euclid's division lemma?", 
+                options: ["For any positive integers a and b, there exist unique integers q and r such that a = bq + r, where 0 ≤ r < b", "Every composite number can be expressed as a product of primes", "The highest common factor of two numbers", "The decimal representation of rational numbers"],
+                ans: "For any positive integers a and b, there exist unique integers q and r such that a = bq + r, where 0 ≤ r < b", 
+                hint: "This lemma states that any positive integer can be divided by another positive integer with a unique quotient and remainder."
+            },
+            { 
+                q: "What is the Fundamental Theorem of Arithmetic?", 
+                options: ["For any positive integers a and b, there exist unique integers q and r such that a = bq + r, where 0 ≤ r < b", "Every composite number can be expressed as a product of primes, and this factorization is unique", "The highest common factor of two numbers", "The decimal representation of rational numbers"],
+                ans: "Every composite number can be expressed as a product of primes, and this factorization is unique", 
+                hint: "This theorem states that every composite number has a unique prime factorization."
+            },
+            { 
+                q: "How do you find the HCF of two numbers using prime factorization?", 
+                options: ["Multiply the common prime factors with the lowest powers", "Multiply all prime factors with the highest powers", "Add the prime factors", "Subtract the prime factors"],
+                ans: "Multiply the common prime factors with the lowest powers", 
+                hint: "To find the HCF, identify the common prime factors and multiply them with their lowest powers."
+            },
+            { 
+                q: "How do you find the LCM of two numbers using prime factorization?", 
+                options: ["Multiply the common prime factors with the lowest powers", "Multiply all prime factors with the highest powers", "Add the prime factors", "Subtract the prime factors"],
+                ans: "Multiply all prime factors with the highest powers", 
+                hint: "To find the LCM, take all prime factors (common and uncommon) and multiply them with their highest powers."
+            },
+            { 
+                q: "What is the decimal expansion of a rational number?", 
+                options: ["Either terminating or non-terminating repeating", "Always terminating", "Always non-terminating repeating", "Always non-terminating non-repeating"],
+                ans: "Either terminating or non-terminating repeating", 
+                hint: "Rational numbers have decimal expansions that either terminate or repeat a pattern."
+            }
+        ],
+        medium: [
+            { 
+                q: "Using Euclid's division algorithm, find the HCF of 56 and 72.", 
+                options: ["8", "12", "16", "24"],
+                ans: "8", 
+                hint: "Apply Euclid's division algorithm: 72 = 56 × 1 + 16, 56 = 16 × 3 + 8, 16 = 8 × 2 + 0. The last non-zero remainder is the HCF."
+            },
+            { 
+                q: "Find the HCF and LCM of 90 and 144 using prime factorization.", 
+                options: ["HCF = 18, LCM = 720", "HCF = 12, LCM = 1080", "HCF = 9, LCM = 1440", "HCF = 6, LCM = 2160"],
+                ans: "HCF = 18, LCM = 720", 
+                hint: "Prime factors: 90 = 2 × 3² × 5, 144 = 2⁴ × 3². HCF = 2 × 3² = 18. LCM = 2⁴ × 3² × 5 = 720."
+            },
+            { 
+                q: "Express 3825 as a product of its prime factors.", 
+                options: ["3² × 5² × 17", "3 × 5² × 17²", "3³ × 5² × 17", "3² × 5³ × 17"],
+                ans: "3² × 5² × 17", 
+                hint: "Divide 3825 by prime numbers: 3825 ÷ 3 = 1275, 1275 ÷ 3 = 425, 425 ÷ 5 = 85, 85 ÷ 5 = 17, 17 ÷ 17 = 1."
+            },
+            { 
+                q: "Find the LCM of 96 and 360 by prime factorization method.", 
+                options: ["1440", "2880", "720", "2160"],
+                ans: "1440", 
+                hint: "Prime factors: 96 = 2⁵ × 3, 360 = 2³ × 3² × 5. LCM = 2⁵ × 3² × 5 = 1440."
+            },
+            { 
+                q: "Without actually performing the long division, state whether the following rational number will have a terminating decimal expansion or a non-terminating repeating decimal expansion: 13/3125", 
+                options: ["Terminating", "Non-terminating repeating", "Non-terminating non-repeating", "Cannot be determined"],
+                ans: "Terminating", 
+                hint: "A rational number has a terminating decimal expansion if the denominator's prime factors are only 2 and/or 5. 3125 = 5⁵."
+            }
+        ],
+        hard: [
+            { 
+                q: "Show that any positive odd integer is of the form 6q + 1, or 6q + 3, or 6q + 5, where q is some integer.", 
+                options: ["By Euclid's division lemma, a = 6q + r, where 0 ≤ r < 6. For odd integers, r can be 1, 3, or 5", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "By Euclid's division lemma, a = 6q + r, where 0 ≤ r < 6. For odd integers, r can be 1, 3, or 5", 
+                hint: "Apply Euclid's division lemma with b = 6. The possible remainders are 0, 1, 2, 3, 4, 5. For odd integers, r must be odd."
+            },
+            { 
+                q: "An army contingent of 616 members is to march behind an army band of 32 members in a parade. The two groups are to march in the same number of columns. What is the maximum number of columns in which they can march?", 
+                options: ["4", "8", "16", "32"],
+                ans: "8", 
+                hint: "To find the maximum number of columns, we need to find the HCF of 616 and 32. 616 = 32 × 19 + 8, 32 = 8 × 4 + 0. The HCF is 8."
+            },
+            { 
+                q: "Use Euclid's division lemma to show that the square of any positive integer is either of the form 3m or 3m + 1 for some integer m.", 
+                options: ["By Euclid's division lemma, a = 3q + r, where 0 ≤ r < 3. Then a² = 9q² + 6qr + r². For r = 0, a² = 3(3q²). For r = 1, a² = 3(3q² + 2q) + 1. For r = 2, a² = 3(3q² + 4q + 1) + 1", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "By Euclid's division lemma, a = 3q + r, where 0 ≤ r < 3. Then a² = 9q² + 6qr + r². For r = 0, a² = 3(3q²). For r = 1, a² = 3(3q² + 2q) + 1. For r = 2, a² = 3(3q² + 4q + 1) + 1", 
+                hint: "Apply Euclid's division lemma with b = 3. The possible remainders are 0, 1, 2. Square each form and simplify."
+            },
+            { 
+                q: "Prove that √3 is irrational.", 
+                options: ["Assume √3 is rational, so √3 = a/b where a and b are coprime. Then 3b² = a², so 3 divides a. Let a = 3c. Then 3b² = 9c², so b² = 3c², so 3 divides b. This contradicts that a and b are coprime", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "Assume √3 is rational, so √3 = a/b where a and b are coprime. Then 3b² = a², so 3 divides a. Let a = 3c. Then 3b² = 9c², so b² = 3c², so 3 divides b. This contradicts that a and b are coprime", 
+                hint: "Use proof by contradiction. Assume √3 is rational and express it as a fraction in simplest terms."
+            },
+            { 
+                q: "The following real numbers have decimal expansions as given below. In each case, decide whether they are rational or not. If they are rational, and of the form p/q, what can you say about the prime factors of q? (i) 43.123456789 (ii) 0.120120012000120000...", 
+                options: ["(i) Rational, q has prime factors 2 and 5 only; (ii) Irrational", "(i) Rational, q has prime factors other than 2 and 5; (ii) Rational", "(i) Irrational; (ii) Rational", "(i) Irrational; (ii) Irrational"],
+                ans: "(i) Rational, q has prime factors 2 and 5 only; (ii) Irrational", 
+                hint: "(i) Terminating decimals are rational with q having prime factors 2 and 5 only. (ii) Non-terminating non-repeating decimals are irrational."
+            }
+        ],
+        extreme: [
+            { 
+                q: "Show that one and only one out of n, n+2, n+4 is divisible by 3, where n is any positive integer.", 
+                options: ["By Euclid's division lemma, n = 3q, 3q+1, or 3q+2. For n=3q, n is divisible by 3. For n=3q+1, n+2=3q+3=3(q+1) is divisible by 3. For n=3q+2, n+4=3q+6=3(q+2) is divisible by 3. Only one of them is divisible by 3 in each case", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "By Euclid's division lemma, n = 3q, 3q+1, or 3q+2. For n=3q, n is divisible by 3. For n=3q+1, n+2=3q+3=3(q+1) is divisible by 3. For n=3q+2, n+4=3q+6=3(q+2) is divisible by 3. Only one of them is divisible by 3 in each case", 
+                hint: "Apply Euclid's division lemma with b = 3. Consider all possible remainders (0, 1, 2) and check which of n, n+2, n+4 is divisible by 3 in each case."
+            },
+            { 
+                q: "Prove that √5 is irrational.", 
+                options: ["Assume √5 is rational, so √5 = a/b where a and b are coprime. Then 5b² = a², so 5 divides a. Let a = 5c. Then 5b² = 25c², so b² = 5c², so 5 divides b. This contradicts that a and b are coprime", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "Assume √5 is rational, so √5 = a/b where a and b are coprime. Then 5b² = a², so 5 divides a. Let a = 5c. Then 5b² = 25c², so b² = 5c², so 5 divides b. This contradicts that a and b are coprime", 
+                hint: "Use proof by contradiction. Assume √5 is rational and express it as a fraction in simplest terms."
+            },
+            { 
+                q: "Prove that 3 + 2√5 is irrational.", 
+                options: ["Assume 3 + 2√5 is rational, so 3 + 2√5 = a/b where a and b are integers. Then 2√5 = a/b - 3 = (a - 3b)/b, so √5 = (a - 3b)/(2b), which is rational. But √5 is irrational, leading to a contradiction", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "Assume 3 + 2√5 is rational, so 3 + 2√5 = a/b where a and b are integers. Then 2√5 = a/b - 3 = (a - 3b)/b, so √5 = (a - 3b)/(2b), which is rational. But √5 is irrational, leading to a contradiction", 
+                hint: "Use proof by contradiction. Assume 3 + 2√5 is rational and express √5 in terms of rational numbers."
+            },
+            { 
+                q: "A sweet seller has 420 kaju barfis and 130 badam barfis. She wants to stack them in such a way that each stack has the same number of barfis, and they take up the least area of the tray. What is the maximum number of barfis that can be placed in each stack for this purpose?", 
+                options: ["10", "13", "14", "26"],
+                ans: "10", 
+                hint: "To find the maximum number of barfis in each stack, we need to find the HCF of 420 and 130. 420 = 130 × 3 + 30, 130 = 30 × 4 + 10, 30 = 10 × 3 + 0. The HCF is 10."
+            },
+            { 
+                q: "Explain why 7 × 11 × 13 + 13 and 7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 are composite numbers.", 
+                options: ["7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78, which is composite. 7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 = 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1) = 5 × 1009, which is composite", "By the Fundamental Theorem of Arithmetic", "By prime factorization", "By decimal expansion"],
+                ans: "7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78, which is composite. 7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 = 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1) = 5 × 1009, which is composite", 
+                hint: "Factor out common terms to show that each expression is a product of two integers greater than 1."
+            }
+        ]
+    },
+    Relations: {
+        basic: [
+            { 
+                q: "What is a relation in mathematics?", 
+                options: ["A connection between elements of sets", "A type of function", "A mathematical operation", "A number system"],
+                ans: "A connection between elements of sets", 
+                hint: "Think about how elements from different sets can be associated with each other."
+            },
+            { 
+                q: "Which of the following is NOT a type of relation?", 
+                options: ["Reflexive", "Symmetric", "Transitive", "Multiplicative"],
+                ans: "Multiplicative", 
+                hint: "Consider the standard properties that define different types of relations."
+            },
+            { 
+                q: "A relation R on a set A is reflexive if:", 
+                options: ["For every a, b in A, if aRb then bRa", "For every a in A, aRa", "For every a, b, c in A, if aRb and bRc then aRc", "For every a, b in A, aRb or bRa"],
+                ans: "For every a in A, aRa", 
+                hint: "This property means every element is related to itself."
+            },
+            { 
+                q: "A relation R on a set A is symmetric if:", 
+                options: ["For every a in A, aRa", "For every a, b in A, if aRb then bRa", "For every a, b, c in A, if aRb and bRc then aRc", "For every a, b in A, aRb or bRa"],
+                ans: "For every a, b in A, if aRb then bRa", 
+                hint: "This property means the relation works both ways."
+            },
+            { 
+                q: "A relation R on a set A is transitive if:", 
+                options: ["For every a in A, aRa", "For every a, b in A, if aRb then bRa", "For every a, b, c in A, if aRb and bRc then aRc", "For every a, b in A, aRb or bRa"],
+                ans: "For every a, b, c in A, if aRb and bRc then aRc", 
+                hint: "This property creates a chain of relationships."
+            }
+        ],
+        medium: [
+            { 
+                q: "Which of the following relations on the set of integers is reflexive?", 
+                options: ["R = {(a,b) | a < b}", "R = {(a,b) | a = b}", "R = {(a,b) | a > b}", "R = {(a,b) | a ≠ b}"],
+                ans: "R = {(a,b) | a = b}", 
+                hint: "For a relation to be reflexive, every element must be related to itself."
+            },
+            { 
+                q: "Which of the following relations on the set of integers is symmetric?", 
+                options: ["R = {(a,b) | a < b}", "R = {(a,b) | a ≤ b}", "R = {(a,b) | a = b}", "R = {(a,b) | a divides b}"],
+                ans: "R = {(a,b) | a = b}", 
+                hint: "For a relation to be symmetric, if a is related to b, then b must be related to a."
+            },
+            { 
+                q: "Which of the following relations on the set of integers is transitive?", 
+                options: ["R = {(a,b) | a < b}", "R = {(a,b) | a ≠ b}", "R = {(a,b) | a = 2b}", "R = {(a,b) | a + b = 0}"],
+                ans: "R = {(a,b) | a < b}", 
+                hint: "For a relation to be transitive, if a < b and b < c, then a < c must hold."
+            },
+            { 
+                q: "An equivalence relation must be:", 
+                options: ["Reflexive and symmetric", "Reflexive and transitive", "Symmetric and transitive", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Equivalence relations require all three properties."
+            },
+            { 
+                q: "Which of the following is an equivalence relation on the set of integers?", 
+                options: ["R = {(a,b) | a < b}", "R = {(a,b) | a = b}", "R = {(a,b) | a divides b}", "R = {(a,b) | a + b = 0}"],
+                ans: "R = {(a,b) | a = b}", 
+                hint: "Check if this relation satisfies all three properties: reflexive, symmetric, and transitive."
+            }
+        ],
+        hard: [
+            { 
+                q: "Let R be a relation on the set of real numbers defined by R = {(a,b) | a² = b²}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Check all three properties: for any real number a, a² = a² (reflexive); if a² = b² then b² = a² (symmetric); if a² = b² and b² = c² then a² = c² (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of integers defined by R = {(a,b) | a divides b}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and transitive only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive and transitive only", 
+                hint: "Check each property: every integer divides itself (reflexive); if a divides b, it doesn't necessarily mean b divides a (not symmetric); if a divides b and b divides c, then a divides c (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of integers defined by R = {(a,b) | a + b is even}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Check all three properties: a + a = 2a is even (reflexive); if a + b is even, then b + a is even (symmetric); if a + b is even and b + c is even, then a + c is even (transitive)."
+            },
+            { 
+                q: "Which of the following is NOT an equivalence relation on the set of integers?", 
+                options: ["R = {(a,b) | a = b}", "R = {(a,b) | a ≡ b (mod 5)}", "R = {(a,b) | a - b is even}", "R = {(a,b) | a < b}"],
+                ans: "R = {(a,b) | a < b}", 
+                hint: "Check which relation fails to satisfy one of the three required properties: reflexive, symmetric, and transitive."
+            },
+            { 
+                q: "Let R be a relation on the set of real numbers defined by R = {(a,b) | a ≤ b}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and transitive only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive and transitive only", 
+                hint: "Check each property: a ≤ a (reflexive); if a ≤ b, it doesn't necessarily mean b ≤ a (not symmetric); if a ≤ b and b ≤ c, then a ≤ c (transitive)."
+            }
+        ],
+        extreme: [
+            { 
+                q: "Let R be a relation on the power set of a set S defined by R = {(A,B) | A ⊆ B}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and transitive only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive and transitive only", 
+                hint: "Check each property: A ⊆ A (reflexive); if A ⊆ B, it doesn't necessarily mean B ⊆ A (not symmetric); if A ⊆ B and B ⊆ C, then A ⊆ C (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of functions from ℝ to ℝ defined by R = {(f,g) | f and g have the same derivative}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Check all three properties: f has the same derivative as itself (reflexive); if f has the same derivative as g, then g has the same derivative as f (symmetric); if f has the same derivative as g and g has the same derivative as h, then f has the same derivative as h (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of n×n matrices defined by R = {(A,B) | A and B are similar}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Check all three properties: A is similar to itself (reflexive); if A is similar to B, then B is similar to A (symmetric); if A is similar to B and B is similar to C, then A is similar to C (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of integers defined by R = {(a,b) | a and b have the same prime factors}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive, symmetric, and transitive", 
+                hint: "Check all three properties: a has the same prime factors as itself (reflexive); if a has the same prime factors as b, then b has the same prime factors as a (symmetric); if a has the same prime factors as b and b has the same prime factors as c, then a has the same prime factors as c (transitive)."
+            },
+            { 
+                q: "Let R be a relation on the set of real numbers defined by R = {(a,b) | |a - b| < 1}. Which of the following properties does R have?", 
+                options: ["Reflexive only", "Symmetric only", "Reflexive and symmetric only", "Reflexive, symmetric, and transitive"],
+                ans: "Reflexive and symmetric only", 
+                hint: "Check each property: |a - a| = 0 < 1 (reflexive); if |a - b| < 1, then |b - a| < 1 (symmetric); if |a - b| < 1 and |b - c| < 1, it doesn't necessarily mean |a - c| < 1 (not transitive)."
+            }
+        ]
+    },
+    Functions: {
+        basic: [
+            { 
+                q: "What is a function in mathematics?", 
+                options: ["A relation where every input has exactly one output", "A relation where every output has exactly one input", "A relation between numbers", "A type of equation"],
+                ans: "A relation where every input has exactly one output", 
+                hint: "Think about the key property that distinguishes functions from general relations."
+            },
+            { 
+                q: "Which of the following is NOT a type of function?", 
+                options: ["One-one", "Onto", "Bijective", "Reflexive"],
+                ans: "Reflexive", 
+                hint: "Consider the standard classifications of functions based on their properties."
+            },
+            { 
+                q: "A function f: A → B is one-one (injective) if:", 
+                options: ["Every element of B is mapped to by some element of A", "Different elements of A map to different elements of B", "Every element of A maps to itself", "The function has an inverse"],
+                ans: "Different elements of A map to different elements of B", 
+                hint: "This property ensures that no two different inputs have the same output."
+            },
+            { 
+                q: "A function f: A → B is onto (surjective) if:", 
+                options: ["Every element of B is mapped to by some element of A", "Different elements of A map to different elements of B", "Every element of A maps to itself", "The function has an inverse"],
+                ans: "Every element of B is mapped to by some element of A", 
+                hint: "This property ensures that the function covers the entire codomain."
+            },
+            { 
+                q: "A function f: A → B is bijective if:", 
+                options: ["It is one-one but not onto", "It is onto but not one-one", "It is both one-one and onto", "It maps every element to itself"],
+                ans: "It is both one-one and onto", 
+                hint: "This property combines the two important properties of functions."
+            }
+        ],
+        medium: [
+            { 
+                q: "Which of the following functions from ℝ to ℝ is one-one?", 
+                options: ["f(x) = x²", "f(x) = sin(x)", "f(x) = |x|", "f(x) = 2x + 3"],
+                ans: "f(x) = 2x + 3", 
+                hint: "A one-one function has a unique output for each input. Check which function has this property."
+            },
+            { 
+                q: "Which of the following functions from ℝ to ℝ is onto?", 
+                options: ["f(x) = x²", "f(x) = e^x", "f(x) = sin(x)", "f(x) = x³"],
+                ans: "f(x) = x³", 
+                hint: "An onto function covers the entire codomain. Check which function has this property."
+            },
+            { 
+                q: "Which of the following functions from ℝ to ℝ is bijective?", 
+                options: ["f(x) = x²", "f(x) = e^x", "f(x) = sin(x)", "f(x) = 2x + 3"],
+                ans: "f(x) = 2x + 3", 
+                hint: "A bijective function is both one-one and onto. Check which function has both properties."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x². Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is neither one-one nor onto", 
+                hint: "Check if different inputs can have the same output (not one-one) and if every real number is a possible output (not onto)."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = 2x + 1. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) and if every real number is a possible output (onto)."
+            }
+        ],
+        hard: [
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = e^x. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is one-one but not onto", 
+                hint: "Check if different inputs have different outputs (one-one) and if every real number is a possible output (onto). Remember that e^x is always positive."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x³ - x. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is onto but not one-one", 
+                hint: "Check if different inputs can have the same output (not one-one) and if every real number is a possible output (onto). Consider the graph of this function."
+            },
+            { 
+                q: "Let f: [0, ∞) → [0, ∞) be defined by f(x) = x². Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) and if every non-negative real number is a possible output (onto). Note the restricted domains."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = sin(x). Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is neither one-one nor onto", 
+                hint: "Check if different inputs can have the same output (not one-one) and if every real number is a possible output (not onto). Remember that sin(x) oscillates between -1 and 1."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x³. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) and if every real number is a possible output (onto). Consider the graph of this function."
+            }
+        ],
+        extreme: [
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x + sin(x). Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) by considering the derivative f'(x) = 1 + cos(x) ≥ 0. Check if every real number is a possible output (onto) by considering the behavior as x → ±∞."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x + 2sin(x). Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) by considering the derivative f'(x) = 1 + 2cos(x). Note that f'(x) can be negative, but the function is still strictly increasing. Check if every real number is a possible output (onto) by considering the behavior as x → ±∞."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x³ + x. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) by considering the derivative f'(x) = 3x² + 1 > 0. Check if every real number is a possible output (onto) by considering the behavior as x → ±∞."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x + e^x. Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) by considering the derivative f'(x) = 1 + e^x > 0. Check if every real number is a possible output (onto) by considering the behavior as x → ±∞."
+            },
+            { 
+                q: "Let f: ℝ → ℝ be defined by f(x) = x + arctan(x). Which of the following is true?", 
+                options: ["f is one-one but not onto", "f is onto but not one-one", "f is both one-one and onto", "f is neither one-one nor onto"],
+                ans: "f is both one-one and onto", 
+                hint: "Check if different inputs have different outputs (one-one) by considering the derivative f'(x) = 1 + 1/(1+x²) > 0. Check if every real number is a possible output (onto) by considering the behavior as x → ±∞."
+            }
+        ]
+    },
+    Inverse: {
+        basic: [
+            { 
+                q: "What is the inverse of a function?", 
+                options: ["A function that reverses the effect of the original function", "A function that is the same as the original function", "A function that is the opposite of the original function", "A function that is undefined"],
+                ans: "A function that reverses the effect of the original function", 
+                hint: "Think about what it means to 'undo' a function."
+            },
+            { 
+                q: "Which type of function always has an inverse?", 
+                options: ["One-one functions", "Onto functions", "Bijective functions", "All functions"],
+                ans: "Bijective functions", 
+                hint: "Consider what properties a function must have to have an inverse."
+            },
+            { 
+                q: "If f: A → B is a function and f⁻¹: B → A is its inverse, then f⁻¹(f(a)) = ?", 
+                options: ["a", "f(a)", "f⁻¹(a)", "b"],
+                ans: "a", 
+                hint: "Think about what happens when you apply a function and then its inverse."
+            },
+            { 
+                q: "If f: A → B is a function and f⁻¹: B → A is its inverse, then f(f⁻¹(b)) = ?", 
+                options: ["a", "f(a)", "f⁻¹(a)", "b"],
+                ans: "b", 
+                hint: "Think about what happens when you apply the inverse of a function and then the function itself."
+            },
+            { 
+                q: "Which of the following functions from ℝ to ℝ has an inverse?", 
+                options: ["f(x) = x²", "f(x) = sin(x)", "f(x) = |x|", "f(x) = 2x + 3"],
+                ans: "f(x) = 2x + 3", 
+                hint: "Check which function is bijective (both one-one and onto)."
+            }
+        ],
+        medium: [
+            { 
+                q: "What is the inverse of the function f(x) = 2x + 3?", 
+                options: ["f⁻¹(x) = (x - 3)/2", "f⁻¹(x) = (x + 3)/2", "f⁻¹(x) = 2x - 3", "f⁻¹(x) = 2(x - 3)"],
+                ans: "f⁻¹(x) = (x - 3)/2", 
+                hint: "To find the inverse, solve y = 2x + 3 for x in terms of y."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x³?", 
+                options: ["f⁻¹(x) = x²", "f⁻¹(x) = x^(1/3)", "f⁻¹(x) = 3x", "f⁻¹(x) = x/3"],
+                ans: "f⁻¹(x) = x^(1/3)", 
+                hint: "To find the inverse, solve y = x³ for x in terms of y."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = e^x?", 
+                options: ["f⁻¹(x) = ln(x)", "f⁻¹(x) = e^(-x)", "f⁻¹(x) = x^e", "f⁻¹(x) = e^(1/x)"],
+                ans: "f⁻¹(x) = ln(x)", 
+                hint: "The natural logarithm function is the inverse of the exponential function."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = 1/x?", 
+                options: ["f⁻¹(x) = x", "f⁻¹(x) = -x", "f⁻¹(x) = 1/x", "f⁻¹(x) = x²"],
+                ans: "f⁻¹(x) = 1/x", 
+                hint: "This function is its own inverse."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = √x?", 
+                options: ["f⁻¹(x) = x²", "f⁻¹(x) = -√x", "f⁻¹(x) = 1/√x", "f⁻¹(x) = x^(1/2)"],
+                ans: "f⁻¹(x) = x²", 
+                hint: "To find the inverse, solve y = √x for x in terms of y."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is the inverse of the function f(x) = (2x + 3)/(x - 1)?", 
+                options: ["f⁻¹(x) = (x + 3)/(x - 2)", "f⁻¹(x) = (x - 3)/(x + 2)", "f⁻¹(x) = (x + 3)/(2 - x)", "f⁻¹(x) = (x - 3)/(2 - x)"],
+                ans: "f⁻¹(x) = (x + 3)/(x - 2)", 
+                hint: "To find the inverse, solve y = (2x + 3)/(x - 1) for x in terms of y."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = ln(x + 2)?", 
+                options: ["f⁻¹(x) = e^x - 2", "f⁻¹(x) = e^x + 2", "f⁻¹(x) = e^(x - 2)", "f⁻¹(x) = e^(x + 2)"],
+                ans: "f⁻¹(x) = e^x - 2", 
+                hint: "To find the inverse, solve y = ln(x + 2) for x in terms of y."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = 2^x + 1?", 
+                options: ["f⁻¹(x) = log₂(x - 1)", "f⁻¹(x) = log₂(x + 1)", "f⁻¹(x) = 2^(x - 1)", "f⁻¹(x) = 2^(x + 1)"],
+                ans: "f⁻¹(x) = log₂(x - 1)", 
+                hint: "To find the inverse, solve y = 2^x + 1 for x in terms of y."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = sin(x) on the interval [-π/2, π/2]?", 
+                options: ["f⁻¹(x) = sin(x)", "f⁻¹(x) = cos(x)", "f⁻¹(x) = arcsin(x)", "f⁻¹(x) = arccos(x)"],
+                ans: "f⁻¹(x) = arcsin(x)", 
+                hint: "The inverse of the sine function on this interval is the arcsine function."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x³ + x?", 
+                options: ["f⁻¹(x) = x^(1/3) - x", "f⁻¹(x) = (x - x³)^(1/3)", "f⁻¹(x) = x/(1 + x²)", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) cannot be expressed in elementary functions", 
+                hint: "This is a cubic function, and its inverse cannot be expressed using basic algebraic operations."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the inverse of the function f(x) = x + e^x?", 
+                options: ["f⁻¹(x) = x - e^x", "f⁻¹(x) = ln(x - x)", "f⁻¹(x) = W(e^x)", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) cannot be expressed in elementary functions", 
+                hint: "This function involves both a linear term and an exponential term, making its inverse difficult to express with elementary functions."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x + sin(x)?", 
+                options: ["f⁻¹(x) = x - sin(x)", "f⁻¹(x) = arcsin(x - x)", "f⁻¹(x) = x/(1 + cos(x))", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) cannot be expressed in elementary functions", 
+                hint: "This function involves both a linear term and a trigonometric term, making its inverse difficult to express with elementary functions."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x + arctan(x)?", 
+                options: ["f⁻¹(x) = x - arctan(x)", "f⁻¹(x) = tan(x - x)", "f⁻¹(x) = x/(1 + x²)", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) cannot be expressed in elementary functions", 
+                hint: "This function involves both a linear term and an inverse trigonometric term, making its inverse difficult to express with elementary functions."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x^3 + 2x + 1?", 
+                options: ["f⁻¹(x) = (x - 1)^(1/3) - 2x", "f⁻¹(x) = (x - 1 - 2x)^(1/3)", "f⁻¹(x) = (x - 2x - 1)^(1/3)", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) cannot be expressed in elementary functions", 
+                hint: "This is a cubic function, and its inverse cannot be expressed using basic algebraic operations."
+            },
+            { 
+                q: "What is the inverse of the function f(x) = x + ln(x) for x > 0?", 
+                options: ["f⁻¹(x) = x - ln(x)", "f⁻¹(x) = e^(x - x)", "f⁻¹(x) = W(e^x)", "f⁻¹(x) cannot be expressed in elementary functions"],
+                ans: "f⁻¹(x) = W(e^x)", 
+                hint: "The inverse of this function can be expressed using the Lambert W function, which is defined as the inverse of f(x) = xe^x."
+            }
+        ]
+    },
+    Composition: {
+        basic: [
+            { 
+                q: "What is the composition of two functions?", 
+                options: ["Applying one function after the other", "Adding two functions", "Multiplying two functions", "Dividing two functions"],
+                ans: "Applying one function after the other", 
+                hint: "Think about how functions can be combined by using the output of one as the input of another."
+            },
+            { 
+                q: "If f: A → B and g: B → C are functions, what is the composition g ∘ f?", 
+                options: ["A function from A to C", "A function from C to A", "A function from A to B", "A function from B to C"],
+                ans: "A function from A to C", 
+                hint: "Consider the domain and codomain of the composition."
+            },
+            { 
+                q: "If f(x) = 2x and g(x) = x + 3, what is (g ∘ f)(x)?", 
+                options: ["2x + 3", "2(x + 3)", "2x + 6", "2(x - 3)"],
+                ans: "2x + 3", 
+                hint: "(g ∘ f)(x) = g(f(x)) = g(2x) = 2x + 3."
+            },
+            { 
+                q: "If f(x) = x² and g(x) = x + 1, what is (f ∘ g)(x)?", 
+                options: ["x² + 1", "(x + 1)²", "x² + 2x + 1", "x² - 1"],
+                ans: "(x + 1)²", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x + 1) = (x + 1)²."
+            },
+            { 
+                q: "If f(x) = 2x + 3 and g(x) = x - 1, what is (g ∘ f)(x)?", 
+                options: ["2x + 2", "2x + 3", "2x + 4", "2x + 5"],
+                ans: "2x + 2", 
+                hint: "(g ∘ f)(x) = g(f(x)) = g(2x + 3) = (2x + 3) - 1 = 2x + 2."
+            }
+        ],
+        medium: [
+            { 
+                q: "If f(x) = x² and g(x) = √x, what is (f ∘ g)(x) for x ≥ 0?", 
+                options: ["x", "x²", "√x", "x^(1/4)"],
+                ans: "x", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(√x) = (√x)² = x."
+            },
+            { 
+                q: "If f(x) = e^x and g(x) = ln(x), what is (f ∘ g)(x) for x > 0?", 
+                options: ["x", "e^x", "ln(x)", "e^(ln(x))"],
+                ans: "x", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(ln(x)) = e^(ln(x)) = x."
+            },
+            { 
+                q: "If f(x) = sin(x) and g(x) = arcsin(x), what is (f ∘ g)(x) for -1 ≤ x ≤ 1?", 
+                options: ["x", "sin(x)", "arcsin(x)", "sin(arcsin(x))"],
+                ans: "x", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(arcsin(x)) = sin(arcsin(x)) = x."
+            },
+            { 
+                q: "If f(x) = 2x + 3 and g(x) = 3x - 1, what is (g ∘ f)(x)?", 
+                options: ["6x + 8", "6x + 7", "6x + 6", "6x + 5"],
+                ans: "6x + 8", 
+                hint: "(g ∘ f)(x) = g(f(x)) = g(2x + 3) = 3(2x + 3) - 1 = 6x + 9 - 1 = 6x + 8."
+            },
+            { 
+                q: "If f(x) = x² + 1 and g(x) = 2x - 3, what is (f ∘ g)(x)?", 
+                options: ["4x² - 12x + 10", "4x² - 12x + 9", "4x² - 6x + 10", "4x² - 6x + 9"],
+                ans: "4x² - 12x + 10", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(2x - 3) = (2x - 3)² + 1 = 4x² - 12x + 9 + 1 = 4x² - 12x + 10."
+            }
+        ],
+        hard: [
+            { 
+                q: "If f(x) = 1/x and g(x) = x + 1, what is (f ∘ g)(x) for x ≠ -1?", 
+                options: ["1/(x + 1)", "x + 1", "1/x + 1", "1/(1/x + 1)"],
+                ans: "1/(x + 1)", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x + 1) = 1/(x + 1)."
+            },
+            { 
+                q: "If f(x) = √x and g(x) = x² - 1, what is (f ∘ g)(x) for |x| ≥ 1?", 
+                options: ["x² - 1", "√(x² - 1)", "x - 1", "√x - 1"],
+                ans: "√(x² - 1)", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x² - 1) = √(x² - 1)."
+            },
+            { 
+                q: "If f(x) = e^x and g(x) = x², what is (f ∘ g)(x)?", 
+                options: ["e^(x²)", "(e^x)²", "e^(2x)", "2e^x"],
+                ans: "e^(x²)", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x²) = e^(x²)."
+            },
+            { 
+                q: "If f(x) = ln(x) and g(x) = e^(2x), what is (f ∘ g)(x)?", 
+                options: ["2x", "x²", "e^(2x)", "ln(e^(2x))"],
+                ans: "2x", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(e^(2x)) = ln(e^(2x)) = 2x."
+            },
+            { 
+                q: "If f(x) = sin(x) and g(x) = x², what is (f ∘ g)(x)?", 
+                options: ["sin(x²)", "(sin(x))²", "x²", "sin(x) + x²"],
+                ans: "sin(x²)", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x²) = sin(x²)."
+            }
+        ],
+        extreme: [
+            { 
+                q: "If f(x) = e^x and g(x) = ln(x), what is (f ∘ g)(x) + (g ∘ f)(x) for x > 0?", 
+                options: ["2x", "x + e^x", "x + ln(x)", "e^x + ln(x)"],
+                ans: "2x", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(ln(x)) = e^(ln(x)) = x. (g ∘ f)(x) = g(f(x)) = g(e^x) = ln(e^x) = x. So (f ∘ g)(x) + (g ∘ f)(x) = x + x = 2x."
+            },
+            { 
+                q: "If f(x) = x² and g(x) = √x, what is (f ∘ g)(x) × (g ∘ f)(x) for x ≥ 0?", 
+                options: ["x²", "x", "x³", "x^(1/2)"],
+                ans: "x²", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(√x) = (√x)² = x. (g ∘ f)(x) = g(f(x)) = g(x²) = √(x²) = x. So (f ∘ g)(x) × (g ∘ f)(x) = x × x = x²."
+            },
+            { 
+                q: "If f(x) = 2x + 3 and g(x) = 3x - 1, what is (f ∘ g)(x) - (g ∘ f)(x)?", 
+                options: ["-2", "0", "2", "4"],
+                ans: "-7", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(3x - 1) = 2(3x - 1) + 3 = 6x - 2 + 3 = 6x + 1. (g ∘ f)(x) = g(f(x)) = g(2x + 3) = 3(2x + 3) - 1 = 6x + 9 - 1 = 6x + 8. So (f ∘ g)(x) - (g ∘ f)(x) = (6x + 1) - (6x + 8) = -7."
+            },
+            { 
+                q: "If f(x) = e^x and g(x) = -x, what is (f ∘ g)(x) × (g ∘ f)(x)?", 
+                options: ["-x²e^x", "-xe^x", "-x", "-e^x"],
+                ans: "-1", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(-x) = e^(-x). (g ∘ f)(x) = g(f(x)) = g(e^x) = -e^x. So (f ∘ g)(x) × (g ∘ f)(x) = e^(-x) × (-e^x) = -e^(-x + x) = -e^0 = -1."
+            },
+            { 
+                q: "If f(x) = x + 1/x and g(x) = x², what is (f ∘ g)(x) for x ≠ 0?", 
+                options: ["x² + 1/x²", "x² + 1/x", "x + 1/x²", "x² + x"],
+                ans: "x² + 1/x²", 
+                hint: "(f ∘ g)(x) = f(g(x)) = f(x²) = x² + 1/(x²)."
+            }
+        ]
+    }
+};
+
+// ===== Game Flow =====
+function enterLevel(level) {
+    gameState.currentLevel = level;
+    gameState.currentTopicIndex = 0;
+    gameState.questionIndex = 0;
+    gameState.incorrectStreak = 0;
+    gameState.correctAnswers = 0;
+    gameState.xp = 0;
+    saveGameState();
+
+    updateXP();
+    updateProgress();
+    dom.menu.style.display = 'none';
+    dom.stage.style.display = 'flex';
+    dom.levelMessage.innerText = '';
+    prepareTopic();
+}
+
+function backToMenu() {
+    dom.stage.style.display = 'none';
+    dom.menu.style.display = 'block';
+    dom.levelMessage.innerText = '';
+    saveGameState();
+}
+
+function prepareTopic() {
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+
+    const currTopicKey = topicList[gameState.currentTopicIndex];
+    const lvl = gameState.currentLevel;
+    dom.levelTitle.innerText = `${lvl.toUpperCase()} - ${currTopicKey}`;
+    
+    let topicQuestions = [];
+    if (questionBank[currTopicKey] && questionBank[currTopicKey][lvl]) {
+        topicQuestions = [...questionBank[currTopicKey][lvl]];
+    } else {
+        topicQuestions = [];
+    }
+
+    shuffleArray(topicQuestions);
+    currentQuestions = topicQuestions.slice(0, QUESTIONS_PER_TOPIC);
+    gameState.questionIndex = 0;
+    saveGameState();
+    renderQuestion();
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function skipQuestion() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function nextStep() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function finishTopic() {
+    dom.levelMessage.innerText = `Topic Complete! ✨`;
+    dom.levelMessage.style.animation = 'pulse 1s';
+    
+    if (gameState.currentTopicIndex < topicList.length - 1) {
+        gameState.currentTopicIndex++;
+        gameState.questionIndex = 0;
+        saveGameState();
+        setTimeout(() => {
+            dom.levelMessage.innerText = '';
+            prepareTopic();
+        }, 900);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    dom.centerStage.innerHTML = `<div class="quest">🚀 Mission Complete! 🚀</div><div style="font-size: 1.2rem; color: var(--xp-glow);">Total XP: ${gameState.xp}</div><div style="margin-top:10px;font-weight:700;color:#bdf;">Correct answers: ${gameState.correctAnswers} / ${topicList.length * QUESTIONS_PER_TOPIC}</div>`;
+    dom.levelMessage.innerText = `Great job! You've completed all topics for this level.`;
+    dom.controls.innerHTML = `
+        <button class="action-btn" onclick="location.reload()">🎉 Play Again</button>
+        <button class="action-btn secondary" onclick="backToMenu()">↩️ Back to Menu</button>
+        <button class="action-btn check" onclick="window.location.href='../ncert-g12-math-syallabus.html'" style="margin-left: 10px">✔ Finish</button>
+    `;
+    saveGameState();
+}
+
+// ===== Rendering Interactive Questions =====
+function renderQuestion() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) {
+        dom.centerStage.innerHTML = `<div class="quest">No question available.</div>`;
+        return;
+    }
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+    
+    dom.centerStage.style.opacity = 0;
+    setTimeout(() => {
+        let html = '';
+        switch (qtype) {
+            case 'realnumbers':
+                html = `<div class="quest">${q.q}</div><div class="real-numbers-game"><div class="real-numbers-visual"><div class="real-numbers-type euclid">E</div><div class="real-numbers-type arithmetic">A</div><div class="real-numbers-type hcf-lcm">H</div><div class="real-numbers-type decimal">D</div></div><div class="real-numbers-options">`;
+                q.options.forEach(option => {
+                    html += `<div class="real-numbers-option" data-answer="${option}">${option}</div>`;
+                });
+                html += `</div></div>`;
+                break;
+            case 'relations':
+                html = `<div class="quest">${q.q}</div><div class="relations-game"><div class="relations-visual"><div class="relation-type reflexive">R</div><div class="relation-type symmetric">S</div><div class="relation-type transitive">T</div><div class="relation-type equivalence">E</div></div><div class="relation-options">`;
+                q.options.forEach(option => {
+                    html += `<div class="relation-option" data-answer="${option}">${option}</div>`;
+                });
+                html += `</div></div>`;
+                break;
+            case 'functions':
+                html = `<div class="quest">${q.q}</div><div class="functions-game"><div class="functions-visual"><div class="function-type one-one">1-1</div><div class="function-type onto">O</div><div class="function-type bijective">B</div><div class="function-arrow" style="width: 100px; left: 90px; top: 100px; transform: rotate(0deg);"></div></div><div class="functions-inputs"><input type="text" id="functionsAnswer" class="functions-input" placeholder="Answer"></div></div>`;
+                break;
+            case 'inverse':
+                html = `<div class="quest">${q.q}</div><div class="inverse-game"><canvas id="inverseCanvas" class="inverse-canvas" width="300" height="200"></canvas><div class="inverse-options">`;
+                if (q.options) {
+                    q.options.forEach(option => {
+                        html += `<div class="inverse-option" data-answer="${option}">${option}</div>`;
+                    });
+                } else {
+                    html += `<input type="text" id="inverseAnswer" class="functions-input" placeholder="Answer">`;
+                }
+                html += `</div></div>`;
+                break;
+            case 'composition':
+                html = `<div class="quest">${q.q}</div><div class="composition-game"><div class="composition-visual"><div class="composition"><div class="composition-type f">f</div><div class="composition-type g">g</div></div><canvas id="compositionCanvas" class="composition-field" width="300" height="200"></canvas></div><div class="composition-inputs"><input type="text" id="compositionAnswer" class="composition-input" placeholder="Answer"></div></div>`;
+                break;
+        }
+
+        dom.centerStage.innerHTML = html;
+        attachEventListeners(qtype);
+        resetUIState();
+        dom.centerStage.style.opacity = 1;
+    }, 250);
+}
+
+function attachEventListeners(type) {
+    if (type === 'realnumbers') {
+        document.querySelectorAll('.real-numbers-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.real-numbers-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'relations') {
+        document.querySelectorAll('.relation-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.relation-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'inverse') {
+        const canvas = document.getElementById('inverseCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawInverseFunction(ctx, canvas.width, canvas.height);
+        }
+        
+        document.querySelectorAll('.inverse-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.inverse-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'composition') {
+        const canvas = document.getElementById('compositionCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawCompositionDiagram(ctx, canvas.width, canvas.height);
+        }
+    }
+
+    const firstInput = dom.centerStage.querySelector('input');
+    if (firstInput) firstInput.focus();
+}
+
+function drawInverseFunction(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw axes
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(50, height - 50);
+    ctx.lineTo(width - 50, height - 50);
+    ctx.moveTo(width/2, 50);
+    ctx.lineTo(width/2, height - 50);
+    ctx.stroke();
+    
+    // Draw function f(x) = x
+    ctx.strokeStyle = 'rgba(103, 58, 183, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, height - 50);
+    ctx.lineTo(width - 50, 50);
+    ctx.stroke();
+    
+    // Draw inverse function f⁻¹(x) = x
+    ctx.strokeStyle = 'rgba(156, 39, 176, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, height - 50);
+    ctx.lineTo(width - 50, 50);
+    ctx.stroke();
+    
+    // Draw y = x line
+    ctx.strokeStyle = 'rgba(255, 152, 0, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(50, height - 50);
+    ctx.lineTo(width - 50, 50);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Labels
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('f(x)', 70, height - 60);
+    ctx.fillText('f⁻¹(x)', width - 70, 60);
+    ctx.fillText('y = x', width/2, height/2);
+}
+
+function drawCompositionDiagram(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw sets
+    ctx.fillStyle = 'rgba(103, 58, 183, 0.3)';
+    ctx.fillRect(50, 50, 60, 100);
+    ctx.fillStyle = 'rgba(156, 39, 176, 0.3)';
+    ctx.fillRect(width - 110, 50, 60, 100);
+    
+    // Draw functions
+    ctx.strokeStyle = 'rgba(103, 58, 183, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(110, 100);
+    ctx.lineTo(width/2 - 20, 100);
+    ctx.stroke();
+    
+    ctx.strokeStyle = 'rgba(156, 39, 176, 0.8)';
+    ctx.beginPath();
+    ctx.moveTo(width/2 + 20, 100);
+    ctx.lineTo(width - 110, 100);
+    ctx.stroke();
+    
+    // Draw composition
+    ctx.strokeStyle = 'rgba(255, 152, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(110, 100);
+    ctx.lineTo(width - 110, 100);
+    ctx.stroke();
+    
+    // Labels
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('A', 80, 40);
+    ctx.fillText('B', width - 80, 40);
+    ctx.fillText('f', width/2 - 40, 90);
+    ctx.fillText('g', width/2 + 40, 90);
+    ctx.fillText('g ∘ f', width/2, 120);
+}
+
+function resetUIState() {
+    dom.qIndex.innerText = gameState.questionIndex + 1;
+    dom.qTotal.innerText = QUESTIONS_PER_TOPIC;
+    dom.feedback.classList.remove('visible', 'correct', 'incorrect');
+    dom.hintBox.classList.remove('visible');
+    dom.checkBtn.style.display = 'inline-block'; 
+    dom.checkBtn.disabled = false;
+    dom.nextBtn.style.display = 'none';
+    dom.levelMessage.style.animation = '';
+    dom.levelMessage.innerText = '';
+}
+
+// ===== Answer Checking Logic =====
+function checkAnswer() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) return;
+    let isCorrect = false; 
+    let userAnswer;
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+
+    switch (qtype) {
+        case 'realnumbers':
+            const selectedRealNumbersOption = document.querySelector('.real-numbers-option.selected');
+            userAnswer = selectedRealNumbersOption ? selectedRealNumbersOption.dataset.answer : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'relations':
+            const selectedOption = document.querySelector('.relation-option.selected');
+            userAnswer = selectedOption ? selectedOption.dataset.answer : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'functions':
+            const functionsInput = document.getElementById('functionsAnswer');
+            userAnswer = functionsInput ? functionsInput.value.trim().toLowerCase() : '';
+            isCorrect = (userAnswer === q.ans.toLowerCase());
+            break;
+        case 'inverse':
+            if (q.options) {
+                const selectedInverseOption = document.querySelector('.inverse-option.selected');
+                userAnswer = selectedInverseOption ? selectedInverseOption.dataset.answer : '';
+                isCorrect = (userAnswer === q.ans);
+            } else {
+                const inverseInput = document.getElementById('inverseAnswer');
+                userAnswer = inverseInput ? inverseInput.value.trim().toLowerCase() : '';
+                isCorrect = (userAnswer === q.ans.toLowerCase());
+            }
+            break;
+        case 'composition':
+            const compositionInput = document.getElementById('compositionAnswer');
+            userAnswer = compositionInput ? compositionInput.value.trim().toLowerCase() : '';
+            isCorrect = (userAnswer === q.ans.toLowerCase());
+            break;
+    }
+
+    dom.checkBtn.disabled = true;
+    if (isCorrect) handleCorrect();
+    else handleIncorrect();
+}
+
+function handleCorrect() {
+    gameState.xp += 10;
+    gameState.correctAnswers++;
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+    updateXP();
+    updateProgress();
+    dom.feedback.innerText = "✅ Correct!";
+    dom.feedback.className = 'feedback visible correct';
+    particleEffect(dom.checkBtn, true);
+    saveGameState();
+    setTimeout(() => {
+        nextStep();
+    }, 900);
+}
+
+function handleIncorrect() {
+    gameState.incorrectStreak++;
+    if (gameState.incorrectStreak >= 3) {
+        dom.hintBtn.classList.add('highlight-hint');
+    }
+
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    let correctAnswerText = q.ans;
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+
+    if (qtype === 'realnumbers') {
+        document.querySelectorAll('.real-numbers-option').forEach(option => {
+            if (option.dataset.answer === q.ans) {
+                option.classList.add('selected');
+            }
+        });
+    } else if (qtype === 'relations') {
+        document.querySelectorAll('.relation-option').forEach(option => {
+            if (option.dataset.answer === q.ans) {
+                option.classList.add('selected');
+            }
+        });
+    } else if (qtype === 'functions') {
+        const functionsInput = document.getElementById('functionsAnswer');
+        if (functionsInput) functionsInput.value = q.ans;
+    } else if (qtype === 'inverse') {
+        if (q.options) {
+            document.querySelectorAll('.inverse-option').forEach(option => {
+                if (option.dataset.answer === q.ans) {
+                    option.classList.add('selected');
+                }
+            });
+        } else {
+            const inverseInput = document.getElementById('inverseAnswer');
+            if (inverseInput) inverseInput.value = q.ans;
+        }
+    } else if (qtype === 'composition') {
+        const compositionInput = document.getElementById('compositionAnswer');
+        if (compositionInput) compositionInput.value = q.ans;
+    }
+
+    dom.feedback.innerText = `❌ The answer is ${correctAnswerText}.`;
+    dom.feedback.className = 'feedback visible incorrect';
+    particleEffect(dom.checkBtn, false);
+    dom.nextBtn.style.display = 'inline-block';
+    saveGameState();
+}
+
+// ===== UI Updates & Effects =====
+function updateProgress() {
+    const totalQuestionsInGame = topicList.length * QUESTIONS_PER_TOPIC;
+    const totalProgress = (gameState.correctAnswers / totalQuestionsInGame) * 100;
+    const dash = 276.46;
+    dom.progressCircle.style.strokeDashoffset = dash - (dash * totalProgress / 100);
+    dom.progressPercent.innerText = `${Math.round(totalProgress)}%`;
+}
+
+function updateXP() {
+    dom.xpValue.innerText = gameState.xp;
+    dom.xpDisplay.classList.add('updated');
+    setTimeout(() => dom.xpDisplay.classList.remove('updated'), 300);
+}
+
+function showHint() {
+    const q = currentQuestions[gameState.questionIndex];
+    if (!q) return;
+    dom.hintBox.innerText = q.hint || 'No hint available';
+    dom.hintBox.classList.add('visible');
+}
+
+// ===== Visual Particle Effect (small) =====
+function particleEffect(elm, correct) {
+    try {
+        const rect = elm.getBoundingClientRect();
+        const c = document.createElement('canvas');
+        c.width = rect.width * 3; c.height = rect.height * 3;
+        c.style.cssText = `position: fixed; left: ${rect.left - rect.width}px; top: ${rect.top - rect.height}px; pointer-events: none; z-index: 30;`;
+        document.body.appendChild(c);
+
+        const pCtx = c.getContext('2d');
+        let particles = Array.from({ length: 40 }, () => ({
+            x: c.width / 2, y: c.height / 2,
+            vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+            r: Math.random() * 3 + 2, alpha: 1
+        }));
+
+        const anim = setInterval(() => {
+            pCtx.clearRect(0, 0, c.width, c.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pCtx.fillStyle = correct ? `rgba(76, 175, 80, ${p.alpha})` : `rgba(244, 67, 54, ${p.alpha})`;
+                pCtx.fill();
+            });
+            particles = particles.filter(p => p.alpha > 0);
+            if (particles.length === 0) {
+                clearInterval(anim);
+                if (c.parentNode) c.parentNode.removeChild(c);
+            }
+        }, 20);
+    } catch (e) {
+        console.warn('Particle effect failed', e);
+    }
+}
+
+// ===== Init =====
+loadGameState();
+</script>
+<button id="finishBtn" class="action-btn" style="position:fixed;right:20px;bottom:20px;z-index:40;padding:12px 16px;border-radius:12px;">Finish ✓</button>
+<script>
+document.getElementById('finishBtn').addEventListener('click', function () {
+    try {
+        localStorage.setItem('aurraa:grade12:chem:chapter1:progress', JSON.stringify({ visited_quiz: true, ts: Date.now() }));
+    } catch (e) {
+        // ignore storage errors
+    }
+    // small UX: disable button briefly to avoid double-click
+    this.disabled = true;
+    this.style.opacity = 0.85;
+    // navigate to the physics syllabus at site root
+    window.location.href = '/ncert-g12-physics-syllabus.html';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chapter 1: Electric Charges and Fields</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #00111a, #002b36);
+  color: white;
+  text-align: center;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.bg-particles {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(0,255,180,0.5);
+  border-radius: 50%;
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+}
+
+.card {
+  background: rgba(0,0,0,0.5);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0,255,200,0.4);
+  width: 80vw;
+  max-width: 900px;
+  min-width: 300px;
+}
+
+.animationBox {
+  position: relative;
+  width: 100%;
+  height: 200px; /* Increased height for medium size */
+  margin: 20px auto;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 30, 40, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 200, 0.3);
+}
+
+.charge-icon {
+  width: 60px; /* Increased size */
+  height: 60px; /* Increased size */
+  margin: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transform: scale(0.8);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 5px;
+}
+
+.caption {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  opacity: 0;
+  transform: scale(0.8);
+  background: rgba(0,0,0,0.3);
+  padding: 12px 20px;
+  border-radius: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+button, select {
+  margin: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+#pauseBtn { 
+  background: #4CAF50; 
+  color: #fff; 
+}
+
+#replayBtn { 
+  background: #ff5722; 
+  color: #fff; 
+  display: none; 
+}
+
+select { 
+  background: rgba(0,0,0,0.4); 
+  color: white; 
+  border: 1px solid white; 
+  padding: 10px 20px;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #00ffc8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card { 
+    width: 90vw; 
+    padding: 20px;
+  }
+  
+  .animationBox {
+    height: 180px;
+  }
+  
+  .charge-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  h2 {
+    font-size: 1.7rem;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .animationBox {
+    height: 150px;
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .charge-icon {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+  }
+  
+  .caption {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+  }
+  
+  button, select {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-particles"></div>
+
+<h2>Chapter 1: Electric Charges and Fields</h2>
+<h3>Electric charge: Conservation & Quantization</h3>
+
+<label for="langSelect">🌐 Choose Language:</label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+
+<div class="card">
+  <div class="animationBox" id="anim">
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/color/96/positive-dynamic.png')"></div>
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/color/96/negative-dynamic.png')"></div>
+    <div class="charge-icon" style="background-image:url('https://img.icons8.com/fluency/96/electricity.png')"></div>
+  </div>
+
+  <div class="caption" id="caption">Charges can be positive or negative.</div>
+  
+  <div class="controls">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+  </div>
+</div>
+
+<script>
+const caption=document.getElementById("caption");
+const replayBtn=document.getElementById("replayBtn");
+const pauseBtn=document.getElementById("pauseBtn");
+const langSelect=document.getElementById("langSelect");
+const icons=document.querySelectorAll(".charge-icon");
+
+let paused=false,currentStep=0,currentLang="en";
+
+const captions={
+  en:[
+    "Charges can be positive or negative.",
+    "Law of conservation of charge: Total charge in an isolated system remains constant.",
+    "Charge is quantized – it exists in multiples of the elementary charge (e = 1.6×10⁻¹⁹ C)."
+  ],
+  hi:[
+    "आवेश धनात्मक या ऋणात्मक हो सकते हैं।",
+    "आवेश संरक्षण का नियम: एक पृथक प्रणाली में कुल आवेश स्थिर रहता है।",
+    "आवेश मात्राबद्ध है – यह प्राथमिक आवेश के गुणज में मौजूद होता है (e = 1.6×10⁻¹⁹ C)।"
+  ],
+  ta:[
+    "மின்கட்டணம் நேர்மறை அல்லது எதிர்மறையாக இருக்கலாம்.",
+    "மின்கட்டணப் பாதுகாப்பு விதி: தனிமைப்படுத்தப்பட்ட அமைப்பில் மொத்த மின்கட்டணம் நிலையாக இருக்கும்.",
+    "மின்கட்டணம் அளவிடப்பட்டது – இது அடிப்படை மின்கட்டணத்தின் பல்படிகளாக இருக்கும் (e = 1.6×10⁻¹⁹ C)."
+  ],
+  te:[
+    "విద్యుత్ వశం ధనాత్మకంగా లేదా రుణాత్మకంగా ఉంటుంది.",
+    "విద్యుత్ వశ సంరక్షణ చట్టం: మూసివేసిన వ్యవస్థలో మొత్తం ఛార్జ్ స్థిరంగా ఉంటుంది.",
+    "ఛార్జ్ పరిమితమైనది – ఇది ప్రాథమిక ఛార్జ్ యొక్క గుణకాల్లో మాత్రమే ఉంటుంది (e = 1.6×10⁻¹⁹ C)."
+  ],
+  or:[
+    "ଆବେଶ ସକାରାତ୍ମକ କିମ୍ବା ନେଗେଟିଭ୍ ହୋଇପାରେ।",
+    "ଆବେଶ ସଂରକ୍ଷଣ ନିୟମ: ପୃଥକ ପ୍ରଣାଳୀରେ ମୋଟ ଆବେଶ ସ୍ଥିର ରହେ।",
+    "ଆବେଶ ପରିମାପିତ – ଏହା ମୌଳିକ ଆବେଶର ଗୁଣିତକରେ ଅବସ୍ଥିତ (e = 1.6×10⁻¹⁹ C)।"
+  ]
+};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const utter=new SpeechSynthesisUtterance(text);
+  const voiceLang = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "en-IN" };
+  utter.lang = voiceLang[lang] || "en-IN";
+  utter.rate = 0.9;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+  utter.onend=()=>{ if(!paused) callback(); };
+}
+
+function runStep(){
+  if(currentStep>=captions[currentLang].length){
+    replayBtn.style.display="inline-block";
+    return;
+  }
+  caption.textContent=captions[currentLang][currentStep];
+  gsap.fromTo(caption,{opacity:0,scale:0.8},{opacity:1,scale:1,duration:0.7,ease:"back.out(1.7)"});
+  gsap.to("#anim",{opacity:1,duration:1});
+
+  icons.forEach((icon,i)=>{
+    if(i===currentStep) {
+      gsap.to(icon,{opacity:1, y:-15, duration:1, yoyo:true, repeat:1, ease:"power1.inOut"});
+    } else {
+      gsap.to(icon,{opacity:0.3, duration:0.5});
+    }
+  });
+
+  speak(captions[currentLang][currentStep],currentLang,()=>{
+    currentStep++;
+    if(!paused) runStep();
+  });
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused=!paused;
+  if(paused) {
+    window.speechSynthesis.cancel();
+    pauseBtn.textContent = "▶ Resume";
+  } else {
+    pauseBtn.textContent = "⏸ Pause";
+    runStep();
+  }
+});
+
+replayBtn.addEventListener("click",()=>{
+  currentStep=0;
+  replayBtn.style.display="none";
+  paused = false;
+  pauseBtn.textContent = "⏸ Pause";
+  icons.forEach(icon=>gsap.set(icon,{opacity:0}));
+  runStep();
+});
+
+// Floating particles
+for(let i=0;i<30;i++){
+  let p=document.createElement("div");
+  p.classList.add("particle");
+  let size=Math.random()*6+4;
+  p.style.width=p.style.height=size+"px";
+  p.style.left=Math.random()*100+"vw";
+  p.style.animationDuration=(Math.random()*5+5)+"s";
+  p.style.animationDelay = (Math.random()*3)+"s";
+  document.querySelector(".bg-particles").appendChild(p);
+}
+
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  paused=false;
+  currentStep=0;
+  pauseBtn.textContent = "⏸ Pause";
+  replayBtn.style.display="none";
+  window.speechSynthesis.cancel();
+  icons.forEach(icon=>gsap.set(icon,{opacity:0}));
+  runStep();
+});
+
+// Initialize animation
+runStep();
+</script>
+</body>
+</html>

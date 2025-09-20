@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functions - One-One, Onto, Bijective</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #0b0b1f 0%, #1e1e40 60%, #0b0b1f 100%);
+  color: #fff;
+  position: relative;
+}
+
+/* Floating math symbols */
+.math-symbol {
+  position: absolute;
+  font-size: 16px;
+  color: rgba(255,255,255,0.3);
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Card container */
+.card {
+  background: rgba(0,0,0,0.7);
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  position: relative;
+  z-index: 2;
+}
+
+/* SVG styling */
+svg { width: 100%; height: 400px; margin-top: 20px; }
+
+.node {
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 2;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  opacity:1;
+}
+.edge {
+  stroke: #fff;
+  stroke-width: 2;
+  fill: none;
+  opacity:0;
+}
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  background: rgba(0,0,0,0.4);
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* Buttons */
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn:hover { background: #2e7d32; }
+#replayBtn:hover { background: #ff5722; }
+select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Types of Functions</h2>
+  <h3>Step by Step: One-One, Onto, Bijective</h3>
+
+  <label for="langSelect">🌐 Choose Language: </label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+  </select>
+
+  <svg viewBox="0 0 950 400">
+    <!-- Domain nodes -->
+    <text class="node" id="A" x="150" y="100">A</text>
+    <text class="node" id="B" x="150" y="200">B</text>
+    <text class="node" id="C" x="150" y="300">C</text>
+
+    <!-- Codomain nodes -->
+    <text class="node" id="P" x="750" y="100">P</text>
+    <text class="node" id="Q" x="750" y="200">Q</text>
+    <text class="node" id="R" x="750" y="300">R</text>
+
+    <!-- Edges -->
+    <line class="edge" id="edge1" x1="150" y1="100" x2="750" y2="100"/>
+    <line class="edge" id="edge2" x1="150" y1="200" x2="750" y2="200"/>
+    <line class="edge" id="edge3" x1="150" y1="300" x2="750" y2="300"/>
+  </svg>
+
+  <div id="caption" class="caption">Starting Step by Step...</div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+// Floating math symbols
+const symbols=["∑","∏","√","∞","∫","θ","λ","Δ","+","-","×","÷","f(x)","x+y=z"];
+for(let i=0;i<50;i++){
+  const sym=document.createElement("div");
+  sym.className="math-symbol";
+  sym.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+  sym.style.fontSize=(Math.random()*25+12)+"px";
+  sym.style.top=Math.random()*window.innerHeight+"px";
+  sym.style.left=Math.random()*window.innerWidth+"px";
+  sym.style.color=`hsl(${Math.random()*360},80%,70%)`;
+  document.body.appendChild(sym);
+  gsap.to(sym,{y:"+="+(Math.random()*600+200),repeat:-1,duration:Math.random()*40+20,ease:"linear"});
+}
+
+// Captions
+const captions={
+  en:[
+    "Step 1: Mapping A → P",
+    "Step 2: Mapping B → Q",
+    "Step 3: Mapping C → R",
+    "One-One Function: Each element maps uniquely.",
+    "Onto Function: All codomain elements are covered.",
+    "Bijective Function: Both One-One and Onto."
+  ],
+  hi:[
+    "चरण 1: A → P मैपिंग",
+    "चरण 2: B → Q मैपिंग",
+    "चरण 3: C → R मैपिंग",
+    "वन-वन फ़ंक्शन: प्रत्येक तत्व अद्वितीय रूप से मैप होता है।",
+    "ऑन्टो फ़ंक्शन: सभी कोडोमेन तत्व कवर होते हैं।",
+    "बायजेक्टिव फ़ंक्शन: वन-वन और ऑन्टो दोनों।"
+  ],
+  ta:[
+    "படி 1: A → P வரைபடம்",
+    "படி 2: B → Q வரைபடம்",
+    "படி 3: C → R வரைபடம்",
+    "ஒன்-ஒன் செயல்பாடு: ஒவ்வொரு உறுப்பும் தனித்துவமாக பொருந்துகிறது.",
+    "ஒன்டோ செயல்பாடு: அனைத்து கோடொமைன் உறுப்புகளும் உள்ளடக்கப்பட்டுள்ளன.",
+    "பைஜெக்டிவ் செயல்பாடு: ஒன்-ஒன் மற்றும் ஒன்டோ இரண்டும்."
+  ],
+  te:[
+    "దశ 1: A → P మ్యాపింగ్",
+    "దశ 2: B → Q మ్యాపింగ్",
+    "దశ 3: C → R మ్యాపింగ్",
+    "ఒక-ఒక ఫంక్షన్: ప్రతి అంశం ప్రత్యేకంగా మ్యాప్ అవుతుంది.",
+    "ఆంటో ఫంక్షన్: అన్ని కోడొమైన్ అంశాలు కవర్ అవుతాయి.",
+    "బైజెక్టివ్ ఫంక్షన్: ఒక-ఒక మరియు ఆంటో రెండూ."
+  ],
+  or:[
+    "ପଦକ୍ଷେପ 1: A → P ମ୍ୟାପିଂ",
+    "ପଦକ୍ଷେପ 2: B → Q ମ୍ୟାପିଂ",
+    "ପଦକ୍ଷେପ 3: C → R ମ୍ୟାପିଂ",
+    "ଓନ-ଓନ ଫଙ୍କସନ୍: ପ୍ରତ୍ୟେକ ଉପାଦାନ ଏକାଧିକ ଭାବରେ ମ୍ୟାପ୍ ହୁଏ।",
+    "ଅନ୍ଟୋ ଫଙ୍କସନ୍: ସମସ୍ତ କୋଡୋମେନ୍ ଉପାଦାନ ଆବର୍ତ୍ତିତ।",
+    "ବାଇଜେକ୍ଟିଭ୍ ଫଙ୍କସନ୍: ଓନ-ଓନ ଏବଂ ଅନ୍ଟୋ ଦୁହିଁ।"
+  ]
+};
+
+const caption=document.getElementById("caption");
+const replayBtn=document.getElementById("replayBtn");
+const pauseBtn=document.getElementById("pauseBtn");
+const langSelect=document.getElementById("langSelect");
+
+let paused=false, currentStepIndex=0, currentLang="en";
+const voicesMap={en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN"};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=voicesMap[lang]||"en-IN";
+  u.rate=0.95;
+  u.onend=()=>{if(!paused)callback();}
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function runStep(){
+  if(currentStepIndex>=captions[currentLang].length){replayBtn.style.display="inline-block"; return;}
+  caption.textContent=captions[currentLang][currentStepIndex];
+
+  // Show edges one by one for first 3 steps
+  if(currentStepIndex===0) gsap.to("#edge1",{opacity:1,duration:1.2});
+  if(currentStepIndex===1) gsap.to("#edge2",{opacity:1,duration:1.2});
+  if(currentStepIndex===2) gsap.to("#edge3",{opacity:1,duration:1.2});
+
+  speak(captions[currentLang][currentStepIndex],currentLang,()=>{
+    currentStepIndex++;
+    if(!paused) setTimeout(runStep,500);
+  });
+}
+
+function playAnimation(){
+  replayBtn.style.display="none";
+  paused=false;
+  currentStepIndex=0;
+  currentLang=langSelect.value;
+  gsap.set(".edge",{opacity:0});
+  runStep();
+}
+
+pauseBtn.addEventListener("click",()=>{
+  if(!paused){paused=true;window.speechSynthesis.cancel(); pauseBtn.textContent="▶ Play";}
+  else{paused=false; pauseBtn.textContent="⏸ Pause"; runStep();}
+});
+
+replayBtn.addEventListener("click",playAnimation);
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  if(!paused) playAnimation();
+  else caption.textContent=captions[currentLang][currentStepIndex]||captions[currentLang][0];
+});
+
+playAnimation();
+</script>
+</body>
+</html>

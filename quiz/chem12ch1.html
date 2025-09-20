@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solid State Explorer: Chemistry Quest</title>
+<style>
+:root {
+    --primary1: #2196F3;
+    --primary2: #03A9F4;
+    --accent: #FF5722;
+    --bg-dark: #0a1929;
+    --glass: rgba(255, 255, 255, 0.03);
+    --xp-glow: #FFC107;
+    --correct: #4CAF50;
+    --incorrect: #F44336;
+    --crystal: #2196F3;
+    --lattice: #03A9F4;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: #e6f7ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    justify-content: center;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--xp-glow); }
+  50% { box-shadow: 0 0 20px var(--xp-glow), 0 0 30px var(--xp-glow); }
+  100% { box-shadow: 0 0 5px var(--xp-glow); }
+}
+@keyframes crystalPulse {
+  0% { box-shadow: 0 0 5px var(--crystal); }
+  50% { box-shadow: 0 0 20px var(--crystal), 0 0 30px var(--crystal); }
+  100% { box-shadow: 0 0 5px var(--crystal); }
+}
+
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.container {
+    z-index: 3;
+    width: 90%;
+    max-width: 900px;
+    margin: 2vh auto;
+    background: linear-gradient(135deg, rgba(10, 25, 41, 0.78), rgba(5, 15, 30, 0.58));
+    border-radius: 18px;
+    padding: clamp(1rem, 4vw, 1.75rem);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px) saturate(140%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 30% 20%, var(--crystal), var(--lattice));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #fff;
+    transform: rotate(-6deg);
+    flex-shrink: 0;
+    animation: crystalPulse 2s infinite;
+}
+
+h1 {
+    font-size: clamp(1.2rem, 5vw, 1.45rem);
+    margin: 0;
+    color: transparent;
+    background: linear-gradient(90deg, var(--crystal), var(--lattice));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.xp {
+    font-weight: 800;
+    color: var(--xp-glow);
+    text-shadow: 0 0 8px var(--xp-glow);
+    transition: transform 0.3s ease;
+}
+.xp.updated {
+    transform: scale(1.1);
+}
+
+.xp small {
+    display: block;
+    font-weight: 600;
+    color: #bcd;
+    font-size: 0.78rem;
+    opacity: 0.9;
+}
+
+.progress-wrap {
+    width: 86px;
+    height: 86px;
+    position: relative;
+    flex-shrink: 0;
+}
+.progress-wrap .progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #dff;
+    transition: color 0.3s ease;
+}
+#progressCircle {
+    transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.game-panel {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 420px;
+    position: relative;
+    justify-content: center;
+}
+.menu, .stage {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.level-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.level-btn {
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(3, 169, 244, 0.08), rgba(33, 150, 243, 0.06));
+    color: #e9fbff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.06);
+    border: 0.5px solid rgba(255, 255, 255, 0.04);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.level-btn:hover, .level-btn:focus {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 28px 60px rgba(33, 150, 243, 0.12);
+    outline: none;
+}
+
+.stage {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: inset 0 -10px 40px rgba(0, 0, 0, 0.45);
+    min-height: 300px;
+}
+
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+.level-title { font-size: 1.05rem; font-weight: 800; color: #dff; }
+.question-counter { font-size: 0.9rem; color: #bcd; }
+
+#centerStage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 250px;
+    transition: opacity 0.4s ease;
+}
+.quest { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; text-align: center; color: #f3fbff; text-shadow: 0 4px 26px rgba(33, 150, 243, 0.03); animation: fadeIn 0.5s; }
+
+.controls { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+
+.action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, rgba(3, 169, 244, 0.12), rgba(33, 150, 243, 0.08));
+    color: #e6fbff;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(33, 150, 243, 0.06);
+    transition: all 0.2s ease;
+}
+.action-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(33, 150, 243, 0.1); }
+.action-btn:active:not(:disabled) { transform: translateY(-1px); }
+.action-btn:disabled { cursor: not-allowed; opacity: 0.5; transform: translateY(0); }
+.action-btn.check { background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), rgba(3, 169, 244, 0.1)); }
+.action-btn.secondary { background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), rgba(33, 150, 243, 0.08)); }
+.action-btn.highlight-hint {
+    animation: glow 1.5s infinite;
+}
+
+.feedback { min-height: 28px; font-weight: 800; font-size: 1.05rem; opacity: 0; transition: all 0.4s ease; transform: translateY(10px); }
+.feedback.visible { opacity: 1; transform: translateY(0); }
+.feedback.correct { color: var(--correct); text-shadow: 0 0 10px var(--correct); }
+.feedback.incorrect { color: var(--incorrect); text-shadow: 0 0 10px var(--incorrect); }
+
+.hint-box { margin-top: 8px; padding: 10px 12px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 10px; color: #bfe; font-style: italic; display: none; min-width: 40%; text-align: center; opacity: 0; transition: opacity 0.4s; }
+.hint-box.visible { display: block; opacity: 1; }
+
+/* --- INTERACTIVE GAME STYLES --- */
+.types-game, .unit-cell-game, .packing-game, .imperfections-game, .properties-game {
+    animation: popIn 0.5s ease-out;
+}
+
+/* Types Game */
+.types-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.types-visual { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 1rem 0; }
+.type { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+.type.crystalline { background: radial-gradient(circle at 30% 30%, #2196F3, #0D47A1); }
+.type.amorphous { background: radial-gradient(circle at 30% 30%, #FF5722, #D84315); }
+.type-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.type-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.type-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.type-option.selected { background: rgba(3, 169, 244, 0.3); border: 1px solid var(--crystal); }
+
+/* Unit Cell Game */
+.unit-cell-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.unit-cell-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.cell-type { position: absolute; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.cell-type.primitive { background: radial-gradient(circle at 30% 30%, #2196F3, #0D47A1); left: 50px; top: 80px; }
+.cell-type.bcc { background: radial-gradient(circle at 30% 30%, #03A9F4, #0288D1); right: 50px; top: 80px; }
+.cell-type.fcc { background: radial-gradient(circle at 30% 30%, #00BCD4, #0097A7); left: 130px; top: 80px; }
+.cell-arrow { position: absolute; height: 3px; background: var(--lattice); transform-origin: left center; }
+.cell-arrow::after { content: ''; position: absolute; right: 0; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 10px solid var(--lattice); }
+.unit-cell-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.unit-cell-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Packing Game */
+.packing-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.packing-canvas { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(0, 0, 0, 0.3); }
+.packing-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.packing-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.packing-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.packing-option.selected { background: rgba(3, 169, 244, 0.3); border: 1px solid var(--crystal); }
+
+/* Imperfections Game */
+.imperfections-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.imperfections-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.defect { position: absolute; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }
+.defect.vacancy { background: radial-gradient(circle at 30% 30%, #F44336, #B71C1C); }
+.defect.interstitial { background: radial-gradient(circle at 30% 30%, #FF9800, #E65100); }
+.defect.frenkel { background: radial-gradient(circle at 30% 30%, #9C27B0, #4A148C); }
+.defect.schottky { background: radial-gradient(circle at 30% 30%, #4CAF50, #1B5E20); }
+.imperfections-input { width: 120px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Properties Game */
+.properties-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.properties-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.property { position: absolute; width: 120px; height: 40px; left: 90px; top: 80px; display: flex; align-items: center; justify-content: space-between; }
+.property-type { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.property-type.electrical { background: radial-gradient(circle at 30% 30%, #2196F3, #0D47A1); }
+.property-type.magnetic { background: radial-gradient(circle at 30% 30%, #03A9F4, #0288D1); }
+.property-arrow { position: absolute; height: 1px; background: rgba(3, 169, 244, 0.6); transform-origin: left center; }
+.properties-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.properties-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+.properties-field { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <div class="logo">🔬</div>
+            <div><h1>Solid State Explorer</h1></div>
+        </div>
+        <div class="status">
+            <div class="xp" id="xpDisplay">✨ XP: <span id="xpValue">0</span><small>Earn XP to level up</small></div>
+            <div class="progress-wrap">
+                <svg width="86" height="86" viewBox="0 0 100 100">
+                    <defs><linearGradient id="g1" x1="0%" x2="100%"><stop offset="0%" stop-color="#FFC107"/><stop offset="100%" stop-color="#2196F3"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="44" stroke="#111" stroke-width="10" fill="none"></circle>
+                    <circle id="progressCircle" cx="50" cy="50" r="44" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" transform="rotate(-90 50 50)"></circle>
+                </svg>
+                <div class="progress-text" id="progressPercent">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-panel" id="mainPanel">
+        <div id="menu" class="menu">
+            <div class="menu-title">Select difficulty — pick by confidence</div>
+            <div class="level-row">
+                <button class="level-btn" onclick="enterLevel('basic')">🟢 Basic</button>
+                <button class="level-btn" onclick="enterLevel('medium')">🟡 Medium</button>
+                <button class="level-btn" onclick="enterLevel('hard')">🟠 Hard</button>
+                <button class="level-btn" onclick="enterLevel('extreme')">🔴 Extreme</button>
+            </div>
+            <div style="margin-top:12px;font-size:0.82rem;color:#aac;opacity:0.9;text-align:center;">
+                Each level contains 5 topics with 5 interactive questions each. Earn <strong>+10 XP</strong> per correct answer.
+            </div>
+        </div>
+
+        <div id="stage" class="stage" style="display:none;">
+            <div class="level-header">
+                <div class="level-title" id="levelTitle">Level</div>
+                <div class="question-counter">Question <span id="qIndex">1</span> / <span id="qTotal">5</span></div>
+            </div>
+            <div id="centerStage"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="hint-box" id="hintBox" role="status" aria-live="polite"></div>
+            <div class="controls" id="controls">
+                <button class="action-btn secondary" onclick="backToMenu()">↩️ Menu</button>
+                <button id="hintBtn" class="action-btn" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn" onclick="skipQuestion()">Skip ➡️</button>
+                <button class="action-btn check" id="checkBtn" onclick="checkAnswer()">🚀 Check Answer</button>
+                <button class="action-btn" id="nextBtn" onclick="nextStep()" style="display:none;">Continue ➡️</button>
+            </div>
+            <div id="levelMessage" style="margin-top:8px;font-weight:800;color:#ffd; animation: fadeIn 1s;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Canvas Crystal Animation =====
+const canvas = document.getElementById('bgCanvas'),
+    ctx = canvas.getContext('2d');
+let W = canvas.width = innerWidth,
+    H = canvas.height = innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; initCrystals(); });
+let particles = [];
+const PARTICLE_COUNT_BASE = 80;
+
+function getParticleCount() {
+    return Math.floor((W * H) / 40000) + PARTICLE_COUNT_BASE;
+}
+let PARTICLE_COUNT = getParticleCount();
+
+function initCrystals() {
+    PARTICLE_COUNT = getParticleCount();
+    particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+            x: Math.random() * W, 
+            y: Math.random() * H,
+            r: Math.random() * 1.6 + 0.2, 
+            speed: (Math.random() * 0.4) + 0.08,
+            alpha: 0.15 + Math.random() * 0.85, 
+            tw: Math.random() * Math.PI * 2,
+            color: Math.random() > 0.5 ? '#2196F3' : '#03A9F4'
+        });
+    }
+}
+
+function drawCrystals() {
+    ctx.clearRect(0, 0, W, H);
+    
+    // Draw connections between nearby particles
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(33, 150, 243, ${0.2 * (1 - distance/100)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+    }
+    
+    // Draw particles
+    for (const p of particles) {
+        p.x += p.speed;
+        if (p.x > W) p.x = 0;
+        p.alpha += Math.sin(p.tw) * 0.012; 
+        p.tw += 0.02;
+        if(p.alpha < 0.1) p.alpha = 0.1; 
+        if(p.alpha > 1) p.alpha = 1;
+        ctx.beginPath(); 
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color; 
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+function animate() { drawCrystals(); requestAnimationFrame(animate); }
+initCrystals(); animate();
+
+// ===== Game State =====
+let gameState = {
+    currentLevel: "",
+    currentTopicIndex: 0,
+    questionIndex: 0,
+    xp: 0,
+    incorrectStreak: 0,
+    correctAnswers: 0
+};
+const topicList = ["Types", "Unit Cell", "Packing", "Imperfections", "Properties"];
+let currentQuestions = [];
+const QUESTIONS_PER_TOPIC = 5;
+
+// Load saved game state
+function loadGameState() {
+    try {
+        const savedState = localStorage.getItem('solidStateExplorerGameState');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            gameState = Object.assign(gameState, parsed);
+            if (!topicList[gameState.currentTopicIndex]) gameState.currentTopicIndex = 0;
+            if (typeof gameState.questionIndex !== 'number') gameState.questionIndex = 0;
+            if (typeof gameState.xp !== 'number') gameState.xp = 0;
+            if (typeof gameState.correctAnswers !== 'number') gameState.correctAnswers = 0;
+        }
+    } catch (e) {
+        console.warn("Failed to load saved game state", e);
+    }
+    updateXP();
+    updateProgress();
+}
+
+// Save game state
+function saveGameState() {
+    try {
+        localStorage.setItem('solidStateExplorerGameState', JSON.stringify(gameState));
+    } catch (e) {
+        console.warn("Failed to save game state", e);
+    }
+}
+
+// ===== DOM Elements =====
+const dom = {
+    menu: document.getElementById('menu'), stage: document.getElementById('stage'),
+    levelTitle: document.getElementById('levelTitle'), qIndex: document.getElementById('qIndex'),
+    qTotal: document.getElementById('qTotal'), centerStage: document.getElementById('centerStage'),
+    feedback: document.getElementById('feedback'), hintBox: document.getElementById('hintBox'),
+    hintBtn: document.getElementById('hintBtn'),
+    checkBtn: document.getElementById('checkBtn'), nextBtn: document.getElementById('nextBtn'),
+    levelMessage: document.getElementById('levelMessage'), xpDisplay: document.getElementById('xpDisplay'),
+    xpValue: document.getElementById('xpValue'), progressCircle: document.getElementById('progressCircle'),
+    progressPercent: document.getElementById('progressPercent'), controls: document.getElementById('controls')
+};
+
+// ===== Utility Functions =====
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ===== Question Bank =====
+const questionBank = {
+    Types: {
+        basic: [
+            { 
+                q: "What are the two main types of solids?", 
+                options: ["Crystalline and amorphous", "Ionic and covalent", "Metallic and non-metallic", "Hard and soft"],
+                ans: "Crystalline and amorphous", 
+                hint: "One has a regular arrangement, the other has a random arrangement."
+            },
+            { 
+                q: "Which type of solid has a definite and regular arrangement of particles?", 
+                options: ["Amorphous solids", "Crystalline solids", "Both types", "Neither type"],
+                ans: "Crystalline solids", 
+                hint: "These solids have a long-range order in their particle arrangement."
+            },
+            { 
+                q: "What is a key characteristic of amorphous solids?", 
+                options: ["Definite melting point", "Regular arrangement", "No definite melting point", "High symmetry"],
+                ans: "No definite melting point", 
+                hint: "These solids soften over a range of temperatures."
+            },
+            { 
+                q: "Which of the following is an example of a crystalline solid?", 
+                options: ["Glass", "Rubber", "Salt (NaCl)", "Plastic"],
+                ans: "Salt (NaCl)", 
+                hint: "This solid has a regular, repeating arrangement of ions."
+            },
+            { 
+                q: "Which of the following is an example of an amorphous solid?", 
+                options: ["Diamond", "Quartz", "Glass", "Ice"],
+                ans: "Glass", 
+                hint: "This solid lacks a regular arrangement of particles."
+            }
+        ],
+        medium: [
+            { 
+                q: "What is the term for the regular arrangement of particles in crystalline solids?", 
+                options: ["Amorphous structure", "Crystal lattice", "Random arrangement", "Disordered structure"],
+                ans: "Crystal lattice", 
+                hint: "This term describes the three-dimensional arrangement of particles."
+            },
+            { 
+                q: "Which property is characteristic of crystalline solids but not amorphous solids?", 
+                options: ["Hardness", "Definite melting point", "Transparency", "Density"],
+                ans: "Definite melting point", 
+                hint: "This property is due to the regular arrangement of particles."
+            },
+            { 
+                q: "What happens when amorphous solids are heated?", 
+                options: ["They melt at a specific temperature", "They soften gradually", "They become crystalline", "They sublime"],
+                ans: "They soften gradually", 
+                hint: "This is because they lack a regular arrangement of particles."
+            },
+            { 
+                q: "Which of the following is NOT a crystalline solid?", 
+                options: ["Diamond", "Graphite", "Quartz", "Rubber"],
+                ans: "Rubber", 
+                hint: "This material has a random arrangement of molecules."
+            },
+            { 
+                q: "What is the primary difference between crystalline and amorphous solids?", 
+                options: ["Chemical composition", "Arrangement of particles", "Physical state", "Color"],
+                ans: "Arrangement of particles", 
+                hint: "One has a regular arrangement, the other has a random arrangement."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is anisotropy in crystalline solids?", 
+                options: ["Same properties in all directions", "Different properties in different directions", "No definite shape", "Random arrangement"],
+                ans: "Different properties in different directions", 
+                hint: "This property is due to the regular arrangement of particles."
+            },
+            { 
+                q: "What is isotropy in amorphous solids?", 
+                options: ["Different properties in different directions", "Same properties in all directions", "Definite melting point", "Regular arrangement"],
+                ans: "Same properties in all directions", 
+                hint: "This property is due to the random arrangement of particles."
+            },
+            { 
+                q: "Which process converts amorphous solids to crystalline solids?", 
+                options: ["Melting", "Annealing", "Sublimation", "Condensation"],
+                ans: "Annealing", 
+                hint: "This process involves heating and slow cooling to allow particles to arrange regularly."
+            },
+            { 
+                q: "What is the term for the temperature range over which amorphous solids soften?", 
+                options: ["Melting point", "Boiling point", "Glass transition temperature", "Crystallization temperature"],
+                ans: "Glass transition temperature", 
+                hint: "This is the temperature range where amorphous solids change from hard to soft."
+            },
+            { 
+                q: "Which of the following statements is true about crystalline solids?", 
+                options: ["They have no definite shape", "They have a random arrangement of particles", "They have a sharp melting point", "They are isotropic"],
+                ans: "They have a sharp melting point", 
+                hint: "This is due to the regular arrangement of particles."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the relationship between the cooling rate and the formation of amorphous solids?", 
+                options: ["Slow cooling leads to amorphous solids", "Fast cooling leads to amorphous solids", "Cooling rate has no effect", "Only temperature affects formation"],
+                ans: "Fast cooling leads to amorphous solids", 
+                hint: "Rapid cooling prevents particles from arranging in a regular pattern."
+            },
+            { 
+                q: "What is the term for the process where crystalline solids lose their crystalline structure?", 
+                options: ["Crystallization", "Amorphization", "Melting", "Sublimation"],
+                ans: "Amorphization", 
+                hint: "This process converts crystalline solids to amorphous solids."
+            },
+            { 
+                q: "Which of the following is a technique used to study the structure of crystalline solids?", 
+                options: ["X-ray diffraction", "Titration", "Chromatography", "Distillation"],
+                ans: "X-ray diffraction", 
+                hint: "This technique uses X-rays to determine the arrangement of particles."
+            },
+            { 
+                q: "What is the primary advantage of crystalline solids over amorphous solids in electronic applications?", 
+                options: ["Lower cost", "Easier to manufacture", "Better electrical properties", "More flexible"],
+                ans: "Better electrical properties", 
+                hint: "The regular arrangement of particles allows for better electron movement."
+            },
+            { 
+                q: "What is the term for the phenomenon where some amorphous materials can crystallize over time?", 
+                options: ["Annealing", "Devitrification", "Vitrification", "Crystallization"],
+                ans: "Devitrification", 
+                hint: "This process converts amorphous materials to crystalline form over time."
+            }
+        ]
+    },
+    "Unit Cell": {
+        basic: [
+            { 
+                q: "What is a unit cell?", 
+                options: ["The smallest repeating unit of a crystal lattice", "A type of crystal", "A defect in a crystal", "A method of crystal growth"],
+                ans: "The smallest repeating unit of a crystal lattice", 
+                hint: "This is the basic building block of a crystal structure."
+            },
+            { 
+                q: "How many atoms are present in a primitive cubic unit cell?", 
+                options: ["1", "2", "4", "8"],
+                ans: "1", 
+                hint: "Each corner atom is shared by 8 unit cells."
+            },
+            { 
+                q: "How many atoms are present in a body-centered cubic (bcc) unit cell?", 
+                options: ["1", "2", "4", "8"],
+                ans: "2", 
+                hint: "There is one atom at the center and 8 corner atoms shared by 8 unit cells."
+            },
+            { 
+                q: "How many atoms are present in a face-centered cubic (fcc) unit cell?", 
+                options: ["1", "2", "4", "8"],
+                ans: "4", 
+                hint: "There are 6 face atoms each shared by 2 unit cells and 8 corner atoms shared by 8 unit cells."
+            },
+            { 
+                q: "Which of the following is NOT a type of cubic unit cell?", 
+                options: ["Primitive cubic", "Body-centered cubic", "Face-centered cubic", "Edge-centered cubic"],
+                ans: "Edge-centered cubic", 
+                hint: "This is not a standard type of cubic unit cell."
+            }
+        ],
+        medium: [
+            { 
+                q: "What is the coordination number of an atom in a primitive cubic unit cell?", 
+                options: ["4", "6", "8", "12"],
+                ans: "6", 
+                hint: "This is the number of nearest neighbors to each atom."
+            },
+            { 
+                q: "What is the coordination number of an atom in a body-centered cubic (bcc) unit cell?", 
+                options: ["4", "6", "8", "12"],
+                ans: "8", 
+                hint: "This is the number of nearest neighbors to each atom."
+            },
+            { 
+                q: "What is the coordination number of an atom in a face-centered cubic (fcc) unit cell?", 
+                options: ["4", "6", "8", "12"],
+                ans: "12", 
+                hint: "This is the number of nearest neighbors to each atom."
+            },
+            { 
+                q: "Which of the following elements has a body-centered cubic (bcc) structure?", 
+                options: ["Copper", "Aluminum", "Iron", "Gold"],
+                ans: "Iron", 
+                hint: "This transition metal has a bcc structure at room temperature."
+            },
+            { 
+                q: "Which of the following elements has a face-centered cubic (fcc) structure?", 
+                options: ["Sodium", "Potassium", "Copper", "Chromium"],
+                ans: "Copper", 
+                hint: "This metal has a close-packed structure."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is the relationship between the edge length (a) and the atomic radius (r) in a primitive cubic unit cell?", 
+                options: ["a = 2r", "a = 4r", "a = 4r/√3", "a = 2√2r"],
+                ans: "a = 2r", 
+                hint: "The atoms touch along the edge of the cube."
+            },
+            { 
+                q: "What is the relationship between the edge length (a) and the atomic radius (r) in a body-centered cubic (bcc) unit cell?", 
+                options: ["a = 2r", "a = 4r", "a = 4r/√3", "a = 2√2r"],
+                ans: "a = 4r/√3", 
+                hint: "The atoms touch along the body diagonal of the cube."
+            },
+            { 
+                q: "What is the relationship between the edge length (a) and the atomic radius (r) in a face-centered cubic (fcc) unit cell?", 
+                options: ["a = 2r", "a = 4r", "a = 4r/√3", "a = 2√2r"],
+                ans: "a = 2√2r", 
+                hint: "The atoms touch along the face diagonal of the cube."
+            },
+            { 
+                q: "What is the packing efficiency of a primitive cubic unit cell?", 
+                options: ["52.4%", "68%", "74%", "90%"],
+                ans: "52.4%", 
+                hint: "This is the percentage of space occupied by atoms in the unit cell."
+            },
+            { 
+                q: "What is the packing efficiency of a body-centered cubic (bcc) unit cell?", 
+                options: ["52.4%", "68%", "74%", "90%"],
+                ans: "68%", 
+                hint: "This is the percentage of space occupied by atoms in the unit cell."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the packing efficiency of a face-centered cubic (fcc) unit cell?", 
+                options: ["52.4%", "68%", "74%", "90%"],
+                ans: "74%", 
+                hint: "This is the percentage of space occupied by atoms in the unit cell."
+            },
+            { 
+                q: "Which of the following crystal structures has the highest packing efficiency?", 
+                options: ["Primitive cubic", "Body-centered cubic", "Face-centered cubic", "Simple hexagonal"],
+                ans: "Face-centered cubic", 
+                hint: "This structure is one of the close-packed structures."
+            },
+            { 
+                q: "What is the term for the arrangement of atoms in a crystal lattice?", 
+                options: ["Crystal structure", "Crystal system", "Bravais lattice", "Unit cell"],
+                ans: "Bravais lattice", 
+                hint: "This term describes the infinite array of discrete points with identical surroundings."
+            },
+            { 
+                q: "How many Bravais lattices are there in three dimensions?", 
+                options: ["7", "14", "32", "230"],
+                ans: "14", 
+                hint: "These are the distinct ways to arrange points in space."
+            },
+            { 
+                q: "What is the term for the number of atoms per unit cell in a diamond cubic structure?", 
+                options: ["4", "6", "8", "10"],
+                ans: "8", 
+                hint: "This structure is similar to fcc but with additional atoms in tetrahedral holes."
+            }
+        ]
+    },
+    Packing: {
+        basic: [
+            { 
+                q: "What is hexagonal close packing (hcp)?", 
+                options: ["A type of crystal structure", "A method of arranging atoms", "A type of defect", "A type of bonding"],
+                ans: "A method of arranging atoms", 
+                hint: "This is one of the close-packed structures."
+            },
+            { 
+                q: "What is cubic close packing (ccp)?", 
+                options: ["A type of crystal structure", "A method of arranging atoms", "A type of defect", "A type of bonding"],
+                ans: "A method of arranging atoms", 
+                hint: "This is one of the close-packed structures."
+            },
+            { 
+                q: "What is the coordination number in close-packed structures?", 
+                options: ["6", "8", "12", "14"],
+                ans: "12", 
+                hint: "This is the number of nearest neighbors to each atom."
+            },
+            { 
+                q: "Which of the following is a close-packed structure?", 
+                options: ["Primitive cubic", "Body-centered cubic", "Face-centered cubic", "Simple tetragonal"],
+                ans: "Face-centered cubic", 
+                hint: "This structure is also known as cubic close packing."
+            },
+            { 
+                q: "What is the packing efficiency of close-packed structures?", 
+                options: ["52.4%", "68%", "74%", "90%"],
+                ans: "74%", 
+                hint: "This is the percentage of space occupied by atoms in close-packed structures."
+            }
+        ],
+        medium: [
+            { 
+                q: "What is the difference between hcp and ccp structures?", 
+                options: ["Coordination number", "Packing efficiency", "Stacking sequence", "Atomic radius"],
+                ans: "Stacking sequence", 
+                hint: "This refers to how the layers of atoms are arranged."
+            },
+            { 
+                q: "What is the stacking sequence in hcp structures?", 
+                options: ["ABABAB...", "ABCABC...", "ABACABAC...", "ABCACB..."],
+                ans: "ABABAB...", 
+                hint: "This describes how the layers of atoms are stacked."
+            },
+            { 
+                q: "What is the stacking sequence in ccp structures?", 
+                options: ["ABABAB...", "ABCABC...", "ABACABAC...", "ABCACB..."],
+                ans: "ABCABC...", 
+                hint: "This describes how the layers of atoms are stacked."
+            },
+            { 
+                q: "What are voids in close-packed structures?", 
+                options: ["Empty spaces between atoms", "Defects in the crystal", "Impurities", "Dislocations"],
+                ans: "Empty spaces between atoms", 
+                hint: "These are the unoccupied spaces in the crystal structure."
+            },
+            { 
+                q: "What are the two types of voids in close-packed structures?", 
+                options: ["Tetrahedral and octahedral", "Cubic and hexagonal", "Square and triangular", "Linear and planar"],
+                ans: "Tetrahedral and octahedral", 
+                hint: "These are named based on the geometry of the surrounding atoms."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is the radius ratio for a tetrahedral void?", 
+                options: ["0.155", "0.225", "0.414", "0.732"],
+                ans: "0.225", 
+                hint: "This is the ratio of the radius of the void to the radius of the atom."
+            },
+            { 
+                q: "What is the radius ratio for an octahedral void?", 
+                options: ["0.155", "0.225", "0.414", "0.732"],
+                ans: "0.414", 
+                hint: "This is the ratio of the radius of the void to the radius of the atom."
+            },
+            { 
+                q: "How many tetrahedral voids are there per atom in a close-packed structure?", 
+                options: ["1", "2", "4", "6"],
+                ans: "2", 
+                hint: "This is the number of tetrahedral voids per atom."
+            },
+            { 
+                q: "How many octahedral voids are there per atom in a close-packed structure?", 
+                options: ["1", "2", "4", "6"],
+                ans: "1", 
+                hint: "This is the number of octahedral voids per atom."
+            },
+            { 
+                q: "Which of the following compounds has a structure based on octahedral voids?", 
+                options: ["NaCl", "CsCl", "ZnS", "CaF2"],
+                ans: "NaCl", 
+                hint: "In this structure, the smaller ions occupy octahedral voids."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the term for the arrangement of atoms in a crystal that maximizes packing efficiency?", 
+                options: ["Close packing", "Crystal structure", "Unit cell", "Bravais lattice"],
+                ans: "Close packing", 
+                hint: "This arrangement minimizes empty space in the crystal."
+            },
+            { 
+                q: "What is the relationship between the number of tetrahedral voids and the number of atoms in a close-packed structure?", 
+                options: ["1:1", "2:1", "1:2", "4:1"],
+                ans: "2:1", 
+                hint: "There are twice as many tetrahedral voids as atoms."
+            },
+            { 
+                q: "What is the relationship between the number of octahedral voids and the number of atoms in a close-packed structure?", 
+                options: ["1:1", "2:1", "1:2", "4:1"],
+                ans: "1:1", 
+                hint: "There is one octahedral void per atom."
+            },
+            { 
+                q: "Which of the following statements is true about voids in close-packed structures?", 
+                options: ["Tetrahedral voids are larger than octahedral voids", "Octahedral voids are larger than tetrahedral voids", "Both voids are the same size", "Voids do not exist in close-packed structures"],
+                ans: "Octahedral voids are larger than tetrahedral voids", 
+                hint: "This is due to the geometry of the surrounding atoms."
+            },
+            { 
+                q: "What is the term for the process where smaller atoms occupy voids in a close-packed structure?", 
+                options: ["Interstitial solid solution", "Substitutional solid solution", "Vacancy defect", "Dislocation"],
+                ans: "Interstitial solid solution", 
+                hint: "This is a type of solid solution where smaller atoms occupy voids."
+            }
+        ]
+    },
+    Imperfections: {
+        basic: [
+            { 
+                q: "What are imperfections in solids?", 
+                options: ["Defects in the crystal structure", "Impurities in the solid", "Irregularities in the arrangement", "All of the above"],
+                ans: "All of the above", 
+                hint: "These are deviations from the perfect crystal structure."
+            },
+            { 
+                q: "What is a vacancy defect?", 
+                options: ["An atom missing from its lattice site", "An extra atom in the lattice", "A dislocation in the lattice", "An impurity atom"],
+                ans: "An atom missing from its lattice site", 
+                hint: "This is a point defect where an atom is missing."
+            },
+            { 
+                q: "What is an interstitial defect?", 
+                options: ["An atom missing from its lattice site", "An extra atom in the lattice", "A dislocation in the lattice", "An impurity atom"],
+                ans: "An extra atom in the lattice", 
+                hint: "This is a point defect where an extra atom occupies a space between regular lattice sites."
+            },
+            { 
+                q: "What is a Frenkel defect?", 
+                options: ["A vacancy defect", "An interstitial defect", "A combination of vacancy and interstitial defects", "An impurity defect"],
+                ans: "A combination of vacancy and interstitial defects", 
+                hint: "This defect occurs when an ion leaves its lattice site and occupies an interstitial site."
+            },
+            { 
+                q: "What is a Schottky defect?", 
+                options: ["A vacancy defect", "An interstitial defect", "A pair of cation and anion vacancies", "An impurity defect"],
+                ans: "A pair of cation and anion vacancies", 
+                hint: "This defect maintains electrical neutrality in ionic crystals."
+            }
+        ],
+        medium: [
+            { 
+                q: "Which type of defect is more common in ionic solids with a large difference in ion sizes?", 
+                options: ["Frenkel defect", "Schottky defect", "Vacancy defect", "Interstitial defect"],
+                ans: "Frenkel defect", 
+                hint: "This defect occurs when smaller ions can fit into interstitial sites."
+            },
+            { 
+                q: "Which type of defect is more common in ionic solids with similar ion sizes?", 
+                options: ["Frenkel defect", "Schottky defect", "Vacancy defect", "Interstitial defect"],
+                ans: "Schottky defect", 
+                hint: "This defect maintains electrical neutrality in ionic crystals."
+            },
+            { 
+                q: "Which of the following compounds exhibits Frenkel defect?", 
+                options: ["NaCl", "CsCl", "AgCl", "KCl"],
+                ans: "AgCl", 
+                hint: "This compound has a large difference in ion sizes."
+            },
+            { 
+                q: "Which of the following compounds exhibits Schottky defect?", 
+                options: ["NaCl", "AgCl", "AgBr", "ZnS"],
+                ans: "NaCl", 
+                hint: "This compound has similar ion sizes."
+            },
+            { 
+                q: "What is the effect of defects on the density of a crystal?", 
+                options: ["Defects always increase density", "Defects always decrease density", "Defects can increase or decrease density", "Defects have no effect on density"],
+                ans: "Defects can increase or decrease density", 
+                hint: "The effect depends on the type of defect."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is the effect of Frenkel defect on the density of a crystal?", 
+                options: ["Increases density", "Decreases density", "No effect on density", "First increases then decreases"],
+                ans: "No effect on density", 
+                hint: "This defect involves a vacancy and an interstitial, so the number of atoms remains the same."
+            },
+            { 
+                q: "What is the effect of Schottky defect on the density of a crystal?", 
+                options: ["Increases density", "Decreases density", "No effect on density", "First increases then decreases"],
+                ans: "Decreases density", 
+                hint: "This defect involves missing atoms, so the mass decreases while volume remains the same."
+            },
+            { 
+                q: "What is the term for defects that extend in one dimension?", 
+                options: ["Point defects", "Line defects", "Surface defects", "Volume defects"],
+                ans: "Line defects", 
+                hint: "These defects are also known as dislocations."
+            },
+            { 
+                q: "What is the term for defects that extend in two dimensions?", 
+                options: ["Point defects", "Line defects", "Surface defects", "Volume defects"],
+                ans: "Surface defects", 
+                hint: "These defects include grain boundaries and stacking faults."
+            },
+            { 
+                q: "What is the term for defects that extend in three dimensions?", 
+                options: ["Point defects", "Line defects", "Surface defects", "Volume defects"],
+                ans: "Volume defects", 
+                hint: "These defects include cracks and pores."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the term for the process where defects are intentionally introduced into a crystal to modify its properties?", 
+                options: ["Doping", "Alloying", "Annealing", "Quenching"],
+                ans: "Doping", 
+                hint: "This process is commonly used in semiconductors."
+            },
+            { 
+                q: "What is the term for the movement of defects in a crystal under stress?", 
+                options: ["Diffusion", "Migration", "Dislocation motion", "Defect propagation"],
+                ans: "Dislocation motion", 
+                hint: "This is responsible for the plastic deformation of metals."
+            },
+            { 
+                q: "What is the term for the energy required to form a vacancy defect?", 
+                options: ["Formation energy", "Activation energy", "Binding energy", "Lattice energy"],
+                ans: "Formation energy", 
+                hint: "This is the energy required to remove an atom from its lattice site."
+            },
+            { 
+                q: "What is the term for the energy required to move an atom from a lattice site to an interstitial site?", 
+                options: ["Formation energy", "Activation energy", "Migration energy", "Frenkel energy"],
+                ans: "Frenkel energy", 
+                hint: "This is the energy required to form a Frenkel defect."
+            },
+            { 
+                q: "What is the term for the phenomenon where defects increase the electrical conductivity of a crystal?", 
+                options: ["Ionic conduction", "Electronic conduction", "Defect conduction", "Impurity conduction"],
+                ans: "Ionic conduction", 
+                hint: "This occurs when defects provide pathways for ion movement."
+            }
+        ]
+    },
+    Properties: {
+        basic: [
+            { 
+                q: "What are the electrical properties of solids?", 
+                options: ["Conductivity, resistivity, and semiconductivity", "Color, transparency, and luster", "Hardness, density, and melting point", "All of the above"],
+                ans: "Conductivity, resistivity, and semiconductivity", 
+                hint: "These properties relate to how solids conduct electricity."
+            },
+            { 
+                q: "What are the magnetic properties of solids?", 
+                options: ["Ferromagnetism, paramagnetism, and diamagnetism", "Color, transparency, and luster", "Hardness, density, and melting point", "All of the above"],
+                ans: "Ferromagnetism, paramagnetism, and diamagnetism", 
+                hint: "These properties relate to how solids respond to magnetic fields."
+            },
+            { 
+                q: "Which type of solid has high electrical conductivity?", 
+                options: ["Metals", "Insulators", "Semiconductors", "All solids"],
+                ans: "Metals", 
+                hint: "These solids have free electrons that can conduct electricity."
+            },
+            { 
+                q: "Which type of solid has low electrical conductivity?", 
+                options: ["Metals", "Insulators", "Semiconductors", "All solids"],
+                ans: "Insulators", 
+                hint: "These solids have a large band gap between valence and conduction bands."
+            },
+            { 
+                q: "Which type of solid has intermediate electrical conductivity?", 
+                options: ["Metals", "Insulators", "Semiconductors", "All solids"],
+                ans: "Semiconductors", 
+                hint: "These solids have a small band gap between valence and conduction bands."
+            }
+        ],
+        medium: [
+            { 
+                q: "What is ferromagnetism?", 
+                options: ["Weak attraction to magnetic fields", "Weak repulsion from magnetic fields", "Strong attraction to magnetic fields", "No response to magnetic fields"],
+                ans: "Strong attraction to magnetic fields", 
+                hint: "This property is exhibited by materials like iron, nickel, and cobalt."
+            },
+            { 
+                q: "What is paramagnetism?", 
+                options: ["Weak attraction to magnetic fields", "Weak repulsion from magnetic fields", "Strong attraction to magnetic fields", "No response to magnetic fields"],
+                ans: "Weak attraction to magnetic fields", 
+                hint: "This property is exhibited by materials with unpaired electrons."
+            },
+            { 
+                q: "What is diamagnetism?", 
+                options: ["Weak attraction to magnetic fields", "Weak repulsion from magnetic fields", "Strong attraction to magnetic fields", "No response to magnetic fields"],
+                ans: "Weak repulsion from magnetic fields", 
+                hint: "This property is exhibited by all materials but is often masked by stronger magnetic properties."
+            },
+            { 
+                q: "Which of the following is a ferromagnetic material?", 
+                options: ["Copper", "Aluminum", "Iron", "Gold"],
+                ans: "Iron", 
+                hint: "This material is strongly attracted to magnets."
+            },
+            { 
+                q: "Which of the following is a diamagnetic material?", 
+                options: ["Iron", "Nickel", "Copper", "Cobalt"],
+                ans: "Copper", 
+                hint: "This material is weakly repelled by magnetic fields."
+            }
+        ],
+        hard: [
+            { 
+                q: "What is the term for the temperature above which a ferromagnetic material becomes paramagnetic?", 
+                options: ["Boiling point", "Melting point", "Curie temperature", "Neel temperature"],
+                ans: "Curie temperature", 
+                hint: "This is the temperature at which ferromagnetism is lost."
+            },
+            { 
+                q: "What is the term for the temperature above which an antiferromagnetic material becomes paramagnetic?", 
+                options: ["Boiling point", "Melting point", "Curie temperature", "Neel temperature"],
+                ans: "Neel temperature", 
+                hint: "This is the temperature at which antiferromagnetism is lost."
+            },
+            { 
+                q: "What is the term for the phenomenon where the electrical resistance of a material drops to zero at very low temperatures?", 
+                options: ["Superconductivity", "Semiconductivity", "Insulation", "Conductivity"],
+                ans: "Superconductivity", 
+                hint: "This phenomenon was first discovered in mercury."
+            },
+            { 
+                q: "What is the term for the energy difference between the valence band and the conduction band in semiconductors?", 
+                options: ["Fermi energy", "Band gap", "Work function", "Ionization energy"],
+                ans: "Band gap", 
+                hint: "This energy difference determines the electrical properties of semiconductors."
+            },
+            { 
+                q: "What is the term for the process of adding impurities to semiconductors to modify their electrical properties?", 
+                options: ["Doping", "Alloying", "Annealing", "Quenching"],
+                ans: "Doping", 
+                hint: "This process is used to create n-type and p-type semiconductors."
+            }
+        ],
+        extreme: [
+            { 
+                q: "What is the term for the phenomenon where the electrical resistance of a material decreases with increasing temperature?", 
+                options: ["Metallic behavior", "Semiconducting behavior", "Insulating behavior", "Superconducting behavior"],
+                ans: "Semiconducting behavior", 
+                hint: "This is opposite to the behavior of metals."
+            },
+            { 
+                q: "What is the term for the phenomenon where the electrical resistance of a material increases with increasing temperature?", 
+                options: ["Metallic behavior", "Semiconducting behavior", "Insulating behavior", "Superconducting behavior"],
+                ans: "Metallic behavior", 
+                hint: "This is due to increased lattice vibrations scattering electrons."
+            },
+            { 
+                q: "What is the term for the magnetic property where atomic magnetic moments are aligned in opposite directions but with unequal magnitudes?", 
+                options: ["Ferromagnetism", "Antiferromagnetism", "Ferrimagnetism", "Paramagnetism"],
+                ans: "Ferrimagnetism", 
+                hint: "This property is exhibited by materials like magnetite (Fe3O4)."
+            },
+            { 
+                q: "What is the term for the magnetic property where atomic magnetic moments are aligned in opposite directions with equal magnitudes?", 
+                options: ["Ferromagnetism", "Antiferromagnetism", "Ferrimagnetism", "Paramagnetism"],
+                ans: "Antiferromagnetism", 
+                hint: "This property results in no net magnetization."
+            },
+            { 
+                q: "What is the term for the phenomenon where the electrical conductivity of a material increases with increasing magnetic field?", 
+                options: ["Magnetoresistance", "Hall effect", "Zeeman effect", "Faraday effect"],
+                ans: "Magnetoresistance", 
+                hint: "This effect is used in magnetic field sensors and hard drives."
+            }
+        ]
+    }
+};
+
+// ===== Game Flow =====
+function enterLevel(level) {
+    gameState.currentLevel = level;
+    gameState.currentTopicIndex = 0;
+    gameState.questionIndex = 0;
+    gameState.incorrectStreak = 0;
+    gameState.correctAnswers = 0;
+    gameState.xp = 0;
+    saveGameState();
+
+    updateXP();
+    updateProgress();
+    dom.menu.style.display = 'none';
+    dom.stage.style.display = 'flex';
+    dom.levelMessage.innerText = '';
+    prepareTopic();
+}
+
+function backToMenu() {
+    dom.stage.style.display = 'none';
+    dom.menu.style.display = 'block';
+    dom.levelMessage.innerText = '';
+    saveGameState();
+}
+
+function prepareTopic() {
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+
+    const currTopicKey = topicList[gameState.currentTopicIndex];
+    const lvl = gameState.currentLevel;
+    dom.levelTitle.innerText = `${lvl.toUpperCase()} - ${currTopicKey}`;
+    
+    let topicQuestions = [];
+    if (questionBank[currTopicKey] && questionBank[currTopicKey][lvl]) {
+        topicQuestions = [...questionBank[currTopicKey][lvl]];
+    } else {
+        topicQuestions = [];
+    }
+
+    shuffleArray(topicQuestions);
+    currentQuestions = topicQuestions.slice(0, QUESTIONS_PER_TOPIC);
+    gameState.questionIndex = 0;
+    saveGameState();
+    renderQuestion();
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function skipQuestion() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function nextStep() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function finishTopic() {
+    dom.levelMessage.innerText = `Topic Complete! ✨`;
+    dom.levelMessage.style.animation = 'pulse 1s';
+    
+    if (gameState.currentTopicIndex < topicList.length - 1) {
+        gameState.currentTopicIndex++;
+        gameState.questionIndex = 0;
+        saveGameState();
+        setTimeout(() => {
+            dom.levelMessage.innerText = '';
+            prepareTopic();
+        }, 900);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    dom.centerStage.innerHTML = `<div class="quest">🚀 Mission Complete! 🚀</div><div style="font-size: 1.2rem; color: var(--xp-glow);">Total XP: ${gameState.xp}</div><div style="margin-top:10px;font-weight:700;color:#bdf;">Correct answers: ${gameState.correctAnswers} / ${topicList.length * QUESTIONS_PER_TOPIC}</div>`;
+    dom.levelMessage.innerText = `Great job! You've completed all topics for this level.`;
+    dom.controls.innerHTML = `<button class="action-btn" onclick="location.reload()">🎉 Play Again</button><button class="action-btn secondary" onclick="backToMenu()">↩️ Back to Menu</button>`;
+    saveGameState();
+}
+
+// ===== Rendering Interactive Questions =====
+function renderQuestion() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) {
+        dom.centerStage.innerHTML = `<div class="quest">No question available.</div>`;
+        return;
+    }
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+    
+    dom.centerStage.style.opacity = 0;
+    setTimeout(() => {
+        let html = '';
+        switch (qtype) {
+            case 'types':
+                html = `<div class="quest">${q.q}</div><div class="types-game"><div class="types-visual"><div class="type crystalline">C</div><div class="type amorphous">A</div></div><div class="type-options">`;
+                q.options.forEach(option => {
+                    html += `<div class="type-option" data-answer="${option}">${option}</div>`;
+                });
+                html += `</div></div>`;
+                break;
+            case 'unitcell':
+                html = `<div class="quest">${q.q}</div><div class="unit-cell-game"><div class="unit-cell-visual"><div class="cell-type primitive">P</div><div class="cell-type bcc">B</div><div class="cell-type fcc">F</div><div class="cell-arrow" style="width: 100px; left: 90px; top: 100px; transform: rotate(0deg);"></div></div><div class="unit-cell-inputs"><input type="text" id="unitCellAnswer" class="unit-cell-input" placeholder="Answer"></div></div>`;
+                break;
+            case 'packing':
+                html = `<div class="quest">${q.q}</div><div class="packing-game"><canvas id="packingCanvas" class="packing-canvas" width="300" height="200"></canvas><div class="packing-options">`;
+                if (q.options) {
+                    q.options.forEach(option => {
+                        html += `<div class="packing-option" data-answer="${option}">${option}</div>`;
+                    });
+                } else {
+                    html += `<input type="text" id="packingAnswer" class="unit-cell-input" placeholder="Answer">`;
+                }
+                html += `</div></div>`;
+                break;
+            case 'imperfections':
+                html = `<div class="quest">${q.q}</div><div class="imperfections-game"><div class="imperfections-visual"><div class="defect vacancy">V</div><div class="defect interstitial">I</div><div class="defect frenkel">F</div><div class="defect schottky">S</div></div><div class="imperfections-inputs"><input type="text" id="imperfectionsAnswer" class="imperfections-input" placeholder="Answer"></div></div>`;
+                break;
+            case 'properties':
+                html = `<div class="quest">${q.q}</div><div class="properties-game"><div class="properties-visual"><div class="property"><div class="property-type electrical">E</div><div class="property-type magnetic">M</div></div><canvas id="propertiesCanvas" class="properties-field" width="300" height="200"></canvas></div><div class="properties-inputs"><input type="text" id="propertiesAnswer" class="properties-input" placeholder="Answer"></div></div>`;
+                break;
+        }
+
+        dom.centerStage.innerHTML = html;
+        attachEventListeners(qtype);
+        resetUIState();
+        dom.centerStage.style.opacity = 1;
+    }, 250);
+}
+
+function attachEventListeners(type) {
+    if (type === 'types') {
+        document.querySelectorAll('.type-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'packing') {
+        const canvas = document.getElementById('packingCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawPackingStructure(ctx, canvas.width, canvas.height);
+        }
+        
+        document.querySelectorAll('.packing-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.packing-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'properties') {
+        const canvas = document.getElementById('propertiesCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawPropertiesDiagram(ctx, canvas.width, canvas.height);
+        }
+    }
+
+    const firstInput = dom.centerStage.querySelector('input');
+    if (firstInput) firstInput.focus();
+}
+
+function drawPackingStructure(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw hexagonal close packing
+    ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
+    
+    // First layer
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 3; j++) {
+            const x = 50 + i * 40;
+            const y = 50 + j * 40 + (i % 2) * 20;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // Second layer (offset)
+    ctx.fillStyle = 'rgba(3, 169, 244, 0.5)';
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 2; j++) {
+            const x = 70 + i * 40;
+            const y = 70 + j * 40 + (i % 2) * 20;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // Label
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Close Packing Structure', width/2, height - 20);
+}
+
+function drawPropertiesDiagram(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw electrical properties
+    ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
+    ctx.fillRect(50, 50, 80, 100);
+    
+    // Draw magnetic properties
+    ctx.fillStyle = 'rgba(3, 169, 244, 0.7)';
+    ctx.fillRect(170, 50, 80, 100);
+    
+    // Draw connection
+    ctx.strokeStyle = 'rgba(255, 152, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(130, 100);
+    ctx.lineTo(170, 100);
+    ctx.stroke();
+    
+    // Labels
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Electrical', 90, 40);
+    ctx.fillText('Magnetic', 210, 40);
+}
+
+function resetUIState() {
+    dom.qIndex.innerText = gameState.questionIndex + 1;
+    dom.qTotal.innerText = QUESTIONS_PER_TOPIC;
+    dom.feedback.classList.remove('visible', 'correct', 'incorrect');
+    dom.hintBox.classList.remove('visible');
+    dom.checkBtn.style.display = 'inline-block'; 
+    dom.checkBtn.disabled = false;
+    dom.nextBtn.style.display = 'none';
+    dom.levelMessage.style.animation = '';
+    dom.levelMessage.innerText = '';
+}
+
+// ===== Answer Checking Logic =====
+function checkAnswer() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) return;
+    let isCorrect = false; 
+    let userAnswer;
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+
+    switch (qtype) {
+        case 'types':
+            const selectedOption = document.querySelector('.type-option.selected');
+            userAnswer = selectedOption ? selectedOption.dataset.answer : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'unitcell':
+            const unitCellInput = document.getElementById('unitCellAnswer');
+            userAnswer = unitCellInput ? unitCellInput.value.trim().toLowerCase() : '';
+            isCorrect = (userAnswer === q.ans.toLowerCase());
+            break;
+        case 'packing':
+            if (q.options) {
+                const selectedPackingOption = document.querySelector('.packing-option.selected');
+                userAnswer = selectedPackingOption ? selectedPackingOption.dataset.answer : '';
+                isCorrect = (userAnswer === q.ans);
+            } else {
+                const packingInput = document.getElementById('packingAnswer');
+                userAnswer = packingInput ? packingInput.value.trim().toLowerCase() : '';
+                isCorrect = (userAnswer === q.ans.toLowerCase());
+            }
+            break;
+        case 'imperfections':
+            const imperfectionsInput = document.getElementById('imperfectionsAnswer');
+            userAnswer = imperfectionsInput ? imperfectionsInput.value.trim().toLowerCase() : '';
+            isCorrect = (userAnswer === q.ans.toLowerCase());
+            break;
+        case 'properties':
+            const propertiesInput = document.getElementById('propertiesAnswer');
+            userAnswer = propertiesInput ? propertiesInput.value.trim().toLowerCase() : '';
+            isCorrect = (userAnswer === q.ans.toLowerCase());
+            break;
+    }
+
+    dom.checkBtn.disabled = true;
+    if (isCorrect) handleCorrect();
+    else handleIncorrect();
+}
+
+function handleCorrect() {
+    gameState.xp += 10;
+    gameState.correctAnswers++;
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+    updateXP();
+    updateProgress();
+    dom.feedback.innerText = "✅ Correct!";
+    dom.feedback.className = 'feedback visible correct';
+    particleEffect(dom.checkBtn, true);
+    saveGameState();
+    setTimeout(() => {
+        nextStep();
+    }, 900);
+}
+
+function handleIncorrect() {
+    gameState.incorrectStreak++;
+    if (gameState.incorrectStreak >= 3) {
+        dom.hintBtn.classList.add('highlight-hint');
+    }
+
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    let correctAnswerText = q.ans;
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase().replace(' ', '');
+
+    if (qtype === 'types') {
+        document.querySelectorAll('.type-option').forEach(option => {
+            if (option.dataset.answer === q.ans) {
+                option.classList.add('selected');
+            }
+        });
+    } else if (qtype === 'unitcell') {
+        const unitCellInput = document.getElementById('unitCellAnswer');
+        if (unitCellInput) unitCellInput.value = q.ans;
+    } else if (qtype === 'packing') {
+        if (q.options) {
+            document.querySelectorAll('.packing-option').forEach(option => {
+                if (option.dataset.answer === q.ans) {
+                    option.classList.add('selected');
+                }
+            });
+        } else {
+            const packingInput = document.getElementById('packingAnswer');
+            if (packingInput) packingInput.value = q.ans;
+        }
+    } else if (qtype === 'imperfections') {
+        const imperfectionsInput = document.getElementById('imperfectionsAnswer');
+        if (imperfectionsInput) imperfectionsInput.value = q.ans;
+    } else if (qtype === 'properties') {
+        const propertiesInput = document.getElementById('propertiesAnswer');
+        if (propertiesInput) propertiesInput.value = q.ans;
+    }
+
+    dom.feedback.innerText = `❌ The answer is ${correctAnswerText}.`;
+    dom.feedback.className = 'feedback visible incorrect';
+    particleEffect(dom.checkBtn, false);
+    dom.nextBtn.style.display = 'inline-block';
+    saveGameState();
+}
+
+// ===== UI Updates & Effects =====
+function updateProgress() {
+    const totalQuestionsInGame = topicList.length * QUESTIONS_PER_TOPIC;
+    const totalProgress = (gameState.correctAnswers / totalQuestionsInGame) * 100;
+    const dash = 276.46;
+    dom.progressCircle.style.strokeDashoffset = dash - (dash * totalProgress / 100);
+    dom.progressPercent.innerText = `${Math.round(totalProgress)}%`;
+}
+
+function updateXP() {
+    dom.xpValue.innerText = gameState.xp;
+    dom.xpDisplay.classList.add('updated');
+    setTimeout(() => dom.xpDisplay.classList.remove('updated'), 300);
+}
+
+function showHint() {
+    const q = currentQuestions[gameState.questionIndex];
+    if (!q) return;
+    dom.hintBox.innerText = q.hint || 'No hint available';
+    dom.hintBox.classList.add('visible');
+}
+
+// ===== Visual Particle Effect (small) =====
+function particleEffect(elm, correct) {
+    try {
+        const rect = elm.getBoundingClientRect();
+        const c = document.createElement('canvas');
+        c.width = rect.width * 3; c.height = rect.height * 3;
+        c.style.cssText = `position: fixed; left: ${rect.left - rect.width}px; top: ${rect.top - rect.height}px; pointer-events: none; z-index: 30;`;
+        document.body.appendChild(c);
+
+        const pCtx = c.getContext('2d');
+        let particles = Array.from({ length: 40 }, () => ({
+            x: c.width / 2, y: c.height / 2,
+            vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+            r: Math.random() * 3 + 2, alpha: 1
+        }));
+
+        const anim = setInterval(() => {
+            pCtx.clearRect(0, 0, c.width, c.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pCtx.fillStyle = correct ? `rgba(76, 175, 80, ${p.alpha})` : `rgba(244, 67, 54, ${p.alpha})`;
+                pCtx.fill();
+            });
+            particles = particles.filter(p => p.alpha > 0);
+            if (particles.length === 0) {
+                clearInterval(anim);
+                if (c.parentNode) c.parentNode.removeChild(c);
+            }
+        }, 20);
+    } catch (e) {
+        console.warn('Particle effect failed', e);
+    }
+}
+
+// ===== Init =====
+loadGameState();
+</script>
+</body>
+</html>

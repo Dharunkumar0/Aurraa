@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gauss Challenge - Physics Adventure</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+        }
+        
+        .globe-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .language-select {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        
+        .language-select:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .language-select option {
+            background: #667eea;
+            color: white;
+        }
+        
+        .game-content {
+            padding: 30px;
+        }
+        
+        .puzzle-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .puzzle-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .gauss-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .gauss-visualization {
+            height: 500px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .gauss-charge {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            z-index: 5;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        
+        .gauss-charge.positive {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5a24);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .gauss-charge.negative {
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #44a3aa);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+        
+        .gauss-charge.enclosed {
+            animation: pulse-charge 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-charge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .gaussian-surface {
+            position: absolute;
+            border: 4px dashed #667eea;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.1);
+            cursor: grab;
+            z-index: 15;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .gaussian-surface:hover {
+            border-color: #ff9ff3;
+            background: rgba(255, 159, 243, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .gaussian-surface.dragging {
+            cursor: grabbing;
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .surface-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .gaussian-surface:hover .surface-handle {
+            background: #ff9ff3;
+            box-shadow: 0 0 15px rgba(255, 159, 243, 0.7);
+        }
+        
+        .gaussian-surface.dragging .surface-handle {
+            background: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+        }
+        
+        .field-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .field-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            transform-origin: left center;
+        }
+        
+        .flux-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+            min-width: 200px;
+        }
+        
+        .flux-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .flux-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .enclosed-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #764ba2;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .flux-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .flux-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .control-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .control-btn.next-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+        }
+        
+        .control-btn.next-btn:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .drag-hint {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        .charge-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .charge-info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .charge-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .charge-item {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .charge-item.positive {
+            background: #ff6b6b;
+        }
+        
+        .charge-item.negative {
+            background: #4ecdc4;
+        }
+        
+        .charge-item.enclosed {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .game-header {
+                padding: 20px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+            }
+            
+            .language-selector {
+                position: static;
+                margin-top: 15px;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .game-content {
+                padding: 20px;
+            }
+            
+            .gauss-visualization {
+                height: 400px;
+            }
+            
+            .flux-indicator {
+                padding: 15px;
+                min-width: 150px;
+            }
+            
+            .flux-value {
+                font-size: 24px;
+            }
+            
+            .enclosed-value {
+                font-size: 16px;
+            }
+            
+            .drag-hint {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Translations for different languages
+        const translations = {
+            eng: {
+                title: "Physics Adventure",
+                subtitle: "Gauss's Law Challenge - Grade 12",
+                gaussChallenge: {
+                    title: "Gauss's Law Challenge",
+                    instruction: "Drag the blue circle (Gaussian surface) to explore electric flux and enclosed charge!",
+                    flux: "Electric Flux",
+                    enclosed: "Enclosed Charge",
+                    charges: "All Charges",
+                    success: "Excellent! You've explored Gauss's Law!",
+                    reset: "Reset Challenge",
+                    dragHint: "Drag the blue circle to move it!"
+                },
+                controls: {
+                    play: "Play",
+                    pause: "Pause",
+                    replay: "Replay",
+                    next: "Next"
+                }
+            },
+            tam: {
+                title: "இயற்பியல் சாகசம்",
+                subtitle: "காஸ் சட்டம் சவால் - 12 ஆம் வகுப்பு",
+                gaussChallenge: {
+                    title: "காஸ் சட்டம் சவால்",
+                    instruction: "நீல வட்டத்தை (காஸியன் மேற்பரப்பு) இழுத்தி மின் பாய்வு மற்றும் மூடப்பட்ட சுமையை ஆராயுங்கள்!",
+                    flux: "மின் பாய்வு",
+                    enclosed: "மூடப்பட்ட சுமை",
+                    charges: "அனைத்து சுமைகள்",
+                    success: "அருமை! நீங்கள் காஸ் சட்டத்தை சரியாகப் பயன்படுத்தியுள்ளீர்கள்!",
+                    reset: "சவாலை மீட்டமை",
+                    dragHint: "வட்டத்தை நகர்த்த இழுக்கவும்!"
+                },
+                controls: {
+                    play: "விளையாடு",
+                    pause: "இடைநிறுத்து",
+                    replay: "மீண்டும் விளையாடு",
+                    next: "அடுத்தது"
+                }
+            },
+            tel: {
+                title: "భౌతిక శాస్త్రం సాహస యాత్ర",
+                subtitle: "గాస్ లా ఛాలెంజ్ - 12వ తరగతి",
+                gaussChallenge: {
+                    title: "గాస్ లా ఛాలెంజ్",
+                    instruction: "నీలం వృత్తాన్ని (గాసియన్ ఉపరితలం) లాగండి ఎలక్ట్రిక్ ఫ్లక్స్ మరియు మూసిన ఛార్జ్‌ను అన్వేషించండి!",
+                    flux: "ఎలక్ట్రిక్ ఫ్లక్స్",
+                    enclosed: "మూసిన ఛార్జ్",
+                    charges: "అన్ని ఛార్జీలు",
+                    success: "గొప్ప! మీరు గాస్ లాను సరైనంగా వర్తింపజేశారు!",
+                    reset: "ఛాలెంజ్‌ను రీసెట్ చేయండి",
+                    dragHint: "వృత్తాన్ని తరలించడానికి లాగండి!"
+                },
+                controls: {
+                    play: "ఆడండి",
+                    pause: "విరామం",
+                    replay: "మళ్ళీ ఆడండి",
+                    next: "తదుపరి"
+                }
+            },
+            hin: {
+                title: "भौतिकी साहसिक यात्रा",
+                subtitle: "गॉस का नियम चुनौती - 12वीं कक्षा",
+                gaussChallenge: {
+                    title: "गॉस का नियम चुनौती",
+                    instruction: "नीले वृत्त (गाउसीयन सतह) को खींचकर विद्युत प्रवाह और घिरा हुआ आवेश का अन्वेषण करें!",
+                    flux: "विद्युत प्रवाह",
+                    enclosed: "घिरा हुआ आवेश",
+                    charges: "सभी आवेश",
+                    success: "शानदार! आपने गॉस का नियम सही ढंग से लागू किया!",
+                    reset: "चुनौती रीसेट करें",
+                    dragHint: "वृत्त को खींचकर खिसकाएं!"
+                },
+                controls: {
+                    play: "खेलें",
+                    pause: "रोकें",
+                    replay: "फिर से खेलें",
+                    next: "अगला"
+                }
+            },
+            ori: {
+                title: "ଭୌତିକ ବିଜ୍ଞାନ ଅଭିଯାନ",
+                subtitle: "ଗାଉସ୍ ନିୟମ ଚ୍ୟାଲେଞ୍ଜ୍ - ୧୨ମ ଶ୍ରେଣୀ",
+                gaussChallenge: {
+                    title: "ଗାଉସ୍ ନିୟମ ଚ୍ୟାଲେଞ୍ଜ୍",
+                    instruction: "ନୀଳ ବୃତ୍ତକୁ (ଗାଉସିଆନ୍ ପୃଷ୍ଠ) ଟାଣି ବିଦ୍ୟୁତ୍ ପ୍ରବାହ ଏବଂ ବେଢ଼ା ଆବେଶକୁ ଅନ୍ୱେଷଣ କରନ୍ତୁ!",
+                    flux: "ବିଦ୍ୟୁତ୍ ପ୍ରବାହ",
+                    enclosed: "ବେଢ଼ା ଆବେଶ",
+                    charges: "ସମସ୍ତ ଆବେଶ",
+                    success: "ବଢ଼ିଆ! ଆପଣ ଗାଉସ୍ ନିୟମ ସଠିକ୍ ଭାବରେ ପ୍ରୟୋଗ କରିଛନ୍ତି!",
+                    reset: "ଚ୍ୟାଲେଞ୍ଜ୍ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ",
+                    dragHint: "ବୃତ୍ତକୁ ଟାଣି ଘୁଞ୍ଚାନ୍ତୁ!"
+                },
+                controls: {
+                    play: "ଖେଳନ୍ତୁ",
+                    pause: "ବିରାମ",
+                    replay: "ପୁନର୍ବାର ଖେଳନ୍ତୁ",
+                    next: "ପରବର୍ତ୍ତୀ"
+                }
+            }
+        };
+
+        // Gauss Challenge Component
+        const GaussChallenge = ({ translation, onComplete }) => {
+            const [surface, setSurface] = useState({ x: 300, y: 200, radius: 100 });
+            const [dragging, setDragging] = useState(false);
+            const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+            const [surfaceStart, setSurfaceStart] = useState({ x: 0, y: 0 });
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [hasInteracted, setHasInteracted] = useState(false);
+            const [previousEnclosed, setPreviousEnclosed] = useState(0);
+            const [showDragHint, setShowDragHint] = useState(true);
+            const visualizationRef = useRef(null);
+            
+            // Fixed charges in the visualization
+            const charges = [
+                { id: 1, x: 150, y: 150, value: 5 },
+                { id: 2, x: 450, y: 150, value: -3 },
+                { id: 3, x: 300, y: 300, value: 7 },
+                { id: 4, x: 200, y: 350, value: -4 },
+                { id: 5, x: 400, y: 350, value: 2 },
+                { id: 6, x: 100, y: 250, value: -6 },
+                { id: 7, x: 500, y: 250, value: 4 }
+            ];
+            
+            // Calculate enclosed charge and flux
+            const calculateEnclosedCharge = () => {
+                let enclosed = 0;
+                const enclosedCharges = [];
+                
+                charges.forEach(charge => {
+                    const distance = Math.sqrt(
+                        Math.pow(charge.x - surface.x, 2) + 
+                        Math.pow(charge.y - surface.y, 2)
+                    );
+                    if (distance < surface.radius) {
+                        enclosed += charge.value;
+                        enclosedCharges.push(charge.id);
+                    }
+                });
+                
+                return { enclosed, enclosedCharges };
+            };
+            
+            const { enclosed, enclosedCharges } = calculateEnclosedCharge();
+            const flux = enclosed * 8.99e9; // Simplified flux calculation
+            
+            // Track changes in enclosed charge
+            useEffect(() => {
+                if (previousEnclosed !== enclosed && Math.abs(enclosed - previousEnclosed) > 0.1) {
+                    if (!hasInteracted) {
+                        setHasInteracted(true);
+                        setShowSuccess(true);
+                        onComplete();
+                    }
+                }
+                setPreviousEnclosed(enclosed);
+            }, [enclosed]);
+            
+            const handleMouseDown = (e) => {
+                e.preventDefault();
+                setDragging(true);
+                setShowDragHint(false);
+                
+                if (visualizationRef.current) {
+                    const rect = visualizationRef.current.getBoundingClientRect();
+                    setDragStart({
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    });
+                    setSurfaceStart({
+                        x: surface.x,
+                        y: surface.y
+                    });
+                }
+            };
+            
+            const handleMouseMove = (e) => {
+                if (!dragging || !visualizationRef.current) return;
+                
+                const rect = visualizationRef.current.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                const deltaX = currentX - dragStart.x;
+                const deltaY = currentY - dragStart.y;
+                
+                const newX = surfaceStart.x + deltaX;
+                const newY = surfaceStart.y + deltaY;
+                
+                // Keep surface within bounds
+                const boundedX = Math.max(surface.radius, Math.min(rect.width - surface.radius, newX));
+                const boundedY = Math.max(surface.radius, Math.min(rect.height - surface.radius, newY));
+                
+                setSurface(prev => ({ ...prev, x: boundedX, y: boundedY }));
+            };
+            
+            const handleMouseUp = () => {
+                setDragging(false);
+            };
+            
+            const resetChallenge = () => {
+                setSurface({ x: 300, y: 200, radius: 100 });
+                setShowSuccess(false);
+                setHasInteracted(false);
+                setPreviousEnclosed(0);
+                setShowDragHint(true);
+            };
+            
+            // Generate field lines for visual effect
+            const generateFieldLines = () => {
+                const lines = [];
+                const numLines = 12;
+                
+                for (let i = 0; i < numLines; i++) {
+                    const angle = (i / numLines) * 2 * Math.PI;
+                    const startRadius = surface.radius + 10;
+                    const endRadius = surface.radius + 50;
+                    
+                    const startX = surface.x + startRadius * Math.cos(angle);
+                    const startY = surface.y + startRadius * Math.sin(angle);
+                    const endX = surface.x + endRadius * Math.cos(angle);
+                    const endY = surface.y + endRadius * Math.sin(angle);
+                    
+                    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                    const lineAngle = Math.atan2(endY - startY, endX - startX);
+                    
+                    lines.push({
+                        x: startX,
+                        y: startY,
+                        length: length,
+                        angle: lineAngle
+                    });
+                }
+                
+                return lines;
+            };
+            
+            const fieldLines = generateFieldLines();
+            
+            // Calculate flux bar fill percentage
+            const getFluxFillPercentage = () => {
+                const maxFlux = 100;
+                const minFlux = -100;
+                const normalized = (flux - minFlux) / (maxFlux - minFlux);
+                return Math.max(0, Math.min(100, normalized * 100));
+            };
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.gaussChallenge.title}</h3>
+                    
+                    <div className="instructions">
+                        {translation.gaussChallenge.instruction}
+                    </div>
+                    
+                    <div className="gauss-container">
+                        <div 
+                            ref={visualizationRef}
+                            className="gauss-visualization"
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                        >
+                            {/* Field lines */}
+                            <div className="field-lines">
+                                {fieldLines.map((line, index) => (
+                                    <div
+                                        key={index}
+                                        className="field-line"
+                                        style={{
+                                            left: line.x,
+                                            top: line.y,
+                                            width: line.length,
+                                            transform: `rotate(${line.angle}rad)`,
+                                            transformOrigin: '0 50%'
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            
+                            {/* Charges */}
+                            {charges.map(charge => (
+                                <div
+                                    key={charge.id}
+                                    className={`gauss-charge ${charge.value > 0 ? 'positive' : 'negative'} ${enclosedCharges.includes(charge.id) ? 'enclosed' : ''}`}
+                                    style={{
+                                        left: charge.x - 25,
+                                        top: charge.y - 25
+                                    }}
+                                >
+                                    {charge.value > 0 ? '+' : '-'}{Math.abs(charge.value)}
+                                </div>
+                            ))}
+                            
+                            {/* Gaussian Surface */}
+                            <div
+                                className={`gaussian-surface ${dragging ? 'dragging' : ''}`}
+                                style={{
+                                    left: surface.x - surface.radius,
+                                    top: surface.y - surface.radius,
+                                    width: surface.radius * 2,
+                                    height: surface.radius * 2
+                                }}
+                                onMouseDown={handleMouseDown}
+                            >
+                                <div className="surface-handle" />
+                            </div>
+                            
+                            {/* Flux Indicator */}
+                            <div className="flux-indicator">
+                                <div className="flux-label">{translation.gaussChallenge.flux}</div>
+                                <div className="flux-value">{flux.toExponential(2)} N·m²/C</div>
+                                <div className="flux-bar">
+                                    <div 
+                                        className="flux-fill"
+                                        style={{ width: `${getFluxFillPercentage()}%` }}
+                                    />
+                                </div>
+                                <div className="enclosed-value">
+                                    {translation.gaussChallenge.enclosed}: {enclosed} μC
+                                </div>
+                            </div>
+                            
+                            {/* Drag Hint */}
+                            {showDragHint && (
+                                <div className="drag-hint">
+                                    {translation.gaussChallenge.dragHint}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="charge-info">
+                            <div className="charge-info-title">{translation.gaussChallenge.charges}</div>
+                            <div className="charge-list">
+                                {charges.map(charge => (
+                                    <div
+                                        key={charge.id}
+                                        className={`charge-item ${charge.value > 0 ? 'positive' : 'negative'} ${enclosedCharges.includes(charge.id) ? 'enclosed' : ''}`}
+                                    >
+                                        {charge.value > 0 ? '+' : '-'}{Math.abs(charge.value)}μC
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {showSuccess && (
+                        <div className="success-message">
+                            {translation.gaussChallenge.success}
+                        </div>
+                    )}
+                    
+                    <div className="controls-container">
+                        <button className="control-btn" onClick={resetChallenge}>
+                            {translation.gaussChallenge.reset}
+                        </button>
+                        <button 
+                            className="control-btn next-btn"
+                            onClick={() => window.location.href = 'gr12-ncert-physics-conc.html'}
+                        >
+                            Finish ✓
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [language, setLanguage] = useState('eng');
+            const [completed, setCompleted] = useState(false);
+            
+            const translation = translations[language];
+            
+            const handleComplete = () => {
+                setCompleted(true);
+            };
+            
+            return (
+                <div className="game-container">
+                    <div className="game-header">
+                        <h1 className="game-title">{translation.title}</h1>
+                        <p className="game-subtitle">{translation.subtitle}</p>
+                        <div className="language-selector">
+                            <span className="globe-icon">🌐</span>
+                            <select 
+                                className="language-select" 
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                            >
+                                <option value="eng">English</option>
+                                <option value="tam">தமிழ்</option>
+                                <option value="tel">తెలుగు</option>
+                                <option value="hin">हिन्दी</option>
+                                <option value="ori">ଓଡ଼ିଆ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div className="game-content">
+                        <GaussChallenge 
+                            translation={translation} 
+                            onComplete={handleComplete}
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

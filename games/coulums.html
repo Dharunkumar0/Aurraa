@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coulomb's Lab - Physics Adventure</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+        }
+        
+        .globe-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .language-select {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        
+        .language-select:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .language-select option {
+            background: #667eea;
+            color: white;
+        }
+        
+        .game-content {
+            padding: 30px;
+        }
+        
+        .puzzle-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .puzzle-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .coulombs-lab-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .force-visualization {
+            height: 400px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .charge-ball {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            cursor: move;
+            transition: box-shadow 0.3s ease;
+            z-index: 10;
+            user-select: none;
+        }
+        
+        .charge-ball.positive {
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5a24);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+        }
+        
+        .charge-ball.negative {
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #44a3aa);
+            box-shadow: 0 0 30px rgba(78, 205, 196, 0.6);
+        }
+        
+        .charge-ball:hover {
+            transform: scale(1.05);
+        }
+        
+        .charge-ball.dragging {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .force-vector {
+            position: absolute;
+            height: 6px;
+            background: linear-gradient(90deg, #feca57, #ff9ff3);
+            transform-origin: left center;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+        
+        .force-vector::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: -10px;
+            width: 0;
+            height: 0;
+            border-left: 25px solid #ff9ff3;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+        }
+        
+        .force-vector.attraction {
+            background: linear-gradient(90deg, #4ecdc4, #44a3aa);
+        }
+        
+        .force-vector.attraction::after {
+            border-left-color: #44a3aa;
+        }
+        
+        .distance-line {
+            position: absolute;
+            height: 2px;
+            background: #ddd;
+            border-top: 2px dashed #999;
+            z-index: 1;
+        }
+        
+        .distance-label {
+            position: absolute;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 15;
+        }
+        
+        .controls-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .control-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .control-icon.positive {
+            background: #ff6b6b;
+        }
+        
+        .control-icon.negative {
+            background: #4ecdc4;
+        }
+        
+        .control-icon.distance {
+            background: #667eea;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e0e0e0;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+        
+        .slider-value {
+            min-width: 80px;
+            padding: 8px 12px;
+            background: #f0f3ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #667eea;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .result-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 36px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-unit {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-left: 5px;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .control-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .control-btn.next-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+        }
+        
+        .control-btn.next-btn:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .game-header {
+                padding: 20px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+            }
+            
+            .language-selector {
+                position: static;
+                margin-top: 15px;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .game-content {
+                padding: 20px;
+            }
+            
+            .controls-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .charge-ball {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+            
+            .force-visualization {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Translations for different languages
+        const translations = {
+            eng: {
+                title: "Physics Adventure",
+                subtitle: "Coulomb's Law Laboratory - Grade 12",
+                coulombsLab: {
+                    title: "Coulomb's Law Laboratory",
+                    instruction: "Drag the charges to see how the force changes. Experiment with different configurations!",
+                    charge1: "Charge 1",
+                    charge2: "Charge 2",
+                    distance: "Distance",
+                    force: "Force",
+                    success: "Excellent! You've experimented with Coulomb's Law!",
+                    reset: "Reset Experiment"
+                },
+                controls: {
+                    play: "Play",
+                    pause: "Pause",
+                    replay: "Replay",
+                    next: "Next"
+                }
+            },
+            tam: {
+                title: "இயற்பியல் சாகசம்",
+                subtitle: "கூலோம்பின் சட்டம் ஆய்வகம் - 12 ஆம் வகுப்பு",
+                coulombsLab: {
+                    title: "கூலோம்பின் சட்டம் ஆய்வகம்",
+                    instruction: "விசை எவ்வாறு மாறுகிறது என்பதைக் காண சுமைகளை இழுத்துப் போடுங்கள். வெவ்வேறு கட்டமைப்புகளை முயற்சிக்கவும்!",
+                    charge1: "சுமை 1",
+                    charge2: "சுமை 2",
+                    distance: "தூரம்",
+                    force: "விசை",
+                    success: "சிறப்பு! நீங்கள் கூலோம்பின் சட்டத்தை சிறப்பாக கற்றுக்கொண்டீர்கள்!",
+                    reset: "பரிசோதனையை மீட்டமை"
+                },
+                controls: {
+                    play: "விளையாடு",
+                    pause: "இடைநிறுத்து",
+                    replay: "மீண்டும் விளையாடு",
+                    next: "அடுத்தது"
+                }
+            },
+            tel: {
+                title: "భౌతిక శాస్త్రం సాహస యాత్ర",
+                subtitle: "కౌలమ్బ్ లా ల్యాబొరేటరీ - 12వ తరగతి",
+                coulombsLab: {
+                    title: "కౌలమ్బ్ లా ల్యాబొరేటరీ",
+                    instruction: "ఫోర్స్ ఎలా మారుతుందో చూడటానికి ఛార్జీలను లాగి పెట్టండి. వివిధ ఆకృతీకరణలను ప్రయత్నించండి!",
+                    charge1: "ఛార్జ్ 1",
+                    charge2: "ఛార్జ్ 2",
+                    distance: "దూరం",
+                    force: "ఫోర్స్",
+                    success: "అద్భుతం! మీరు కౌలమ్బ్ లాను మాస్టర్ చేశారు!",
+                    reset: "ప్రయోగాన్ని రీసెట్ చేయండి"
+                },
+                controls: {
+                    play: "ఆడండి",
+                    pause: "విరామం",
+                    replay: "మళ్ళీ ఆడండి",
+                    next: "తదుపరి"
+                }
+            },
+            hin: {
+                title: "भौतिकी साहसिक यात्रा",
+                subtitle: "कूलॉम्ब का नियम प्रयोगशाला - 12वीं कक्षा",
+                coulombsLab: {
+                    title: "कूलॉम्ब का नियम प्रयोगशाला",
+                    instruction: "बल कैसे बदलता है देखने के लिए आवेश खींचें। विभिन्न विन्यास आज़माएं!",
+                    charge1: "आवेश 1",
+                    charge2: "आवेश 2",
+                    distance: "दूरी",
+                    force: "बल",
+                    success: "बढ़िया! आपने कूलॉम्ब का नियम सीख लिया!",
+                    reset: "प्रयोग रीसेट करें"
+                },
+                controls: {
+                    play: "खेलें",
+                    pause: "रोकें",
+                    replay: "फिर से खेलें",
+                    next: "अगला"
+                }
+            },
+            ori: {
+                title: "ଭୌତିକ ବିଜ୍ଞାନ ଅଭିଯାନ",
+                subtitle: "କୁଲମ୍ ନିୟମ ପରୀକ୍ଷାଗାର - ୧୨ମ ଶ୍ରେଣୀ",
+                coulombsLab: {
+                    title: "କୁଲମ୍ ନିୟମ ପରୀକ୍ଷାଗାର",
+                    instruction: "ଶକ୍ତି କିପରି ପରିବର୍ତ୍ତନ ହୁଏ ଦେଖିବାକୁ ଆବେଶ ଟାଣି ଆଣନ୍ତୁ। ବିଭିନ୍ନ ବିନ୍ୟାସ ଚେଷ୍ଟା କରନ୍ତୁ!",
+                    charge1: "ଆବେଶ ୧",
+                    charge2: "ଆବେଶ ୨",
+                    distance: "ଦୂରତା",
+                    force: "ଶକ୍ତି",
+                    success: "ଅଦ୍ଭୁତ! ଆପଣ କୁଲମ୍ ନିୟମ ଶିଖିଛନ୍ତି!",
+                    reset: "ପରୀକ୍ଷା ପୁନଃସ୍ଥାପନ କରନ୍ତୁ"
+                },
+                controls: {
+                    play: "ଖେଳନ୍ତୁ",
+                    pause: "ବିରାମ",
+                    replay: "ପୁନର୍ବାର ଖେଳନ୍ତୁ",
+                    next: "ପରବର୍ତ୍ତୀ"
+                }
+            }
+        };
+
+        // Coulomb's Lab Component
+        const CoulombsLab = ({ translation, onComplete }) => {
+            const [charge1, setCharge1] = useState({ x: 150, y: 200, value: 5 });
+            const [charge2, setCharge2] = useState({ x: 450, y: 200, value: -3 });
+            const [dragging, setDragging] = useState(null);
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [hasInteracted, setHasInteracted] = useState(false);
+            const visualizationRef = useRef(null);
+            
+            // Calculate distance between charges
+            const distance = Math.sqrt(
+                Math.pow(charge2.x - charge1.x, 2) + 
+                Math.pow(charge2.y - charge1.y, 2)
+            );
+            
+            // Calculate force using Coulomb's law (simplified for visualization)
+            const k = 8.99e9; // Coulomb's constant
+            const force = Math.abs(k * Math.abs(charge1.value * charge2.value) / Math.pow(distance / 100, 2)) * 1e-6;
+            
+            const handleMouseDown = (e, chargeId) => {
+                e.preventDefault();
+                setDragging(chargeId);
+            };
+            
+            const handleMouseMove = (e) => {
+                if (!dragging || !visualizationRef.current) return;
+                
+                const rect = visualizationRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Keep charges within bounds
+                const boundedX = Math.max(40, Math.min(rect.width - 40, x));
+                const boundedY = Math.max(40, Math.min(rect.height - 40, y));
+                
+                if (dragging === 'charge1') {
+                    setCharge1(prev => ({ ...prev, x: boundedX, y: boundedY }));
+                } else if (dragging === 'charge2') {
+                    setCharge2(prev => ({ ...prev, x: boundedX, y: boundedY }));
+                }
+            };
+            
+            const handleMouseUp = () => {
+                if (dragging && !hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+                setDragging(null);
+            };
+            
+            const resetExperiment = () => {
+                setCharge1({ x: 150, y: 200, value: 5 });
+                setCharge2({ x: 450, y: 200, value: -3 });
+                setShowSuccess(false);
+                setHasInteracted(false);
+            };
+            
+            // Calculate force vector properties
+            const forceDirection = charge1.value * charge2.value > 0 ? 'repulsion' : 'attraction';
+            const forceAngle = Math.atan2(charge2.y - charge1.y, charge2.x - charge1.x);
+            const forceLength = Math.min(distance * 0.4, 150); // Scale force vector for visualization
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.coulombsLab.title}</h3>
+                    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {translation.coulombsLab.instruction}
+                    </p>
+                    
+                    <div className="coulombs-lab-container">
+                        <div 
+                            ref={visualizationRef}
+                            className="force-visualization"
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                        >
+                            {/* Distance line */}
+                            <div 
+                                className="distance-line"
+                                style={{
+                                    left: charge1.x,
+                                    top: charge1.y,
+                                    width: distance,
+                                    transform: `rotate(${forceAngle}rad)`,
+                                    transformOrigin: '0 50%'
+                                }}
+                            />
+                            
+                            {/* Distance label */}
+                            <div 
+                                className="distance-label"
+                                style={{
+                                    left: (charge1.x + charge2.x) / 2 - 30,
+                                    top: (charge1.y + charge2.y) / 2 - 30
+                                }}
+                            >
+                                {distance.toFixed(0)} mm
+                            </div>
+                            
+                            {/* Force vectors */}
+                            <div 
+                                className={`force-vector ${forceDirection}`}
+                                style={{
+                                    left: charge1.x + 40,
+                                    top: charge1.y,
+                                    width: forceLength,
+                                    transform: `rotate(${forceAngle}rad)`,
+                                    transformOrigin: '0 50%'
+                                }}
+                            />
+                            
+                            <div 
+                                className={`force-vector ${forceDirection}`}
+                                style={{
+                                    left: charge2.x - 40 - forceLength,
+                                    top: charge2.y,
+                                    width: forceLength,
+                                    transform: `rotate(${forceAngle + Math.PI}rad)`,
+                                    transformOrigin: '0 50%'
+                                }}
+                            />
+                            
+                            {/* Charge 1 */}
+                            <div
+                                className={`charge-ball positive ${dragging === 'charge1' ? 'dragging' : ''}`}
+                                style={{
+                                    left: charge1.x - 40,
+                                    top: charge1.y - 40
+                                }}
+                                onMouseDown={(e) => handleMouseDown(e, 'charge1')}
+                            >
+                                +{Math.abs(charge1.value)}
+                            </div>
+                            
+                            {/* Charge 2 */}
+                            <div
+                                className={`charge-ball negative ${dragging === 'charge2' ? 'dragging' : ''}`}
+                                style={{
+                                    left: charge2.x - 40,
+                                    top: charge2.y - 40
+                                }}
+                                onMouseDown={(e) => handleMouseDown(e, 'charge2')}
+                            >
+                                -{Math.abs(charge2.value)}
+                            </div>
+                        </div>
+                        
+                        <div className="controls-panel">
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon positive">+</span>
+                                    {translation.coulombsLab.charge1}
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="1"
+                                        max="10"
+                                        value={Math.abs(charge1.value)}
+                                        onChange={(e) => {
+                                            setCharge1(prev => ({ 
+                                                ...prev, 
+                                                value: prev.value > 0 ? parseInt(e.target.value) : -parseInt(e.target.value)
+                                            }));
+                                            if (!hasInteracted) {
+                                                setHasInteracted(true);
+                                                setShowSuccess(true);
+                                                onComplete();
+                                            }
+                                        }}
+                                    />
+                                    <div className="slider-value">{Math.abs(charge1.value)} μC</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon negative">-</span>
+                                    {translation.coulombsLab.charge2}
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="1"
+                                        max="10"
+                                        value={Math.abs(charge2.value)}
+                                        onChange={(e) => {
+                                            setCharge2(prev => ({ 
+                                                ...prev, 
+                                                value: prev.value > 0 ? parseInt(e.target.value) : -parseInt(e.target.value)
+                                            }));
+                                            if (!hasInteracted) {
+                                                setHasInteracted(true);
+                                                setShowSuccess(true);
+                                                onComplete();
+                                            }
+                                        }}
+                                    />
+                                    <div className="slider-value">{Math.abs(charge2.value)} μC</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon distance">↔</span>
+                                    {translation.coulombsLab.distance}
+                                </label>
+                                <div className="slider-container">
+                                    <div className="slider-value">{distance.toFixed(0)} mm</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon distance">⚡</span>
+                                    {translation.coulombsLab.force}
+                                </label>
+                                <div className="slider-container">
+                                    <div className="slider-value">{force.toFixed(2)} N</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="result-display">
+                            <div className="result-label">{translation.coulombsLab.force}</div>
+                            <div className="result-value">
+                                {force.toFixed(2)}
+                                <span className="result-unit">N</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {showSuccess && (
+                        <div className="success-message">
+                            {translation.coulombsLab.success}
+                        </div>
+                    )}
+                    
+                    <div className="controls-container">
+                        <button className="control-btn" onClick={resetExperiment}>
+                            {translation.coulombsLab.reset}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [language, setLanguage] = useState('eng');
+            const [completed, setCompleted] = useState(false);
+            
+            const translation = translations[language];
+            
+            const handleComplete = () => {
+                setCompleted(true);
+            };
+            
+            return (
+                <div className="game-container">
+                    <div className="game-header">
+                        <h1 className="game-title">{translation.title}</h1>
+                        <p className="game-subtitle">{translation.subtitle}</p>
+                        <div className="language-selector">
+                            <span className="globe-icon">🌐</span>
+                            <select 
+                                className="language-select" 
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                            >
+                                <option value="eng">English</option>
+                                <option value="tam">தமிழ்</option>
+                                <option value="tel">తెలుగు</option>
+                                <option value="hin">हिन्दी</option>
+                                <option value="ori">ଓଡ଼ିଆ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div className="game-content">
+                        <CoulombsLab 
+                            translation={translation} 
+                            onComplete={handleComplete}
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Class 12 Physics - NCERT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1e40af;
+      --secondary: #6a3093;
+      --accent: #3b82f6;
+      --light: #f8fafc;
+      --dark: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #06b6d4;
+      --gradient-start: #3b82f6;
+      --gradient-end: #8b5cf6;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe, #f5f3ff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+      color: #334155;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+      border-radius: 2px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #64748b;
+      margin-top: 20px;
+      font-weight: 300;
+    }
+
+    .chapters-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      position: relative;
+    }
+
+    .chapter-card {
+      background: linear-gradient(135deg, #ffffff, #f8fafc);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      border-left: 5px solid var(--gradient-start);
+    }
+
+    .chapter-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .chapter-header {
+      padding: 20px 25px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+      position: relative;
+      z-index: 2;
+    }
+
+    .chapter-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .chapter-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      border-radius: 12px;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .expand-icon {
+      font-size: 18px;
+      color: var(--primary);
+      transition: transform 0.3s ease;
+    }
+
+    .chapter-card:hover .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .subtopics {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.5s ease;
+      background: #f8fafc;
+      padding: 0 25px;
+    }
+
+    .chapter-card:hover .subtopics {
+      max-height: 600px;
+      padding: 20px 25px;
+    }
+
+    .subtopics ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .subtopics li {
+      position: relative;
+      padding: 10px 0 10px 30px;
+      font-size: 16px;
+      color: #475569;
+      border-bottom: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .subtopics li:last-child {
+      border-bottom: none;
+    }
+
+    .subtopics li::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      color: var(--accent);
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+
+    .subtopics li:hover::before {
+      transform: translateX(5px);
+    }
+
+    .subtopics li:hover {
+      color: var(--primary);
+      padding-left: 35px;
+    }
+
+    .practice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      text-decoration: none;
+    }
+
+    .practice-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .floating-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .floating-element {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0.15;
+      animation: floaty 15s infinite ease-in-out;
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-20px) rotate(5deg); }
+      50% { transform: translateY(-15px) rotate(-5deg); }
+      75% { transform: translateY(-25px) rotate(3deg); }
+    }
+
+    .section-divider {
+      text-align: center;
+      margin: 40px 0 30px;
+      position: relative;
+    }
+
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+    }
+
+    .section-title {
+      display: inline-block;
+      background: var(--card-bg);
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .chapter-number {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 25px;
+      }
+      
+      h1 {
+        font-size: 32px;
+      }
+      
+      .chapter-title {
+        font-size: 18px;
+      }
+      
+      .subtopics li {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-atom"></i> Class 12 Physics</h1>
+      <p class="subtitle">Explore the fundamental laws that govern our universe</p>
+    </div>
+
+    <div class="chapters-container">
+      <!-- Part 1: Electrostatics & Current Electricity -->
+      <div class="section-divider">
+        <div class="section-title">Part 1: Electrostatics & Current Electricity</div>
+      </div>
+
+      <!-- Chapter 1 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">⚡</div>
+            Electric Charges and Fields
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 1</div>
+        <div class="subtopics">
+          <ul>
+            <li>Electric charge: conservation, quantization</li>
+            <li>Coulomb's law (vector form) & superposition principle</li>
+            <li>Electric field and field lines</li>
+            <li>Electric flux, Gauss's law and applications (spherical, cylindrical, plane symmetry)</li>
+            <li>Electric dipole and torque in uniform field</li>
+          </ul>
+          <a href="gr12-ncert-physics-conc.html" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 2 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🔋</div>
+            Electrostatic Potential and Capacitance
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 2</div>
+        <div class="subtopics">
+          <ul>
+            <li>Electric potential & potential difference</li>
+            <li>Potential due to point charge, dipole, system of charges</li>
+            <li>Equipotential surfaces</li>
+            <li>Capacitance, series & parallel combination</li>
+            <li>Energy stored in capacitor, dielectrics</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 3 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">💡</div>
+            Current Electricity
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 3</div>
+        <div class="subtopics">
+          <ul>
+            <li>Ohm's law, resistivity, conductivity</li>
+            <li>Temperature dependence of resistance</li>
+            <li>Series and parallel resistances</li>
+            <li>Kirchoff's laws & simple circuits</li>
+            <li>Wheatstone bridge, meter bridge, potentiometer</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Part 2: Magnetic Effects of Current & Magnetism -->
+      <div class="section-divider">
+        <div class="section-title">Part 2: Magnetic Effects of Current & Magnetism</div>
+      </div>
+
+      <!-- Chapter 4 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🧲</div>
+            Moving Charges and Magnetism
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 4</div>
+        <div class="subtopics">
+          <ul>
+            <li>Biot–Savart law (qualitative)</li>
+            <li>Ampere's law and applications (straight wire, solenoid, toroid)</li>
+            <li>Magnetic field due to moving charge</li>
+            <li>Force on moving charge (Lorentz force)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 5 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🧭</div>
+            Magnetism and Matter
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 5</div>
+        <div class="subtopics">
+          <ul>
+            <li>Magnetic dipole, torque on dipole in field</li>
+            <li>Bar magnet, Earth's magnetism</li>
+            <li>Magnetic susceptibility and permeability</li>
+            <li>Dia-, para-, ferromagnetism (qualitative)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Part 3: Electromagnetic Induction & Alternating Current -->
+      <div class="section-divider">
+        <div class="section-title">Part 3: Electromagnetic Induction & Alternating Current</div>
+      </div>
+
+      <!-- Chapter 6 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🔌</div>
+            Electromagnetic Induction
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 6</div>
+        <div class="subtopics">
+          <ul>
+            <li>Faraday's law, Lenz's law</li>
+            <li>Induced emf & current, motional emf</li>
+            <li>Self-inductance, mutual inductance, RL circuits</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 7 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">〰️</div>
+            Alternating Current
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 7</div>
+        <div class="subtopics">
+          <ul>
+            <li>AC voltage & current, rms values</li>
+            <li>Reactance, impedance, power in AC circuits</li>
+            <li>LC, LCR circuits, resonance</li>
+            <li>Power factor</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Part 4: Electromagnetic Waves & Optics -->
+      <div class="section-divider">
+        <div class="section-title">Part 4: Electromagnetic Waves & Optics</div>
+      </div>
+
+      <!-- Chapter 8 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">📡</div>
+            Electromagnetic Waves
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 8</div>
+        <div class="subtopics">
+          <ul>
+            <li>Displacement current</li>
+            <li>Maxwell's equations (qualitative)</li>
+            <li>Electromagnetic spectrum</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 9 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🔭</div>
+            Ray Optics
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 9</div>
+        <div class="subtopics">
+          <ul>
+            <li>Reflection, refraction, total internal reflection</li>
+            <li>Lens formula, magnification</li>
+            <li>Lens maker's formula</li>
+            <li>Optical instruments (microscope, telescope)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 10 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🌊</div>
+            Wave Optics
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 10</div>
+        <div class="subtopics">
+          <ul>
+            <li>Huygens principle, interference, Young's double slit experiment</li>
+            <li>Diffraction, single slit, diffraction grating</li>
+            <li>Polarization (qualitative)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Part 5: Modern Physics -->
+      <div class="section-divider">
+        <div class="section-title">Part 5: Modern Physics</div>
+      </div>
+
+      <!-- Chapter 11 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">⚛️</div>
+            Dual Nature of Radiation and Matter
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 11</div>
+        <div class="subtopics">
+          <ul>
+            <li>Photoelectric effect, Einstein's equation</li>
+            <li>Matter waves, de Broglie wavelength</li>
+            <li>Davisson–Germer experiment (conceptual)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 12 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">🔬</div>
+            Atoms
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 12</div>
+        <div class="subtopics">
+          <ul>
+            <li>Bohr's model, energy levels, spectral series</li>
+            <li>Radius & energy quantization</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 13 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">☢️</div>
+            Nuclei
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 13</div>
+        <div class="subtopics">
+          <ul>
+            <li>Nuclear properties, mass defect & binding energy</li>
+            <li>Radioactivity, decay laws, half-life</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+
+      <!-- Chapter 14 -->
+      <div class="chapter-card">
+        <div class="chapter-header">
+          <div class="chapter-title">
+            <div class="chapter-icon">💻</div>
+            Semiconductor Electronics
+          </div>
+          <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="chapter-number">Chapter 14</div>
+        <div class="subtopics">
+          <ul>
+            <li>Intrinsic & extrinsic semiconductors</li>
+            <li>p-n junction, diode characteristics</li>
+            <li>Junction transistor, logic gates (basic concept)</li>
+          </ul>
+          <a href="#" class="practice-btn"><i class="fas fa-brain"></i> Practice Now</a>
+        </div>
+      </div>
+    </div>
+    <a href="ncert-grade12-syllabus.html" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back to Subjects
+    </a>
+
+    <div class="floating-elements">
+      <div class="floating-element" style="top:10%; left:5%; animation-delay: 0s;">⚡</div>
+      <div class="floating-element" style="top:20%; right:8%; animation-delay: 2s;">🔋</div>
+      <div class="floating-element" style="bottom:15%; left:12%; animation-delay: 4s;">🧲</div>
+      <div class="floating-element" style="bottom:25%; right:15%; animation-delay: 6s;">💡</div>
+      <div class="floating-element" style="top:45%; left:35%; animation-delay: 1s;">🔭</div>
+      <div class="floating-element" style="top:30%; left:18%; animation-delay: 3s;">🌊</div>
+      <div class="floating-element" style="bottom:35%; right:8%; animation-delay: 5s;">⚛️</div>
+    </div>
+  </div>
+<script>
+    const chapterCards = document.querySelectorAll(".chapter-card");
+    
+    chapterCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const subtopics = card.nextElementSibling;
+        subtopics.classList.toggle("open");
+      });
+    });
+
+    const buttons = document.querySelectorAll(".practice-btn");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const chapter = btn.closest('.subtopics').previousElementSibling;
+        const chapterName = chapter.querySelector('.chapter-title').textContent.trim();
+        const chapterNumberEl = chapter.querySelector('.chapter-number');
+        const chapterNumber = chapterNumberEl ? chapterNumberEl.textContent.trim() : '';
+
+        // If this is Chapter 1 (Solid State), navigate to the detailed concept page
+        if (chapterNumber.includes('1') || chapterName.toLowerCase().includes('solid state')) {
+          try {
+            localStorage.setItem('aurraa:grade12:chem:chapter1:practice', JSON.stringify({ started: true, ts: Date.now() }));
+          } catch (err) {
+            // ignore storage errors
+          }
+          window.location.href = '/gr12-ncert-physics-conc.html';
+          return;
+        }
+
+        alert(`🚀 Starting practice for ${chapterName}...`);
+      });
+    });
+  </script>
+</body>
+</html>

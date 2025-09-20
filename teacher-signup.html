@@ -3,39 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Sign Up</title>
-    <link rel="stylesheet" href="signup-styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="badge.css">
+    <title>Teacher Sign Up - AURAA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind Play CDN for quick styling (no build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* small custom animations */
+        @keyframes floaty { 0% { transform: translateY(0) } 50% { transform: translateY(-10px) } 100% { transform: translateY(0) } }
+        .floaty { animation: floaty 4s ease-in-out infinite; }
+        .icon-fade { animation: floaty 3.6s ease-in-out infinite; }
+    </style>
+    <link rel="stylesheet" href="badge.css">
 </head>
 <body>
-    <div class="signup-container">
-        <div class="signup-card">
-            <h2>Create Teacher Account</h2>
-            <form id="teacher-signup-form" class="signup-form">
-                <div class="form-group" data-emoji="👤">
-                    <label for="name">Full Name</label>
-                    <input id="name" name="name" type="text" placeholder="Enter your full name" required>
+    <main class="signup-container">
+        <div class="min-h-screen bg-gradient-to-br from-green-50 via-teal-50 to-blue-50 flex items-center justify-center p-6">
+            <div class="relative max-w-5xl w-full grid md:grid-cols-2 gap-6 items-center">
+                <!-- Hero / left -->
+                <div class="space-y-6 px-6 md:px-12">
+                    <h1 class="text-4xl md:text-5xl font-fredoka text-green-700">Join AURAA Teachers 🌟</h1>
+                    <p class="text-lg text-gray-700">Create your teacher account and start transforming education with innovative tools and resources designed for modern educators.</p>
+
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">📈 Analytics Dashboard</span>
+                        <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow icon-fade">🎯 Personalized Learning</span>
+                        <span class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow floaty">💡 Creative Tools</span>
+                    </div>
+
+                    <div class="mt-6 text-sm text-gray-600">Already have an account? <a href="teacher-login.html" class="text-green-600 font-semibold">Sign in here</a></div>
+
+                    <!-- floating decorative icons -->
+                    <div class="absolute -left-6 -top-6 w-40 h-40 opacity-90 select-none pointer-events-none">
+                        <div class="text-5xl">🌟</div>
+                    </div>
                 </div>
-                <div class="form-group" data-emoji="🏫">
-                    <label for="institution">Institution</label>
-                    <input id="institution" name="institution" type="text" placeholder="School or institution name" required>
+
+                <!-- Signup card / right -->
+                <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-2xl font-semibold">Create Teacher Account</h2>
+                        </div>
+                        <div class="text-3xl">✨</div>
+                    </div>
+
+                    <form id="teacher-signup-form" class="signup-form space-y-4">
+                        <div class="grid grid-cols-1 gap-3">
+                            <label class="block text-sm text-gray-600">Full Name
+                                <input required id="name" name="name" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300" placeholder="Enter your full name">
+                            </label>
+
+                            <label class="block text-sm text-gray-600">Institution
+                                <input required id="institution" name="institution" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300" placeholder="Your school or institution">
+                            </label>
+
+                            <label class="block text-sm text-gray-600">Email
+                                <input required id="email" name="email" type="email" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300" placeholder="Enter your email">
+                            </label>
+
+                            <label class="block text-sm text-gray-600">Password
+                                <div class="relative">
+                                    <input required id="password" name="password" type="password" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300" placeholder="Create a password">
+                                    <span class="absolute right-3 top-3 text-gray-500 cursor-pointer password-toggle">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500 rounded-full strength-indicator" style="width: 0%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500 strength-text">Password strength</span>
+                                </div>
+                            </label>
+
+                            <label class="block text-sm text-gray-600">Confirm Password
+                                <div class="relative">
+                                    <input required id="confirm-password" name="confirm-password" type="password" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300" placeholder="Confirm your password">
+                                    <span class="absolute right-3 top-3 text-gray-500 cursor-pointer password-toggle">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <div class="flex items-start text-sm">
+                                <input type="checkbox" id="agree-terms" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mt-1">
+                                <label for="agree-terms" class="ml-2 text-gray-600">I agree to the <a href="#" class="text-green-600 hover:text-green-800">Terms of Service</a> and <a href="#" class="text-green-600 hover:text-green-800">Privacy Policy</a></label>
+                            </div>
+                        </div>
+
+                        <div class="error-message text-sm text-red-600 bg-red-50 p-3 rounded-lg" style="display:none"></div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold py-3 rounded-xl shadow hover:scale-[1.01] transform transition flex items-center justify-center">
+                                <span>Create Account</span>
+                                <span class="loading-spinner ml-2 hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white/80 text-gray-500">Or continue with</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-2 gap-3">
+                            <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                                <span class="ml-2">Google</span>
+                            </button>
+                            <button type="button" id="guest-signup" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                                </svg>
+                                <span class="ml-2">Demo</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="mt-4 text-center text-sm text-gray-600">Already have an account? <a href="teacher-login.html" class="text-green-600 font-semibold">Sign in</a></p>
                 </div>
-                <div class="form-group" data-emoji="📧">
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" placeholder="your@email.com" required>
-                </div>
-                <div class="form-group" data-emoji="🔒">
-                    <label for="password">Password</label>
-                    <input id="password" name="password" type="password" placeholder="Create a password" required>
-                </div>
-                <button class="signup-btn" type="submit">Sign Up</button>
-            </form>
-            <div class="login-link">Already have an account? <a href="teacher-login.html">Log in</a></div>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase helpers (attaches window.AURRAA) -->
+    <script type="module" src="firebase.js"></script>
     <script src="teacher-auth.js"></script>
-  <script src="badge.js"></script>
+    <script src="teacher-login-handler.js"></script>
+    <script src="badge.js"></script>
 </body>
 </html>
-

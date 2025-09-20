@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Adventure - Solid State</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+        }
+        
+        .globe-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .language-select {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        
+        .language-select:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .language-select option {
+            background: #667eea;
+            color: white;
+        }
+        
+        .game-content {
+            padding: 30px;
+        }
+        
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .level-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .level-card:hover::before {
+            left: 100%;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .level-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .level-card.completed {
+            border-color: #4caf50;
+        }
+        
+        .level-card.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .level-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .level-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .level-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .puzzle-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .puzzle-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .simulation-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Crystal Structure Visualizer Styles */
+        .crystal-visualizer-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .crystal-canvas {
+            height: 500px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        .crystal-structure {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .crystal-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+        
+        .atom {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5a24);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        
+        .atom.highlighted {
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #44a3aa);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.7);
+        }
+        
+        .atom.layer-b {
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #44a3aa);
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+        }
+        
+        .atom.layer-c {
+            background: radial-gradient(circle at 30% 30%, #feca57, #ff9ff3);
+            box-shadow: 0 0 15px rgba(254, 202, 87, 0.5);
+        }
+        
+        .atom.selected {
+            border: 3px solid #333;
+        }
+        
+        .controls-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .control-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .control-icon.rotate {
+            background: #667eea;
+        }
+        
+        .control-icon.view {
+            background: #ff6b6b;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e0e0e0;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+        
+        .slider-value {
+            min-width: 80px;
+            padding: 8px 12px;
+            background: #f0f3ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #667eea;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .quiz-question {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .quiz-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .quiz-option.correct {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .info-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .info-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .info-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+        }
+        
+        .info-icon.hcp {
+            background: #4ecdc4;
+        }
+        
+        .info-icon.ccp {
+            background: #ff6b6b;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .control-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .control-btn.next-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+        }
+        
+        .control-btn.next-btn:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .score-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .field-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 10px 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .field-info-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .field-info-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .coordination-number {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        @media (max-width: 768px) {
+            .game-header {
+                padding: 20px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+            }
+            
+            .language-selector {
+                position: static;
+                margin-top: 15px;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .game-content {
+                padding: 20px;
+            }
+            
+            .level-card {
+                min-width: 150px;
+            }
+            
+            .controls-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .crystal-canvas {
+                height: 400px;
+            }
+            
+            .crystal-structure {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .atom {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .quiz-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .quiz-option {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Translations for different languages
+        const translations = {
+            eng: {
+                title: "Chemistry Adventure",
+                subtitle: "Solid State - HCP and CCP - Grade 12",
+                levels: [
+                    { name: "Crystal Visualizer", desc: "Explore crystal structures", icon: "🔬" },
+                    { name: "HCP vs CCP Quiz", desc: "Test your knowledge", icon: "🧠" },
+                    { name: "Structure Builder", desc: "Build your own crystals", icon: "🧱" },
+                    { name: "Coordination Explorer", desc: "Discover coordination numbers", icon: "🔍" }
+                ],
+                crystalVisualizer: {
+                    title: "Crystal Structure Visualizer",
+                    instruction: "Rotate and examine the crystal structures. Identify the key differences between HCP and CCP!",
+                    rotate: "Rotate",
+                    view: "View Mode",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    success: "Great! You've explored the crystal structures!",
+                    reset: "Reset View"
+                },
+                hcpCcpQuiz: {
+                    title: "HCP vs CCP Quiz",
+                    instruction: "Identify whether the displayed structure is HCP (Hexagonal Close Packing) or CCP (Cubic Close Packing)!",
+                    question: "What type of crystal structure is this?",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    submit: "Submit Answer",
+                    next: "Next Question",
+                    correct: "Correct! This is a {0} structure.",
+                    incorrect: "Incorrect. This is actually a {0} structure.",
+                    success: "Excellent! You've completed the quiz!",
+                    reset: "Reset Quiz"
+                },
+                structureBuilder: {
+                    title: "Crystal Structure Builder",
+                    instruction: "Build your own crystal structures by arranging atoms in different patterns!",
+                    success: "Great! You've built a crystal structure!",
+                    reset: "Reset Structure",
+                    changeLayer: "Change Layer",
+                    selected: "Selected Atom",
+                    layerA: "Layer A (Red)",
+                    layerB: "Layer B (Blue)",
+                    layerC: "Layer C (Yellow)",
+                    instructions: "Click to add, drag to move, select and use button to change layer"
+                },
+                coordinationExplorer: {
+                    title: "Coordination Number Explorer",
+                    instruction: "Explore the coordination numbers in different crystal structures!",
+                    success: "Excellent! You've explored coordination numbers!",
+                    reset: "Reset Explorer",
+                    coordinationNumber: "Coordination Number",
+                    atomInfo: "The coordination number of the selected atom is 12.",
+                    clickInfo: "Click on any atom to see its coordination number. In close-packed structures like HCP and CCP, each atom has a coordination number of 12."
+                },
+                controls: {
+                    play: "Play",
+                    pause: "Pause",
+                    replay: "Replay",
+                    next: "Next"
+                }
+            },
+            tam: {
+                title: "வேதியியல் சாகசம்",
+                subtitle: "திட நிலை - HCP மற்றும் CCP - 12 ஆம் வகுப்பு",
+                levels: [
+                    { name: "படிக காட்சியகம்", desc: "படிக அமைப்புகளை ஆராயுங்கள்", icon: "🔬" },
+                    { name: "HCP vs CCP வினாடி", desc: "உங்கள் அறிவைச் சோதிக்கவும்", icon: "🧠" },
+                    { name: "அமைப்பு கட்டுநர்", desc: "உங்கள் சொந்த படிகங்களை உருவாக்கவும்", icon: "🧱" },
+                    { name: "ஒருங்கிணைப்பு ஆய்வாளர்", desc: "ஒருங்கிணைப்பு எண்களைக் கண்டறியவும்", icon: "🔍" }
+                ],
+                crystalVisualizer: {
+                    title: "படிக அமைப்பு காட்சியகம்",
+                    instruction: "படிக அமைப்புகளை சுழற்றி ஆய்வு செய்யுங்கள். HCP மற்றும் CCP இடையேயான முக்கிய வேறுபாடுகளை அடையாளம் காணுங்கள்!",
+                    rotate: "சுழற்று",
+                    view: "காட்சி முறை",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    success: "அற்புதம்! நீங்கள் படிக அமைப்புகளை ஆராய்ந்துள்ளீர்கள்!",
+                    reset: "காட்சியை மீட்டமை"
+                },
+                hcpCcpQuiz: {
+                    title: "HCP vs CCP வினாடி",
+                    instruction: "காட்டப்பட்டுள்ள அமைப்பு HCP (அறுகோண நெருக்கமான தொகுப்பு) அல்லது CCP (கனசதுர நெருக்கமான தொகுப்பு) என்பதை அடையாளம் காணுங்கள்!",
+                    question: "இது எந்த வகை படிக அமைப்பு?",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    submit: "பதிலைச் சமர்ப்பிக்கவும்",
+                    next: "அடுத்த கேள்வி",
+                    correct: "சரி! இது ஒரு {0} அமைப்பு.",
+                    incorrect: "தவறு. இது உண்மையில் ஒரு {0} அமைப்பு.",
+                    success: "சிறப்பு! நீங்கள் வினாடியை முடித்துள்ளீர்கள்!",
+                    reset: "வினாடியை மீட்டமை"
+                },
+                structureBuilder: {
+                    title: "படிக அமைப்பு கட்டுநர்",
+                    instruction: "வெவ்வேறு முறைகளில் அணுக்களை அமைப்பதன் மூலம் உங்கள் சொந்த படிக அமைப்புகளை உருவாக்குங்கள்!",
+                    success: "அற்புதம்! நீங்கள் ஒரு படிக அமைப்பை உருவாக்கியுள்ளீர்கள்!",
+                    reset: "அமைப்பை மீட்டமை",
+                    changeLayer: "அடுக்கை மாற்று",
+                    selected: "தேர்ந்தெடுத்த அணு",
+                    layerA: "அடுக்கு A (சிவப்பு)",
+                    layerB: "அடுக்கு B (நீலம்)",
+                    layerC: "அடுக்கு C (மஞ்சள்)",
+                    instructions: "சேர்க்க கிளிக் செய்யுங்கள், நகர்த்த இழுக்கவும், தேர்ந்தெடுத்து பொத்தானைப் பயன்படுத்தி அடுக்கை மாற்றவும்"
+                },
+                coordinationExplorer: {
+                    title: "ஒருங்கிணைப்பு எண் ஆய்வாளர்",
+                    instruction: "வெவ்வேறு படிக அமைப்புகளில் ஒருங்கிணைப்பு எண்களை ஆராயுங்கள்!",
+                    success: "சிறப்பு! நீங்கள் ஒருங்கிணைப்பு எண்களை ஆராய்ந்துள்ளீர்கள்!",
+                    reset: "ஆய்வாளரை மீட்டமை",
+                    coordinationNumber: "ஒருங்கிணைப்பு எண்",
+                    atomInfo: "தேர்ந்தெடுக்கப்பட்ட அணுவின் ஒருங்கிணைப்பு எண் 12 ஆகும்.",
+                    clickInfo: "எந்த அணுவையும் கிளிக் செய்து அதன் ஒருங்கிணைப்பு எண்ணைக் காணலாம். HCP மற்றும் CCP போன்ற நெருக்கமான அமைப்புகளில், ஒவ்வொரு அணுவுக்கும் 12 ஒருங்கிணைப்பு எண் உள்ளது."
+                },
+                controls: {
+                    play: "விளையாடு",
+                    pause: "இடைநிறுத்து",
+                    replay: "மீண்டும் விளையாடு",
+                    next: "அடுத்தது"
+                }
+            },
+            tel: {
+                title: "రసాయన శాస్త్రం సాహస యాత్ర",
+                subtitle: "ఘన స్థితి - HCP మరియు CCP - 12వ తరగతి",
+                levels: [
+                    { name: "క్రిస్టల్ విజువలైజర్", desc: "క్రిస్టల్ నిర్మాణాలను అన్వేషించండి", icon: "🔬" },
+                    { name: "HCP vs CCP క్విజ్", desc: "మీ జ్ఞానాన్ని పరీక్షించుకోండి", icon: "🧠" },
+                    { name: "నిర్మాణ బిల్డర్", desc: "మీ స్వంత క్రిస్టల్స్ నిర్మించండి", icon: "🧱" },
+                    { name: "కోఆర్డినేషన్ ఎక్స్‌ప్లోరర్", desc: "కోఆర్డినేషన్ సంఖ్యలను కనుగొనండి", icon: "🔍" }
+                ],
+                crystalVisualizer: {
+                    title: "క్రిస్టల్ స్ట్రక్చర్ విజువలైజర్",
+                    instruction: "క్రిస్టల్ నిర్మాణాలను తిప్పి పరిశీలించండి. HCP మరియు CCP మధ్య ప్రధాన తేడాలను గుర్తించండి!",
+                    rotate: "తిప్పు",
+                    view: "వీక్షణ మోడ్",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    success: "గొప్ప! మీరు క్రిస్టల్ నిర్మాణాలను అన్వేషించారు!",
+                    reset: "వీక్షణను రీసెట్ చేయండి"
+                },
+                hcpCcpQuiz: {
+                    title: "HCP vs CCP క్విజ్",
+                    instruction: "ప్రదర్శించబడిన నిర్మాణం HCP (హెక్సాగోనల్ క్లోజ్ ప్యాకింగ్) లేదా CCP (క్యూబిక్ క్లోజ్ ప్యాకింగ్) అని గుర్తించండి!",
+                    question: "ఇది ఏ రకమైన క్రిస్టల్ నిర్మాణం?",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    submit: "సమాధానాన్ని సమర్పించండి",
+                    next: "తదుపరి ప్రశ్న",
+                    correct: "సరైనది! ఇది {0} నిర్మాణం.",
+                    incorrect: "తప్పు. ఇది నిజానికి {0} నిర్మాణం.",
+                    success: "అద్భుతం! మీరు క్విజ్ పూర్తి చేశారు!",
+                    reset: "క్విజ్‌ను రీసెట్ చేయండి"
+                },
+                structureBuilder: {
+                    title: "క్రిస్టల్ స్ట్రక్చర్ బిల్డర్",
+                    instruction: "వివిధ నమూనాలలో పరమాణువులను అమర్చడం ద్వారా మీ స్వంత క్రిస్టల్ నిర్మాణాలను నిర్మించండి!",
+                    success: "గొప్ప! మీరు క్రిస్టల్ నిర్మాణాన్ని నిర్మించారు!",
+                    reset: "నిర్మాణాన్ని రీసెట్ చేయండి",
+                    changeLayer: "పొరను మార్చు",
+                    selected: "ఎంపిక చేసిన పరమాణువు",
+                    layerA: "పొర A (ఎరుపు)",
+                    layerB: "పొర B (నీలం)",
+                    layerC: "పొర C (పసుపు)",
+                    instructions: "జోడించడానికి క్లిక్ చేయండి, తరలించడానికి లాగండి, ఎంచుకుని బటన్‌ను ఉపయోగించి పొరను మార్చండి"
+                },
+                coordinationExplorer: {
+                    title: "కోఆర్డినేషన్ నంబర్ ఎక్స్‌ప్లోరర్",
+                    instruction: "వివిధ క్రిస్టల్ నిర్మాణాలలో కోఆర్డినేషన్ సంఖ్యలను అన్వేషించండి!",
+                    success: "అద్భుతం! మీరు కోఆర్డినేషన్ సంఖ్యలను అన్వేషించారు!",
+                    reset: "ఎక్స్‌ప్లోరర్‌ను రీసెట్ చేయండి",
+                    coordinationNumber: "కోఆర్డినేషన్ సంఖ్య",
+                    atomInfo: "ఎంపిక చేసిన పరమాణువు యొక్క కోఆర్డినేషన్ సంఖ్య 12.",
+                    clickInfo: "ఏదైనా పరమాణువును క్లిక్ చేసి దాని కోఆర్డినేషన్ సంఖ్యను చూడండి. HCP మరియు CCP వంటి సన్నని నిర్మాణాలలో, ప్రతి పరమాణువుకు 12 కోఆర్డినేషన్ సంఖ్య ఉంటుంది."
+                },
+                controls: {
+                    play: "ఆడండి",
+                    pause: "విరామం",
+                    replay: "మళ్ళీ ఆడండి",
+                    next: "తదుపరి"
+                }
+            },
+            hin: {
+                title: "रसायन विज्ञान साहसिक यात्रा",
+                subtitle: "ठोस अवस्था - HCP और CCP - 12वीं कक्षा",
+                levels: [
+                    { name: "क्रिस्टल दृश्यक", desc: "क्रिस्टल संरचनाएँ अन्वेषित करें", icon: "🔬" },
+                    { name: "HCP vs CCP प्रश्नोत्तरी", desc: "अपने ज्ञान का परीक्षण करें", icon: "🧠" },
+                    { name: "संरचना निर्माता", desc: "अपने स्वयं के क्रिस्टल बनाएँ", icon: "🧱" },
+                    { name: "समन्वय अन्वेषक", desc: "समन्वय संख्याएँ खोजें", icon: "🔍" }
+                ],
+                crystalVisualizer: {
+                    title: "क्रिस्टल संरचना दृश्यक",
+                    instruction: "क्रिस्टल संरचनाओं को घुमाएं और जांचें। HCP और CCP के बीच प्रमुख अंतर पहचानें!",
+                    rotate: "घुमाएं",
+                    view: "दृश्य मोड",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    success: "बढ़िया! आपने क्रिस्टल संरचनाओं का अन्वेषण किया!",
+                    reset: "दृश्य रीसेट करें"
+                },
+                hcpCcpQuiz: {
+                    title: "HCP vs CCP प्रश्नोत्तरी",
+                    instruction: "प्रदर्शित संरचना HCP (हेक्सागोनल क्लोज पैकिंग) या CCP (क्यूबिक क्लोज पैकिंग) है या पहचानें!",
+                    question: "यह किस प्रकार की क्रिस्टल संरचना है?",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    submit: "उत्तर जमा करें",
+                    next: "अगला प्रश्न",
+                    correct: "सही! यह एक {0} संरचना है।",
+                    incorrect: "गलत। यह वास्तव में एक {0} संरचना है।",
+                    success: "उत्कृष्ट! आपने प्रश्नोत्तरी पूरी की!",
+                    reset: "प्रश्नोत्तरी रीसेट करें"
+                },
+                structureBuilder: {
+                    title: "क्रिस्टल संरचना निर्माता",
+                    instruction: "विभिन्न पैटर्न में परमाणुओं को व्यवस्थित करके अपनी स्वयं की क्रिस्टल संरचनाएँ बनाएं!",
+                    success: "बढ़िया! आपने एक क्रिस्टल संरचना बनाई!",
+                    reset: "संरचना रीसेट करें",
+                    changeLayer: "परत बदलें",
+                    selected: "चयनित परमाणु",
+                    layerA: "परत A (लाल)",
+                    layerB: "परत B (नीला)",
+                    layerC: "परत C (पीला)",
+                    instructions: "जोड़ने के लिए क्लिक करें, खींचकर ले जाएं, चुनें और बटन का उपयोग करके परत बदलें"
+                },
+                coordinationExplorer: {
+                    title: "समन्वय संख्या अन्वेषक",
+                    instruction: "विभिन्न क्रिस्टल संरचनाओं में समन्वय संख्याओं का अन्वेषण करें!",
+                    success: "उत्कृष्ट! आपने समन्वय संख्याओं का अन्वेषण किया!",
+                    reset: "अन्वेषक रीसेट करें",
+                    coordinationNumber: "समन्वय संख्या",
+                    atomInfo: "चयनित परमाणु की समन्वय संख्या 12 है।",
+                    clickInfo: "किसी भी परमाणु पर क्लिक करके उसकी समन्वय संख्या देखें। HCP और CCP जैसी सघन संरचनाओं में, प्रत्येक परमाणु की समन्वय संख्या 12 होती है।"
+                },
+                controls: {
+                    play: "खेलें",
+                    pause: "रोकें",
+                    replay: "फिर से खेलें",
+                    next: "अगला"
+                }
+            },
+            ori: {
+                title: "ରସାୟନ ବିଜ୍ଞାନ ଅଭିଯାନ",
+                subtitle: "ଘନ ଅବସ୍ଥା - HCP ଏବଂ CCP - ୧୨ମ ଶ୍ରେଣୀ",
+                levels: [
+                    { name: "କ୍ରିଷ୍ଟାଲ୍ ଦୃଶ୍ୟକାରୀ", desc: "କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ ଅନ୍ୱେଷଣ କରନ୍ତୁ", icon: "🔬" },
+                    { name: "HCP vs CCP କ୍ୱିଜ୍", desc: "ଆପଣଙ୍କର ଜ୍ଞାନ ପରୀକ୍ଷା କରନ୍ତୁ", icon: "🧠" },
+                    { name: "ଅବସ୍ଥାପନ ନିର୍ମାତା", desc: "ଆପଣଙ୍କର ନିଜସ୍ୱ କ୍ରିଷ୍ଟାଲ୍ ନିର୍ମାଣ କରନ୍ତୁ", icon: "🧱" },
+                    { name: "ସମନ୍ୱୟ ଅନ୍ୱେଷକ", desc: "ସମନ୍ୱୟ ସଂଖ୍ୟା ଆବିଷ୍କାର କରନ୍ତୁ", icon: "🔍" }
+                ],
+                crystalVisualizer: {
+                    title: "କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ ଦୃଶ୍ୟକାରୀ",
+                    instruction: "କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନଗୁଡ଼ିକୁ ଘୁରାଇ ଅନ୍ୱେଷଣ କରନ୍ତୁ। HCP ଏବଂ CCP ମଧ୍ୟରେ ମୁଖ୍ୟ ତଫାତ ଚିହ୍ନଟ କରନ୍ତୁ!",
+                    rotate: "ଘୁରାନ୍ତୁ",
+                    view: "ଦୃଶ୍ୟ ମୋଡ୍",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    success: "ଅଦ୍ଭୁତ! ଆପଣ କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନଗୁଡ଼ିକୁ ଅନ୍ୱେଷଣ କରିଛନ୍ତି!",
+                    reset: "ଦୃଶ୍ୟ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ"
+                },
+                hcpCcpQuiz: {
+                    title: "HCP vs CCP କ୍ୱିଜ୍",
+                    instruction: "ପ୍ରଦର୍ଶିତ ଅବସ୍ଥାପନ HCP (ହେକ୍ସାଗୋନାଲ୍ କ୍ଲୋଜ୍ ପ୍ୟାକିଂ) କିମ୍ବା CCP (କ୍ୟୁବିକ୍ କ୍ଲୋଜ୍ ପ୍ୟାକିଂ) ଅଟେ କି ଚିହ୍ନଟ କରନ୍ତୁ!",
+                    question: "ଏହା କେଉଁ ପ୍ରକାରର କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ?",
+                    hcp: "HCP",
+                    ccp: "CCP",
+                    submit: "ଉତ୍ତର ଦାଖଲ କରନ୍ତୁ",
+                    next: "ପରବର୍ତ୍ତୀ ପ୍ରଶ୍ନ",
+                    correct: "ସଠିକ୍! ଏହା ଏକ {0} ଅବସ୍ଥାପନ।",
+                    incorrect: "ଭୁଲ୍। ଏହା ବାସ୍ତବରେ ଏକ {0} ଅବସ୍ଥାପନ।",
+                    success: "ବଢ଼ିଆ! ଆପଣ କ୍ୱିଜ୍ ସମାପ୍ତ କରିଛନ୍ତି!",
+                    reset: "କ୍ୱିଜ୍ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ"
+                },
+                structureBuilder: {
+                    title: "କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ ନିର୍ମାତା",
+                    instruction: "ବିଭିନ୍ନ ପ୍ୟାଟର୍ନରେ ପରମାଣୁଗୁଡ଼ିକୁ ସଜାଇ ଆପଣଙ୍କର ନିଜସ୍ୱ କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ ନିର୍ମାଣ କରନ୍ତୁ!",
+                    success: "ଅଦ୍ଭୁତ! ଆପଣ ଏକ କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନ ନିର୍ମାଣ କରିଛନ୍ତି!",
+                    reset: "ଅବସ୍ଥାପନ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ",
+                    changeLayer: "ସ୍ତର ପରିବର୍ତ୍ତନ କରନ୍ତୁ",
+                    selected: "ଚୟନିତ ପରମାଣୁ",
+                    layerA: "ସ୍ତର A (ଲାଲ୍)",
+                    layerB: "ସ୍ତର B (ନୀଳ)",
+                    layerC: "ସ୍ତର C (ହଳଦିଆ)",
+                    instructions: "ଯୋଡ଼ିବାକୁ କ୍ଲିକ୍ କରନ୍ତୁ, ଟାଣିବାକୁ ଟାଣନ୍ତୁ, ଚୟନ କରନ୍ତୁ ଏବଂ ବଟନ୍ ବ୍ୟବହାର କରି ସ୍ତର ପରିବର୍ତ୍ତନ କରନ୍ତୁ"
+                },
+                coordinationExplorer: {
+                    title: "ସମନ୍ୱୟ ସଂଖ୍ୟା ଅନ୍ୱେଷକ",
+                    instruction: "ବିଭିନ୍ନ କ୍ରିଷ୍ଟାଲ୍ ଅବସ୍ଥାପନରେ ସମନ୍ୱୟ ସଂଖ୍ୟାଗୁଡ଼ିକୁ ଅନ୍ୱେଷଣ କରନ୍ତୁ!",
+                    success: "ବଢ଼ିଆ! ଆପଣ ସମନ୍ୱୟ ସଂଖ୍ୟାଗୁଡ଼ିକୁ ଅନ୍ୱେଷଣ କରିଛନ୍ତି!",
+                    reset: "ଅନ୍ୱେଷକ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ",
+                    coordinationNumber: "ସମନ୍ୱୟ ସଂଖ୍ୟା",
+                    atomInfo: "ଚୟନିତ ପରମାଣୁର ସମନ୍ୱୟ ସଂଖ୍ୟା 12 ଅଟେ।",
+                    clickInfo: "ଯେକୌଣସି ପରମାଣୁକୁ କ୍ଲିକ୍ କରି ଏହାର ସମନ୍ୱୟ ସଂଖ୍ୟା ଦେଖନ୍ତୁ। HCP ଏବଂ CCP ପରି ଘନ ଅବସ୍ଥାପନରେ, ପ୍ରତ୍ୟେକ ପରମାଣୁର 12 ସମନ୍ୱୟ ସଂଖ୍ୟା ଅଛି।"
+                },
+                controls: {
+                    play: "ଖେଳନ୍ତୁ",
+                    pause: "ବିରାମ",
+                    replay: "ପୁନର୍ବାର ଖେଳନ୍ତୁ",
+                    next: "ପରବର୍ତ୍ତୀ"
+                }
+            }
+        };
+
+        // Crystal Visualizer Component
+        const CrystalVisualizer = ({ translation, onComplete }) => {
+            const [rotationX, setRotationX] = useState(30);
+            const [rotationY, setRotationY] = useState(30);
+            const [structureType, setStructureType] = useState('hcp');
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [hasInteracted, setHasInteracted] = useState(false);
+            
+            const handleRotateX = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationX(value);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const handleRotateY = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationY(value);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const toggleStructure = () => {
+                setStructureType(prev => prev === 'hcp' ? 'ccp' : 'hcp');
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const resetView = () => {
+                setRotationX(30);
+                setRotationY(30);
+                setShowSuccess(false);
+                setHasInteracted(false);
+            };
+            
+            // Generate atoms for HCP structure (ABAB pattern)
+            const generateHCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer A (again)
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a2-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            // Generate atoms for CCP structure (ABCABC pattern)
+            const generateCCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer C
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `c-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 0.5) * 60 + 30,
+                            layer: 'c'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            const atoms = structureType === 'hcp' ? generateHCPAtoms() : generateCCPAtoms();
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.crystalVisualizer.title}</h3>
+                    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {translation.crystalVisualizer.instruction}
+                    </p>
+                    
+                    <div className="crystal-visualizer-container">
+                        <div className="crystal-canvas">
+                            <div 
+                                className="crystal-structure"
+                                style={{
+                                    transform: `translate(-50%, -50%) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`
+                                }}
+                            >
+                                {atoms.map(atom => (
+                                    <div
+                                        key={atom.id}
+                                        className={`atom ${atom.layer === 'b' ? 'layer-b' : atom.layer === 'c' ? 'layer-c' : ''}`}
+                                        style={{
+                                            transform: `translate3d(${atom.x}px, ${atom.y}px, ${atom.z}px)`
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="controls-panel">
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">↻</span>
+                                    {translation.crystalVisualizer.rotate} X
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="0"
+                                        max="360"
+                                        value={rotationX}
+                                        onChange={handleRotateX}
+                                    />
+                                    <div className="slider-value">{rotationX}°</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">↻</span>
+                                    {translation.crystalVisualizer.rotate} Y
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="0"
+                                        max="360"
+                                        value={rotationY}
+                                        onChange={handleRotateY}
+                                    />
+                                    <div className="slider-value">{rotationY}°</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon view">👁</span>
+                                    {translation.crystalVisualizer.view}
+                                </label>
+                                <div className="slider-container">
+                                    <button 
+                                        className="control-btn" 
+                                        onClick={toggleStructure}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {structureType === 'hcp' ? translation.crystalVisualizer.hcp : translation.crystalVisualizer.ccp}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="info-panel">
+                            <div className="info-title">
+                                <span className={`info-icon ${structureType === 'hcp' ? 'hcp' : 'ccp'}`}>
+                                    {structureType === 'hcp' ? 'H' : 'C'}
+                                </span>
+                                {structureType === 'hcp' ? translation.crystalVisualizer.hcp : translation.crystalVisualizer.ccp} Structure
+                            </div>
+                            <div className="info-content">
+                                {structureType === 'hcp' 
+                                    ? "Hexagonal Close Packing (HCP) has an ABAB... layer sequence. Each atom has 12 nearest neighbors (coordination number 12). Examples include metals like magnesium, zinc, and titanium."
+                                    : "Cubic Close Packing (CCP), also known as Face-Centered Cubic (FCC), has an ABCABC... layer sequence. Each atom also has 12 nearest neighbors (coordination number 12). Examples include metals like copper, silver, and gold."}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {showSuccess && (
+                        <div className="success-message">
+                            {translation.crystalVisualizer.success}
+                        </div>
+                    )}
+                    
+                    <div className="controls-container">
+                        <button className="control-btn" onClick={resetView}>
+                            {translation.crystalVisualizer.reset}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // HCP vs CCP Quiz Component
+        const HcpCcpQuiz = ({ translation, onComplete }) => {
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [showResult, setShowResult] = useState(false);
+            const [score, setScore] = useState(0);
+            const [quizCompleted, setQuizCompleted] = useState(false);
+            const [rotationX, setRotationX] = useState(30);
+            const [rotationY, setRotationY] = useState(30);
+            
+            // Quiz questions with structure type
+            const questions = [
+                { type: 'hcp', name: 'Hexagonal Close Packing' },
+                { type: 'ccp', name: 'Cubic Close Packing' },
+                { type: 'hcp', name: 'Hexagonal Close Packing' },
+                { type: 'ccp', name: 'Cubic Close Packing' },
+                { type: 'hcp', name: 'Hexagonal Close Packing' }
+            ];
+            
+            const currentQ = questions[currentQuestion];
+            
+            // Generate atoms for HCP structure (ABAB pattern)
+            const generateHCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer A (again)
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a2-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            // Generate atoms for CCP structure (ABCABC pattern)
+            const generateCCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer C
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `c-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 0.5) * 60 + 30,
+                            layer: 'c'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            const atoms = currentQ.type === 'hcp' ? generateHCPAtoms() : generateCCPAtoms();
+            
+            const handleAnswerSelect = (answer) => {
+                if (showResult) return;
+                
+                setSelectedAnswer(answer);
+                setShowResult(true);
+                
+                if (answer === currentQ.type) {
+                    setScore(prev => prev + 1);
+                }
+            };
+            
+            const handleNextQuestion = () => {
+                if (currentQuestion < questions.length - 1) {
+                    setCurrentQuestion(prev => prev + 1);
+                    setSelectedAnswer(null);
+                    setShowResult(false);
+                } else {
+                    setQuizCompleted(true);
+                    onComplete();
+                }
+            };
+            
+            const resetQuiz = () => {
+                setCurrentQuestion(0);
+                setSelectedAnswer(null);
+                setShowResult(false);
+                setScore(0);
+                setQuizCompleted(false);
+            };
+            
+            const handleRotateX = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationX(value);
+            };
+            
+            const handleRotateY = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationY(value);
+            };
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.hcpCcpQuiz.title}</h3>
+                    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {translation.hcpCcpQuiz.instruction}
+                    </p>
+                    
+                    {quizCompleted ? (
+                        <div className="quiz-container">
+                            <div className="score-display">
+                                <div className="score-label">Your Score</div>
+                                <div className="score-value">{score}/{questions.length}</div>
+                            </div>
+                            
+                            <div className="success-message">
+                                {translation.hcpCcpQuiz.success}
+                            </div>
+                            
+                            <div className="controls-container">
+                                <button className="control-btn" onClick={resetQuiz}>
+                                    {translation.hcpCcpQuiz.reset}
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="quiz-container">
+                            <div className="crystal-canvas">
+                                <div 
+                                    className="crystal-structure"
+                                    style={{
+                                        transform: `translate(-50%, -50%) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`
+                                    }}
+                                >
+                                    {atoms.map(atom => (
+                                        <div
+                                            key={atom.id}
+                                            className={`atom ${atom.layer === 'b' ? 'layer-b' : atom.layer === 'c' ? 'layer-c' : ''}`}
+                                            style={{
+                                                transform: `translate3d(${atom.x}px, ${atom.y}px, ${atom.z}px)`
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="controls-panel">
+                                <div className="control-group">
+                                    <label className="control-label">
+                                        <span className="control-icon rotate">↻</span>
+                                        {translation.crystalVisualizer.rotate} X
+                                    </label>
+                                    <div className="slider-container">
+                                        <input
+                                            type="range"
+                                            className="slider"
+                                            min="0"
+                                            max="360"
+                                            value={rotationX}
+                                            onChange={handleRotateX}
+                                        />
+                                        <div className="slider-value">{rotationX}°</div>
+                                    </div>
+                                </div>
+                                
+                                <div className="control-group">
+                                    <label className="control-label">
+                                        <span className="control-icon rotate">↻</span>
+                                        {translation.crystalVisualizer.rotate} Y
+                                    </label>
+                                    <div className="slider-container">
+                                        <input
+                                            type="range"
+                                            className="slider"
+                                            min="0"
+                                            max="360"
+                                            value={rotationY}
+                                            onChange={handleRotateY}
+                                        />
+                                        <div className="slider-value">{rotationY}°</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="quiz-question">
+                                {translation.hcpCcpQuiz.question}
+                            </div>
+                            
+                            <div className="quiz-options">
+                                <div 
+                                    className={`quiz-option ${selectedAnswer === 'hcp' ? (showResult ? (currentQ.type === 'hcp' ? 'correct' : 'incorrect') : 'selected') : ''}`}
+                                    onClick={() => handleAnswerSelect('hcp')}
+                                >
+                                    {translation.hcpCcpQuiz.hcp}
+                                </div>
+                                <div 
+                                    className={`quiz-option ${selectedAnswer === 'ccp' ? (showResult ? (currentQ.type === 'ccp' ? 'correct' : 'incorrect') : 'selected') : ''}`}
+                                    onClick={() => handleAnswerSelect('ccp')}
+                                >
+                                    {translation.hcpCcpQuiz.ccp}
+                                </div>
+                            </div>
+                            
+                            {showResult && (
+                                <div className="info-panel">
+                                    <div className="info-content">
+                                        {selectedAnswer === currentQ.type 
+                                            ? translation.hcpCcpQuiz.correct.replace('{0}', currentQ.name)
+                                            : translation.hcpCcpQuiz.incorrect.replace('{0}', currentQ.name)}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="controls-container">
+                                {showResult && (
+                                    <button className="control-btn next-btn" onClick={handleNextQuestion}>
+                                        {currentQuestion < questions.length - 1 
+                                            ? translation.hcpCcpQuiz.next 
+                                            : translation.controls.next}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Structure Builder Component
+        const StructureBuilder = ({ translation, onComplete }) => {
+            const [atoms, setAtoms] = useState([]);
+            const [dragging, setDragging] = useState(null);
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [selectedAtomId, setSelectedAtomId] = useState(null);
+            const canvasRef = useRef(null);
+            
+            const addAtom = (e) => {
+                if (!canvasRef.current) return;
+                
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const newAtom = {
+                    id: Date.now(),
+                    x,
+                    y,
+                    layer: 'a'
+                };
+                
+                setAtoms(prev => [...prev, newAtom]);
+                setSelectedAtomId(newAtom.id);
+                
+                // Show success after adding first atom
+                if (atoms.length === 0) {
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const handleMouseDown = (e, atomId) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDragging(atomId);
+                setSelectedAtomId(atomId);
+            };
+            
+            const handleMouseMove = (e) => {
+                if (!dragging || !canvasRef.current) return;
+                
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Keep atoms within bounds
+                const boundedX = Math.max(20, Math.min(rect.width - 20, x));
+                const boundedY = Math.max(20, Math.min(rect.height - 20, y));
+                
+                setAtoms(prev => prev.map(atom => 
+                    atom.id === dragging 
+                        ? { ...atom, x: boundedX, y: boundedY } 
+                        : atom
+                ));
+            };
+            
+            const handleMouseUp = () => {
+                setDragging(null);
+            };
+            
+            const changeAtomLayer = () => {
+                if (!selectedAtomId) return;
+                
+                setAtoms(prev => prev.map(atom => {
+                    if (atom.id === selectedAtomId) {
+                        const newLayer = atom.layer === 'a' ? 'b' : atom.layer === 'b' ? 'c' : 'a';
+                        return { ...atom, layer: newLayer };
+                    }
+                    return atom;
+                }));
+            };
+            
+            const clearAtoms = () => {
+                setAtoms([]);
+                setShowSuccess(false);
+                setSelectedAtomId(null);
+            };
+            
+            const resetStructure = () => {
+                setAtoms([]);
+                setShowSuccess(false);
+                setSelectedAtomId(null);
+            };
+            
+            const getSelectedAtom = () => {
+                return atoms.find(atom => atom.id === selectedAtomId);
+            };
+            
+            const selectedAtom = getSelectedAtom();
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.structureBuilder.title}</h3>
+                    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {translation.structureBuilder.instruction}
+                    </p>
+                    
+                    <div className="crystal-visualizer-container">
+                        <div 
+                            ref={canvasRef}
+                            className="crystal-canvas"
+                            onClick={addAtom}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                        >
+                            {atoms.map(atom => (
+                                <div
+                                    key={atom.id}
+                                    className={`atom ${atom.layer === 'b' ? 'layer-b' : atom.layer === 'c' ? 'layer-c' : ''} ${selectedAtomId === atom.id ? 'selected' : ''}`}
+                                    style={{
+                                        left: atom.x - 20,
+                                        top: atom.y - 20
+                                    }}
+                                    onMouseDown={(e) => handleMouseDown(e, atom.id)}
+                                />
+                            ))}
+                            
+                            <div className="field-info" style={{ position: 'absolute', top: '20px', left: '20px' }}>
+                                <div className="field-info-label">Atoms</div>
+                                <div className="field-info-value">{atoms.length}</div>
+                            </div>
+                            
+                            <div className="field-info" style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                                <div className="field-info-label">Instructions</div>
+                                <div className="field-info-value">{translation.structureBuilder.instructions}</div>
+                            </div>
+                        </div>
+                        
+                        <div className="controls-panel">
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">+</span>
+                                    {translation.structureBuilder.layerA}
+                                </label>
+                                <div className="slider-container">
+                                    <div className="atom" style={{ margin: '0 auto' }}></div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">+</span>
+                                    {translation.structureBuilder.layerB}
+                                </label>
+                                <div className="slider-container">
+                                    <div className="atom layer-b" style={{ margin: '0 auto' }}></div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">+</span>
+                                    {translation.structureBuilder.layerC}
+                                </label>
+                                <div className="slider-container">
+                                    <div className="atom layer-c" style={{ margin: '0 auto' }}></div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">↻</span>
+                                    {translation.structureBuilder.changeLayer}
+                                </label>
+                                <div className="slider-container">
+                                    <button 
+                                        className="control-btn" 
+                                        onClick={changeAtomLayer}
+                                        disabled={!selectedAtomId}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {translation.structureBuilder.changeLayer}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {selectedAtom && (
+                                <div className="control-group">
+                                    <label className="control-label">
+                                        <span className="control-icon rotate">⚛</span>
+                                        {translation.structureBuilder.selected}
+                                    </label>
+                                    <div className="slider-container">
+                                        <div className="field-info-value">
+                                            Layer: {selectedAtom.layer.toUpperCase()}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {showSuccess && (
+                        <div className="success-message">
+                            {translation.structureBuilder.success}
+                        </div>
+                    )}
+                    
+                    <div className="controls-container">
+                        <button className="control-btn" onClick={clearAtoms}>
+                            Clear All
+                        </button>
+                        <button className="control-btn" onClick={resetStructure}>
+                            {translation.structureBuilder.reset}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Coordination Explorer Component
+        const CoordinationExplorer = ({ translation, onComplete }) => {
+            const [structureType, setStructureType] = useState('hcp');
+            const [rotationX, setRotationX] = useState(30);
+            const [rotationY, setRotationY] = useState(30);
+            const [highlightedAtom, setHighlightedAtom] = useState(null);
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [hasInteracted, setHasInteracted] = useState(false);
+            
+            const handleRotateX = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationX(value);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const handleRotateY = (e) => {
+                const value = parseInt(e.target.value);
+                setRotationY(value);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const toggleStructure = () => {
+                setStructureType(prev => prev === 'hcp' ? 'ccp' : 'hcp');
+                setHighlightedAtom(null);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            const resetExplorer = () => {
+                setRotationX(30);
+                setRotationY(30);
+                setHighlightedAtom(null);
+                setShowSuccess(false);
+                setHasInteracted(false);
+            };
+            
+            // Generate atoms for HCP structure (ABAB pattern)
+            const generateHCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer A (again)
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a2-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            // Generate atoms for CCP structure (ABCABC pattern)
+            const generateCCPAtoms = () => {
+                const atoms = [];
+                const layerSpacing = 60;
+                
+                // Layer A
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        atoms.push({
+                            id: `a-${i}-${j}`,
+                            x: (i - 1) * 60,
+                            y: 0,
+                            z: (j - 1) * 60,
+                            layer: 'a'
+                        });
+                    }
+                }
+                
+                // Layer B
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `b-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing,
+                            z: (j - 0.5) * 60,
+                            layer: 'b'
+                        });
+                    }
+                }
+                
+                // Layer C
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        atoms.push({
+                            id: `c-${i}-${j}`,
+                            x: (i - 0.5) * 60,
+                            y: -layerSpacing * 2,
+                            z: (j - 0.5) * 60 + 30,
+                            layer: 'c'
+                        });
+                    }
+                }
+                
+                return atoms;
+            };
+            
+            const atoms = structureType === 'hcp' ? generateHCPAtoms() : generateCCPAtoms();
+            
+            const handleAtomClick = (atomId) => {
+                setHighlightedAtom(atomId === highlightedAtom ? null : atomId);
+                if (!hasInteracted) {
+                    setHasInteracted(true);
+                    setShowSuccess(true);
+                    onComplete();
+                }
+            };
+            
+            return (
+                <div className="puzzle-container">
+                    <h3 className="puzzle-title">{translation.coordinationExplorer.title}</h3>
+                    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {translation.coordinationExplorer.instruction}
+                    </p>
+                    
+                    <div className="crystal-visualizer-container">
+                        <div className="crystal-canvas">
+                            <div 
+                                className="crystal-structure"
+                                style={{
+                                    transform: `translate(-50%, -50%) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`
+                                }}
+                            >
+                                {atoms.map(atom => (
+                                    <div
+                                        key={atom.id}
+                                        className={`atom ${atom.layer === 'b' ? 'layer-b' : atom.layer === 'c' ? 'layer-c' : ''} ${atom.id === highlightedAtom ? 'highlighted' : ''}`}
+                                        style={{
+                                            transform: `translate3d(${atom.x}px, ${atom.y}px, ${atom.z}px)`,
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => handleAtomClick(atom.id)}
+                                    >
+                                        {atom.id === highlightedAtom && (
+                                            <div className="coordination-number">12</div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="controls-panel">
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">↻</span>
+                                    {translation.crystalVisualizer.rotate} X
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="0"
+                                        max="360"
+                                        value={rotationX}
+                                        onChange={handleRotateX}
+                                    />
+                                    <div className="slider-value">{rotationX}°</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon rotate">↻</span>
+                                    {translation.crystalVisualizer.rotate} Y
+                                </label>
+                                <div className="slider-container">
+                                    <input
+                                        type="range"
+                                        className="slider"
+                                        min="0"
+                                        max="360"
+                                        value={rotationY}
+                                        onChange={handleRotateY}
+                                    />
+                                    <div className="slider-value">{rotationY}°</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label className="control-label">
+                                    <span className="control-icon view">👁</span>
+                                    {translation.crystalVisualizer.view}
+                                </label>
+                                <div className="slider-container">
+                                    <button 
+                                        className="control-btn" 
+                                        onClick={toggleStructure}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {structureType === 'hcp' ? translation.crystalVisualizer.hcp : translation.crystalVisualizer.ccp}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="info-panel">
+                            <div className="info-title">
+                                <span className="info-icon" style={{ background: '#667eea' }}>
+                                    {highlightedAtom ? '12' : '?'}
+                                </span>
+                                {translation.coordinationExplorer.coordinationNumber}
+                            </div>
+                            <div className="info-content">
+                                {highlightedAtom 
+                                    ? translation.coordinationExplorer.atomInfo
+                                    : translation.coordinationExplorer.clickInfo}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {showSuccess && (
+                        <div className="success-message">
+                            {translation.coordinationExplorer.success}
+                        </div>
+                    )}
+                    
+                    <div className="controls-container">
+                        <button className="control-btn" onClick={resetExplorer}>
+                            {translation.coordinationExplorer.reset}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [currentLevel, setCurrentLevel] = useState(0);
+            const [completedLevels, setCompletedLevels] = useState([]);
+            const [language, setLanguage] = useState('eng');
+            
+            const translation = translations[language];
+            
+            const handleLevelSelect = (index) => {
+                setCurrentLevel(index);
+            };
+            
+            const handleLevelComplete = () => {
+                if (!completedLevels.includes(currentLevel)) {
+                    setCompletedLevels(prev => [...prev, currentLevel]);
+                }
+            };
+            
+            const handleLanguageChange = (e) => {
+                setLanguage(e.target.value);
+            };
+            
+            const renderCurrentLevel = () => {
+                switch (currentLevel) {
+                    case 0:
+                        return <CrystalVisualizer translation={translation} onComplete={handleLevelComplete} />;
+                    case 1:
+                        return <HcpCcpQuiz translation={translation} onComplete={handleLevelComplete} />;
+                    case 2:
+                        return <StructureBuilder translation={translation} onComplete={handleLevelComplete} />;
+                    case 3:
+                        return <CoordinationExplorer translation={translation} onComplete={handleLevelComplete} />;
+                    default:
+                        return <CrystalVisualizer translation={translation} onComplete={handleLevelComplete} />;
+                }
+            };
+            
+            return (
+                <div className="game-container">
+                    <div className="game-header">
+                        <div className="language-selector">
+                            <span className="globe-icon">🌐</span>
+                            <select className="language-select" value={language} onChange={handleLanguageChange}>
+                                <option value="eng">English</option>
+                                <option value="tam">தமிழ்</option>
+                                <option value="tel">తెలుగు</option>
+                                <option value="hin">हिंदी</option>
+                                <option value="ori">ଓଡ଼ିଆ</option>
+                            </select>
+                        </div>
+                        <h1 className="game-title">{translation.title}</h1>
+                        <p className="game-subtitle">{translation.subtitle}</p>
+                    </div>
+                    
+                    <div className="game-content">
+                        <div className="level-selector">
+                            {translation.levels.map((level, index) => (
+                                <div 
+                                    key={index}
+                                    className={`level-card ${index === currentLevel ? 'active' : ''} ${completedLevels.includes(index) ? 'completed' : ''}`}
+                                    onClick={() => handleLevelSelect(index)}
+                                >
+                                    <div className="level-icon">{level.icon}</div>
+                                    <div className="level-name">{level.name}</div>
+                                    <div className="level-desc">{level.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {renderCurrentLevel()}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

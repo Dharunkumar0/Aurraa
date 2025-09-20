@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relations & Functions - ABC Animation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #0c0c1c 0%, #1a1a3b 50%, #0c0c1c 100%);
+  color: #fff;
+  position: relative;
+}
+
+/* Floating math symbols & letters */
+.math-symbol {
+  position: absolute;
+  font-size: 16px;
+  color: rgba(255,255,255,0.3);
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Floating ABC letters */
+.abc-symbol {
+  position: absolute;
+  font-size: 20px;
+  font-weight: bold;
+  color: hsl(0,0%,100%);
+  text-shadow: 0 0 10px #fff;
+  pointer-events: none;
+}
+
+/* Card container */
+.card {
+  background: rgba(0,0,0,0.7);
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  position: relative;
+  z-index: 2;
+}
+
+/* SVG styling */
+svg { width: 100%; height: 400px; margin-top: 20px; }
+
+.node {
+  stroke-width: 2;
+  opacity:0;
+  filter: drop-shadow(0 0 10px #fff);
+  font-weight: bold;
+  fill:#fff;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.edge {
+  stroke-width: 3;
+  fill: none;
+  opacity:0;
+}
+.reflexive { stroke: #FFD700; stroke-width:3; }
+.symmetric { stroke: #00FFFF; stroke-width:3; }
+.transitive { stroke: #FF69B4; stroke-width:3; }
+
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  background: rgba(0,0,0,0.4);
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* Buttons */
+button, select {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#pauseBtn { background: #4CAF50; color: #fff; }
+#replayBtn { background: #ff7b54; color: #fff; display: none; }
+#pauseBtn:hover { background: #2e7d32; }
+#replayBtn:hover { background: #ff5722; }
+select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Relations & Functions</h2>
+  <h3>Step by Step: Types of Relations</h3>
+
+  <label for="langSelect">🌐 Choose Language: </label>
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+  </select>
+
+  <svg viewBox="0 0 950 400">
+    <!-- Nodes with ABC letters -->
+    <text class="node" id="A" x="150" y="200">A</text>
+    <text class="node" id="B" x="450" y="200">B</text>
+    <text class="node" id="C" x="750" y="200">C</text>
+
+    <!-- Reflexive loop for A -->
+    <path class="edge reflexive" d="M150,175 C130,145 170,145 150,175" marker-end="url(#arrow)"/>
+    <!-- Symmetric edges -->
+    <line class="edge symmetric" x1="150" y1="200" x2="450" y2="200" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+    <!-- Transitive edge -->
+    <line class="edge transitive" x1="150" y1="200" x2="750" y2="200" marker-end="url(#arrow)"/>
+
+    <!-- Arrowhead -->
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#fff" />
+      </marker>
+    </defs>
+  </svg>
+
+  <div id="caption" class="caption">Starting Step by Step...</div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+// Floating math symbols & equations
+const symbols=["∑","∏","√","∞","∫","θ","λ","Δ","+","-","×","÷","f(x)","x+y=z"];
+for(let i=0;i<50;i++){
+  const sym=document.createElement("div");
+  sym.className="math-symbol";
+  sym.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+  sym.style.fontSize=(Math.random()*25+12)+"px";
+  sym.style.top=Math.random()*window.innerHeight+"px";
+  sym.style.left=Math.random()*window.innerWidth+"px";
+  sym.style.color=`hsl(${Math.random()*360},80%,70%)`;
+  document.body.appendChild(sym);
+  gsap.to(sym,{y:"+="+(Math.random()*600+200),repeat:-1,duration:Math.random()*40+20,ease:"linear"});
+}
+
+// Floating ABC letters
+["A","B","C"].forEach(l=>{
+  for(let i=0;i<8;i++){
+    const abc=document.createElement("div");
+    abc.className="abc-symbol";
+    abc.textContent=l;
+    abc.style.top=Math.random()*window.innerHeight+"px";
+    abc.style.left=Math.random()*window.innerWidth+"px";
+    document.body.appendChild(abc);
+    gsap.to(abc,{y:"+="+(Math.random()*600+200),repeat:-1,duration:Math.random()*30+15,ease:"linear"});
+  }
+});
+
+// Multi-language captions
+const captions={
+  en: [
+    "Step 1: Reflexive Relation - Each element relates to itself (loop on A).",
+    "Step 2: Symmetric Relation - A relates to B and B relates to A (double-headed arrow).",
+    "Step 3: Transitive Relation - If A relates to B and B relates to C, then A relates to C.",
+    "Step 4: Equivalence Relation - Combines reflexive, symmetric, and transitive properties."
+  ],
+  hi: [
+    "चरण 1: प्रतिबिंबात्मक संबंध - प्रत्येक तत्व स्वयं से संबंधित होता है (A पर लूप)।",
+    "चरण 2: समानार्थक संबंध - A, B से संबंधित है और B, A से संबंधित है (डबल-हेडेड तीर)।",
+    "चरण 3: सांतरणीय संबंध - यदि A, B से संबंधित है और B, C से संबंधित है, तो A, C से संबंधित है।",
+    "चरण 4: समानता संबंध - प्रतिबिंबात्मक, समानार्थक और सांतरणीय गुणों को जोड़ता है।"
+  ],
+  ta: [
+    "படி 1: பிரதிபலிப்புப் தொடர்பு - ஒவ்வொரு உறுப்பும் தன்னுடன் தொடர்பு கொள்ளும் (A இல் வளைவு).",
+    "படி 2: சமமான தொடர்பு - A, B உடன் தொடர்பு கொண்டது, B, A உடன் தொடர்பு கொண்டது (இரு தலை கொண்ட அம்பு).",
+    "படி 3: பரிமாற்றத் தொடர்பு - A, B உடன் தொடர்புடையது மற்றும் B, C உடன் தொடர்புடையது என்றால், A, C உடன் தொடர்புடையது.",
+    "படி 4: சமம் தொடர்பு - பிரதிபலிப்பு, சமம் மற்றும் பரிமாற்றம் ஆகிய பண்புகளை இணைக்கிறது."
+  ],
+  te: [
+    "దశ 1: ప్రతిబింబ సంబంధం - ప్రతి అంశం తానే సంబందిస్తుంది (A పై లూప్).",
+    "దశ 2: సమాన సంబంధం - A, B తో సంబంధం కలిగి ఉంది మరియు B, A తో సంబంధం కలిగి ఉంది (రెండు తలల క్షేత్రం).",
+    "దశ 3: మార్పు సంబంధం - A, B తో సంబంధం ఉంటే మరియు B, C తో సంబంధం ఉంటే, A, C తో సంబంధం ఉంటుంది.",
+    "దశ 4: సమానత్వం సంబంధం - ప్రతిబింబం, సమానత్వం మరియు మార్పు లక్షణాలను కలుపుతుంది."
+  ],
+  or: [
+    "ପଦ 1: ପ୍ରତିବିମ୍ବ ସମ୍ପର୍କ - ପ୍ରତ୍ୟେକ ଉପାଦାନ ନିଜ ସହିତ ସମ୍ପର୍କିତ ହୁଏ (A ଉପରେ ଲୁପ୍).",
+    "ପଦ 2: ସମାନ ସମ୍ପର୍କ - A, B ସହିତ ସମ୍ପର୍କିତ ହୁଏ ଏବଂ B, A ସହିତ ସମ୍ପର୍କିତ ହୁଏ (ଦୁଇ-ସିର ତୀର).",
+    "ପଦ 3: ପାରମ୍ପରିକ ସମ୍ପର୍କ - ଯଦି A, B ସହିତ ସମ୍ପର୍କିତ ହୁଏ ଏବଂ B, C ସହିତ ସମ୍ପର୍କିତ ହୁଏ, ତେବେ A, C ସହିତ ସମ୍ପର୍କିତ ହୁଏ.",
+    "ପଦ 4: ସମତା ସମ୍ପର୍କ - ପ୍ରତିବିମ୍ବ, ସମାନତା ଏବଂ ପାରମ୍ପରିକ ଗୁଣଗୁଡିକୁ ଏକତ୍ର କରେ."
+  ]
+};
+
+const caption=document.getElementById("caption");
+const replayBtn=document.getElementById("replayBtn");
+const pauseBtn=document.getElementById("pauseBtn");
+const langSelect=document.getElementById("langSelect");
+
+let paused=false, currentStepIndex=0, currentLang="en";
+const voicesMap={en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN"};
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=voicesMap[lang]||"en-IN";
+  u.rate=0.95;
+  u.onend=()=>{if(!paused)callback();}
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function animateStep(index){
+  gsap.set(".node,.edge",{opacity:0});
+  gsap.set("#A,#B,#C",{opacity:1});
+  if(index===0) gsap.to(".reflexive",{opacity:1,duration:1.5});
+  else if(index===1) gsap.to(".symmetric",{opacity:1,duration:1.5});
+  else if(index===2) gsap.to(".transitive",{opacity:1,duration:1.5});
+  else if(index===3) gsap.to(".reflexive,.symmetric,.transitive",{opacity:1,duration:1.5});
+  gsap.to(".node",{scale:1.2,repeat:1,yoyo:true,duration:1.5,ease:"power1.inOut"});
+}
+
+function runStep(){
+  if(currentStepIndex>=captions[currentLang].length){replayBtn.style.display="inline-block"; return;}
+  caption.textContent=captions[currentLang][currentStepIndex];
+  animateStep(currentStepIndex);
+  speak(captions[currentLang][currentStepIndex],currentLang,()=>{
+    currentStepIndex++;
+    if(!paused) setTimeout(runStep,500);
+  });
+}
+
+function playAnimation(){
+  replayBtn.style.display="none";
+  paused=false;
+  currentStepIndex=0;
+  currentLang=langSelect.value;
+  runStep();
+}
+
+pauseBtn.addEventListener("click",()=>{
+  if(!paused){paused=true;window.speechSynthesis.cancel(); pauseBtn.textContent="▶ Play";}
+  else{paused=false; pauseBtn.textContent="⏸ Pause"; runStep();}
+});
+
+replayBtn.addEventListener("click",playAnimation);
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  if(!paused) playAnimation();
+  else caption.textContent=captions[currentLang][currentStepIndex]||captions[currentLang][0];
+});
+
+playAnimation();
+</script>
+</body>
+</html>

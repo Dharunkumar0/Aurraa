@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Electricity Explorer: Electrostatic Quest</title>
+<style>
+:root {
+    --primary1: #00f5d4;
+    --primary2: #00bbf9;
+    --accent: #ff00d4;
+    --bg-dark: #040214;
+    --glass: rgba(255, 255, 255, 0.03);
+    --xp-glow: #ffd60a;
+    --correct: #00f5d4;
+    --incorrect: #ff4d6d;
+    --electric: #ffeb3b;
+    --field: #9c27b0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: #e6f7ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    justify-content: center;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--xp-glow); }
+  50% { box-shadow: 0 0 20px var(--xp-glow), 0 0 30px var(--xp-glow); }
+  100% { box-shadow: 0 0 5px var(--xp-glow); }
+}
+@keyframes electricPulse {
+  0% { box-shadow: 0 0 5px var(--electric); }
+  50% { box-shadow: 0 0 20px var(--electric), 0 0 30px var(--electric); }
+  100% { box-shadow: 0 0 5px var(--electric); }
+}
+
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.container {
+    z-index: 3;
+    width: 90%;
+    max-width: 900px;
+    margin: 2vh auto;
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.78), rgba(10, 10, 20, 0.58));
+    border-radius: 18px;
+    padding: clamp(1rem, 4vw, 1.75rem);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px) saturate(140%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 30% 20%, var(--electric), var(--field));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #021;
+    transform: rotate(-6deg);
+    flex-shrink: 0;
+    animation: electricPulse 2s infinite;
+}
+
+h1 {
+    font-size: clamp(1.2rem, 5vw, 1.45rem);
+    margin: 0;
+    color: transparent;
+    background: linear-gradient(90deg, var(--electric), var(--field));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.xp {
+    font-weight: 800;
+    color: var(--xp-glow);
+    text-shadow: 0 0 8px var(--xp-glow);
+    transition: transform 0.3s ease;
+}
+.xp.updated {
+    transform: scale(1.1);
+}
+
+.xp small {
+    display: block;
+    font-weight: 600;
+    color: #bcd;
+    font-size: 0.78rem;
+    opacity: 0.9;
+}
+
+.progress-wrap {
+    width: 86px;
+    height: 86px;
+    position: relative;
+    flex-shrink: 0;
+}
+.progress-wrap .progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #dff;
+    transition: color 0.3s ease;
+}
+#progressCircle {
+    transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.game-panel {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 420px;
+    position: relative;
+    justify-content: center;
+}
+.menu, .stage {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.level-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.level-btn {
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 235, 59, 0.08), rgba(156, 39, 176, 0.06));
+    color: #e9fbff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(156, 39, 176, 0.06);
+    border: 0.5px solid rgba(255, 255, 255, 0.04);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.level-btn:hover, .level-btn:focus {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 28px 60px rgba(156, 39, 176, 0.12);
+    outline: none;
+}
+
+.stage {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: inset 0 -10px 40px rgba(0, 0, 0, 0.45);
+    min-height: 300px;
+}
+
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+.level-title { font-size: 1.05rem; font-weight: 800; color: #dff; }
+.question-counter { font-size: 0.9rem; color: #bcd; }
+
+#centerStage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 250px;
+    transition: opacity 0.4s ease;
+}
+.quest { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; text-align: center; color: #f3fbff; text-shadow: 0 4px 26px rgba(255, 235, 59, 0.03); animation: fadeIn 0.5s; }
+
+.controls { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+
+.action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, rgba(255, 235, 59, 0.12), rgba(156, 39, 176, 0.08));
+    color: #e6fbff;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(156, 39, 176, 0.06);
+    transition: all 0.2s ease;
+}
+.action-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(156, 39, 176, 0.1); }
+.action-btn:active:not(:disabled) { transform: translateY(-1px); }
+.action-btn:disabled { cursor: not-allowed; opacity: 0.5; transform: translateY(0); }
+.action-btn.check { background: linear-gradient(90deg, rgba(0, 245, 122, 0.15), rgba(0, 249, 142, 0.1)); }
+.action-btn.secondary { background: linear-gradient(90deg, rgba(255, 200, 40, 0.1), rgba(255, 120, 100, 0.08)); }
+.action-btn.highlight-hint {
+    animation: glow 1.5s infinite;
+}
+
+.feedback { min-height: 28px; font-weight: 800; font-size: 1.05rem; opacity: 0; transition: all 0.4s ease; transform: translateY(10px); }
+.feedback.visible { opacity: 1; transform: translateY(0); }
+.feedback.correct { color: var(--correct); text-shadow: 0 0 10px var(--correct); }
+.feedback.incorrect { color: var(--incorrect); text-shadow: 0 0 10px var(--incorrect); }
+
+.hint-box { margin-top: 8px; padding: 10px 12px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 10px; color: #bfe; font-style: italic; display: none; min-width: 40%; text-align: center; opacity: 0; transition: opacity 0.4s; }
+.hint-box.visible { display: block; opacity: 1; }
+
+/* --- INTERACTIVE GAME STYLES --- */
+.charge-game, .coulomb-game, .field-game, .gauss-game, .dipole-game {
+    animation: popIn 0.5s ease-out;
+}
+
+/* Charge Game */
+.charge-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.charge-visual { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 1rem 0; }
+.charge { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+.charge.positive { background: radial-gradient(circle at 30% 30%, #ff5252, #d32f2f); }
+.charge.negative { background: radial-gradient(circle at 30% 30%, #448aff, #2962ff); }
+.charge-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.charge-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.charge-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.charge-option.selected { background: rgba(255, 235, 59, 0.3); border: 1px solid var(--electric); }
+
+/* Coulomb Game */
+.coulomb-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.coulomb-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.charge-particle { position: absolute; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.charge-particle.q1 { background: radial-gradient(circle at 30% 30%, #ff5252, #d32f2f); left: 50px; top: 80px; }
+.charge-particle.q2 { background: radial-gradient(circle at 30% 30%, #448aff, #2962ff); right: 50px; top: 80px; }
+.force-arrow { position: absolute; height: 3px; background: var(--electric); transform-origin: left center; }
+.force-arrow::after { content: ''; position: absolute; right: 0; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 10px solid var(--electric); }
+.coulomb-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.coulomb-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Field Game */
+.field-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.field-canvas { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(0, 0, 0, 0.3); }
+.field-options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.field-option { padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s; }
+.field-option:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.field-option.selected { background: rgba(156, 39, 176, 0.3); border: 1px solid var(--field); }
+
+/* Gauss Game */
+.gauss-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.gauss-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.gauss-surface { position: absolute; border: 2px solid var(--field); }
+.gauss-surface.sphere { width: 120px; height: 120px; border-radius: 50%; left: 90px; top: 40px; }
+.gauss-surface.cylinder { width: 80px; height: 140px; border-radius: 40px/10px; left: 110px; top: 30px; }
+.gauss-surface.plane { width: 200px; height: 2px; left: 50px; top: 100px; }
+.gauss-charge { position: absolute; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }
+.gauss-charge.positive { background: radial-gradient(circle at 30% 30%, #ff5252, #d32f2f); }
+.gauss-charge.negative { background: radial-gradient(circle at 30% 30%, #448aff, #2962ff); }
+.gauss-input { width: 120px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+
+/* Dipole Game */
+.dipole-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+.dipole-visual { position: relative; width: 300px; height: 200px; margin: 1rem 0; }
+.dipole { position: absolute; width: 120px; height: 40px; left: 90px; top: 80px; display: flex; align-items: center; justify-content: space-between; }
+.dipole-charge { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.dipole-charge.positive { background: radial-gradient(circle at 30% 30%, #ff5252, #d32f2f); }
+.dipole-charge.negative { background: radial-gradient(circle at 30% 30%, #448aff, #2962ff); }
+.field-line { position: absolute; height: 1px; background: rgba(156, 39, 176, 0.6); transform-origin: left center; }
+.dipole-inputs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.dipole-input { width: 80px; padding: 0.8rem; font-size: 1rem; text-align: center; background: #111; border: 1px solid #445; color: #fff; border-radius: 8px; }
+.dipole-field { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <div class="logo">⚡</div>
+            <div><h1>Electricity Explorer</h1></div>
+        </div>
+        <div class="status">
+            <div class="xp" id="xpDisplay">✨ XP: <span id="xpValue">0</span><small>Earn XP to level up</small></div>
+            <div class="progress-wrap">
+                <svg width="86" height="86" viewBox="0 0 100 100">
+                    <defs><linearGradient id="g1" x1="0%" x2="100%"><stop offset="0%" stop-color="#ffeb3b"/><stop offset="100%" stop-color="#9c27b0"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="44" stroke="#111" stroke-width="10" fill="none"></circle>
+                    <circle id="progressCircle" cx="50" cy="50" r="44" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" transform="rotate(-90 50 50)"></circle>
+                </svg>
+                <div class="progress-text" id="progressPercent">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-panel" id="mainPanel">
+        <div id="menu" class="menu">
+            <div class="menu-title">Select difficulty — pick by confidence</div>
+            <div class="level-row">
+                <button class="level-btn" onclick="enterLevel('basic')">🟢 Basic</button>
+                <button class="level-btn" onclick="enterLevel('medium')">🟡 Medium</button>
+                <button class="level-btn" onclick="enterLevel('hard')">🟠 Hard</button>
+                <button class="level-btn" onclick="enterLevel('extreme')">🔴 Extreme</button>
+            </div>
+            <div style="margin-top:12px;font-size:0.82rem;color:#aac;opacity:0.9;text-align:center;">
+                Each level contains 5 topics with 5 interactive questions each. Earn <strong>+10 XP</strong> per correct answer.
+            </div>
+        </div>
+
+        <div id="stage" class="stage" style="display:none;">
+            <div class="level-header">
+                <div class="level-title" id="levelTitle">Level</div>
+                <div class="question-counter">Question <span id="qIndex">1</span> / <span id="qTotal">5</span></div>
+            </div>
+            <div id="centerStage"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="hint-box" id="hintBox" role="status" aria-live="polite"></div>
+            <div class="controls" id="controls">
+                <button class="action-btn secondary" onclick="backToMenu()">↩️ Menu</button>
+                <button id="hintBtn" class="action-btn" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn" onclick="skipQuestion()">Skip ➡️</button>
+                <button class="action-btn check" id="checkBtn" onclick="checkAnswer()">🚀 Check Answer</button>
+                <button class="action-btn" id="nextBtn" onclick="nextStep()" style="display:none;">Continue ➡️</button>
+            </div>
+            <div id="levelMessage" style="margin-top:8px;font-weight:800;color:#ffd; animation: fadeIn 1s;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Canvas Electricity Animation =====
+const canvas = document.getElementById('bgCanvas'),
+    ctx = canvas.getContext('2d');
+let W = canvas.width = innerWidth,
+    H = canvas.height = innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; initElectricity(); });
+let particles = [];
+const PARTICLE_COUNT_BASE = 80;
+
+function getParticleCount() {
+    return Math.floor((W * H) / 40000) + PARTICLE_COUNT_BASE;
+}
+let PARTICLE_COUNT = getParticleCount();
+
+function initElectricity() {
+    PARTICLE_COUNT = getParticleCount();
+    particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+            x: Math.random() * W, 
+            y: Math.random() * H,
+            r: Math.random() * 1.6 + 0.2, 
+            speed: (Math.random() * 0.4) + 0.08,
+            alpha: 0.15 + Math.random() * 0.85, 
+            tw: Math.random() * Math.PI * 2,
+            color: Math.random() > 0.5 ? '#ffeb3b' : '#9c27b0'
+        });
+    }
+}
+
+function drawElectricity() {
+    ctx.clearRect(0, 0, W, H);
+    
+    // Draw connections between nearby particles
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(255, 235, 59, ${0.2 * (1 - distance/100)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+    }
+    
+    // Draw particles
+    for (const p of particles) {
+        p.x += p.speed;
+        if (p.x > W) p.x = 0;
+        p.alpha += Math.sin(p.tw) * 0.012; 
+        p.tw += 0.02;
+        if(p.alpha < 0.1) p.alpha = 0.1; 
+        if(p.alpha > 1) p.alpha = 1;
+        ctx.beginPath(); 
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color; 
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+function animate() { drawElectricity(); requestAnimationFrame(animate); }
+initElectricity(); animate();
+
+// ===== Game State =====
+let gameState = {
+    currentLevel: "",
+    currentTopicIndex: 0,
+    questionIndex: 0,
+    xp: 0,
+    incorrectStreak: 0,
+    correctAnswers: 0
+};
+const topicList = ["Charge", "Coulomb", "Field", "Gauss", "Dipole"];
+let currentQuestions = [];
+const QUESTIONS_PER_TOPIC = 5;
+
+// Load saved game state
+function loadGameState() {
+    try {
+        const savedState = localStorage.getItem('electricityExplorerGameState');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            gameState = Object.assign(gameState, parsed);
+            if (!topicList[gameState.currentTopicIndex]) gameState.currentTopicIndex = 0;
+            if (typeof gameState.questionIndex !== 'number') gameState.questionIndex = 0;
+            if (typeof gameState.xp !== 'number') gameState.xp = 0;
+            if (typeof gameState.correctAnswers !== 'number') gameState.correctAnswers = 0;
+        }
+    } catch (e) {
+        console.warn("Failed to load saved game state", e);
+    }
+    updateXP();
+    updateProgress();
+}
+
+// Save game state
+function saveGameState() {
+    try {
+        localStorage.setItem('electricityExplorerGameState', JSON.stringify(gameState));
+    } catch (e) {
+        console.warn("Failed to save game state", e);
+    }
+}
+
+// ===== DOM Elements =====
+const dom = {
+    menu: document.getElementById('menu'), stage: document.getElementById('stage'),
+    levelTitle: document.getElementById('levelTitle'), qIndex: document.getElementById('qIndex'),
+    qTotal: document.getElementById('qTotal'), centerStage: document.getElementById('centerStage'),
+    feedback: document.getElementById('feedback'), hintBox: document.getElementById('hintBox'),
+    hintBtn: document.getElementById('hintBtn'),
+    checkBtn: document.getElementById('checkBtn'), nextBtn: document.getElementById('nextBtn'),
+    levelMessage: document.getElementById('levelMessage'), xpDisplay: document.getElementById('xpDisplay'),
+    xpValue: document.getElementById('xpValue'), progressCircle: document.getElementById('progressCircle'),
+    progressPercent: document.getElementById('progressPercent'), controls: document.getElementById('controls')
+};
+
+// ===== Utility Functions =====
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ===== Question Bank =====
+const questionBank = {
+    Charge: {
+        basic: [
+            { 
+                q: "What happens to the total charge in an isolated system?", 
+                options: ["It increases", "It decreases", "It remains constant", "It fluctuates randomly"],
+                ans: "It remains constant", 
+                hint: "This is known as the law of conservation of electric charge."
+            },
+            { 
+                q: "Electric charge is quantized. What does this mean?", 
+                options: ["Charge can be any value", "Charge exists in discrete amounts", "Charge is always positive", "Charge is always negative"],
+                ans: "Charge exists in discrete amounts", 
+                hint: "Charge comes in multiples of the elementary charge e = 1.6 × 10^-19 C."
+            },
+            { 
+                q: "What is the fundamental unit of electric charge?", 
+                options: ["1 Coulomb", "1 Ampere", "1 Elementary charge (e)", "1 Volt"],
+                ans: "1 Elementary charge (e)", 
+                hint: "The elementary charge e is approximately 1.6 × 10^-19 Coulombs."
+            },
+            { 
+                q: "When a glass rod is rubbed with silk, what type of charge does the glass rod acquire?", 
+                options: ["Negative charge", "Positive charge", "No charge", "Both positive and negative"],
+                ans: "Positive charge", 
+                hint: "Electrons are transferred from the glass to the silk, leaving the glass positively charged."
+            },
+            { 
+                q: "In a closed system, if one object gains 5 μC of charge, what happens to another object in the system?", 
+                options: ["It gains 5 μC", "It loses 5 μC", "It remains unchanged", "It gains 10 μC"],
+                ans: "It loses 5 μC", 
+                hint: "The total charge in an isolated system remains constant."
+            }
+        ],
+        medium: [
+            { 
+                q: "If an object has a charge of +8e, how many elementary charges does it have?", 
+                options: ["8", "16", "4", "1"],
+                ans: "8", 
+                hint: "The charge is expressed in multiples of the elementary charge e."
+            },
+            { 
+                q: "What is the charge of an electron in Coulombs?", 
+                options: ["+1.6 × 10^-19 C", "-1.6 × 10^-19 C", "+1.6 × 10^-16 C", "-1.6 × 10^-16 C"],
+                ans: "-1.6 × 10^-19 C", 
+                hint: "An electron carries a negative elementary charge."
+            },
+            { 
+                q: "When two identical metal spheres come into contact, one with +4 μC and the other with -2 μC, what is the final charge on each sphere?", 
+                options: ["+1 μC", "+2 μC", "+3 μC", "+4 μC"],
+                ans: "+1 μC", 
+                hint: "The total charge is +2 μC, which is shared equally between the two spheres."
+            },
+            { 
+                q: "Which statement correctly describes the conservation of charge?", 
+                options: ["Charge can be created but not destroyed", "Charge can be destroyed but not created", "The net charge in an isolated system remains constant", "Charge always flows from positive to negative"],
+                ans: "The net charge in an isolated system remains constant", 
+                hint: "Conservation of charge means the total charge in an isolated system doesn't change."
+            },
+            { 
+                q: "What is the total charge of 10^20 protons?", 
+                options: ["1.6 C", "16 C", "160 C", "0.16 C"],
+                ans: "16 C", 
+                hint: "Each proton has a charge of +1.6 × 10^-19 C."
+            }
+        ],
+        hard: [
+            { 
+                q: "A neutral object acquires a charge of -3.2 × 10^-19 C. How many excess electrons does it have?", 
+                options: ["1", "2", "3", "4"],
+                ans: "2", 
+                hint: "Divide the total charge by the charge of one electron."
+            },
+            { 
+                q: "In a nuclear reaction, if a neutron decays into a proton and an electron, what happens to the total charge?", 
+                options: ["It increases", "It decreases", "It remains constant", "It becomes zero"],
+                ans: "It remains constant", 
+                hint: "The neutron is neutral, and the proton (+e) and electron (-e) sum to zero charge."
+            },
+            { 
+                q: "An object has a charge of +4.8 × 10^-19 C. What is the smallest charge this object could have had before charging?", 
+                options: ["0", "+1.6 × 10^-19 C", "+3.2 × 10^-19 C", "+6.4 × 10^-19 C"],
+                ans: "+3.2 × 10^-19 C", 
+                hint: "Charge is quantized in units of e = 1.6 × 10^-19 C."
+            },
+            { 
+                q: "If a system initially has a net charge of +5 μC and after some process has a net charge of +7 μC, what must have happened?", 
+                options: ["5 μC of positive charge was added", "2 μC of positive charge was added", "2 μC of negative charge was removed", "Both b and c"],
+                ans: "Both b and c", 
+                hint: "Adding positive charge or removing negative charge both increase the net positive charge."
+            },
+            { 
+                q: "A metal sphere with charge +6e touches an identical sphere with charge -4e. After separation, what is the charge on each sphere?", 
+                options: ["+e", "+2e", "+3e", "+4e"],
+                ans: "+e", 
+                hint: "The total charge is +2e, which is shared equally between the two spheres."
+            }
+        ],
+        extreme: [
+            { 
+                q: "In particle physics, quarks have fractional charges. If an up quark has charge +2/3 e and a down quark has -1/3 e, what is the charge of a proton (uud)?", 
+                options: ["+1e", "-1e", "+2/3 e", "-1/3 e"],
+                ans: "+1e", 
+                hint: "Add the charges: +2/3 e + +2/3 e + -1/3 e = +3/3 e = +1e."
+            },
+            { 
+                q: "In beta decay, a neutron decays into a proton, an electron, and an electron antineutrino. If the neutron was initially at rest, what is the total charge after decay?", 
+                options: ["0", "+e", "-e", "+2e"],
+                ans: "0", 
+                hint: "The neutron is neutral, and the proton (+e) and electron (-e) sum to zero charge."
+            },
+            { 
+                q: "If a system has N protons and M electrons, what is the net charge of the system?", 
+                options: ["(N-M)e", "(N+M)e", "(M-N)e", "0"],
+                ans: "(N-M)e", 
+                hint: "Each proton contributes +e and each electron contributes -e to the total charge."
+            },
+            { 
+                q: "In a Millikan oil drop experiment, an oil drop with mass 1.64 × 10^-15 kg is suspended in an electric field of 1.92 × 10^5 N/C. What is the charge on the oil drop? (g = 9.8 m/s²)", 
+                options: ["8.0 × 10^-19 C", "1.6 × 10^-19 C", "3.2 × 10^-19 C", "4.8 × 10^-19 C"],
+                ans: "8.0 × 10^-19 C", 
+                hint: "At equilibrium, the electric force equals the gravitational force: qE = mg."
+            },
+            { 
+                q: "If a system has a charge of +5e and loses 3 electrons, what is its final charge?", 
+                options: ["+8e", "+2e", "-2e", "-8e"],
+                ans: "+8e", 
+                hint: "Losing electrons (negative charges) increases the positive charge of the system."
+            }
+        ]
+    },
+    Coulomb: {
+        basic: [
+            { 
+                q: "Coulomb's law describes the force between two charged objects. What happens to the force if the distance between the charges is doubled?", 
+                options: ["It doubles", "It halves", "It becomes one-fourth", "It becomes four times"],
+                ans: "It becomes one-fourth", 
+                hint: "Coulomb's law states that force is inversely proportional to the square of the distance."
+            },
+            { 
+                q: "What is the direction of the force between two positive charges?", 
+                options: ["Attractive", "Repulsive", "No force", "Perpendicular"],
+                ans: "Repulsive", 
+                hint: "Like charges repel each other."
+            },
+            { 
+                q: "If the magnitude of both charges is doubled, what happens to the force between them?", 
+                options: ["It doubles", "It quadruples", "It halves", "It remains the same"],
+                ans: "It quadruples", 
+                hint: "Force is directly proportional to the product of the charges."
+            },
+            { 
+                q: "What is the SI unit of electric charge?", 
+                options: ["Ampere", "Volt", "Coulomb", "Ohm"],
+                ans: "Coulomb", 
+                hint: "The Coulomb is named after Charles-Augustin de Coulomb."
+            },
+            { 
+                q: "Two charges of +2 μC and -2 μC are placed 1 m apart. What is the force between them? (k = 9 × 10^9 N·m²/C²)", 
+                options: ["3.6 × 10^-2 N", "3.6 × 10^3 N", "3.6 × 10^1 N", "3.6 × 10^-3 N"],
+                ans: "3.6 × 10^-2 N", 
+                hint: "Use Coulomb's law: F = k|q₁q₂|/r²"
+            }
+        ],
+        medium: [
+            { 
+                q: "Two charges +q and -3q are separated by a distance d. Where should a third charge +q be placed so that it experiences no net force?", 
+                options: ["d/2 from +q", "d/4 from +q", "d/√3 from +q", "3d/4 from +q"],
+                ans: "d/2 from +q", 
+                hint: "Set the forces equal and opposite: kq(q)/(x²) = kq(3q)/((d-x)²)"
+            },
+            { 
+                q: "The force between two charges is F. If the distance between them is reduced to one-third and the magnitude of each charge is tripled, what is the new force?", 
+                options: ["3F", "9F", "27F", "81F"],
+                ans: "81F", 
+                hint: "F' = k(3q₁)(3q₂)/(r/3)² = 9kq₁q₂/(r²/9) = 81(kq₁q₂/r²) = 81F"
+            },
+            { 
+                q: "Three charges +q, +q, and -q are placed at the vertices of an equilateral triangle. What is the net force on the -q charge?", 
+                options: ["kq²/a² toward the centroid", "kq²/a² away from the centroid", "√3kq²/a² toward the centroid", "√3kq²/a² away from the centroid"],
+                ans: "√3kq²/a² toward the centroid", 
+                hint: "Calculate the vector sum of the two forces from the +q charges."
+            },
+            { 
+                q: "Two point charges +4 μC and -2 μC are placed 12 cm apart. What is the magnitude of the electric field at the midpoint between them?", 
+                options: ["4.5 × 10^6 N/C", "9.0 × 10^6 N/C", "1.8 × 10^7 N/C", "3.6 × 10^7 N/C"],
+                ans: "9.0 × 10^6 N/C", 
+                hint: "Calculate the field from each charge and add them as vectors."
+            },
+            { 
+                q: "Two identical charges are placed at a distance d apart and exert a force F on each other. If 50% of the charge from one is transferred to the other, what is the new force?", 
+                options: ["3F/4", "F/2", "3F/8", "F/4"],
+                ans: "3F/4", 
+                hint: "After transfer, charges become 3q/2 and q/2. F' = k(3q/2)(q/2)/d² = 3kq²/4d² = 3F/4"
+            }
+        ],
+        hard: [
+            { 
+                q: "Four charges of equal magnitude are placed at the corners of a square. Three are positive and one is negative. What is the direction of the net force on the negative charge?", 
+                options: ["Toward the center of the square", "Away from the center of the square", "Along the diagonal", "Perpendicular to the diagonal"],
+                ans: "Toward the center of the square", 
+                hint: "The negative charge is attracted to all three positive charges."
+            },
+            { 
+                q: "Two charges +q and +4q are separated by a distance d. Where on the line joining them is the electric field zero?", 
+                options: ["d/3 from +q", "d/2 from +q", "2d/3 from +q", "d/4 from +q"],
+                ans: "d/3 from +q", 
+                hint: "Set the fields equal: kq/x² = k(4q)/(d-x)²"
+            },
+            { 
+                q: "A charge Q is placed at the origin. Another charge q is placed at (x,0). What is the work done in bringing the charge q from infinity to (x,0)?", 
+                options: ["kQq/x", "kQq/x²", "kQq/2x", "Zero"],
+                ans: "kQq/x", 
+                hint: "Work done equals the change in potential energy: W = U_final - U_initial = kQq/x - 0"
+            },
+            { 
+                q: "Two charges +q and -q are placed at (a,0) and (-a,0) respectively. What is the electric field at (0,a)?", 
+                options: ["kq/a² along +x", "kq/a² along -x", "kq/(a√2) along +y", "kq/(a√2) along -y"],
+                ans: "kq/(a√2) along +y", 
+                hint: "Calculate the field from each charge and add them as vectors."
+            },
+            { 
+                q: "Three charges +q, +2q, and -q are placed along a straight line with equal spacing d. What is the net force on the middle charge?", 
+                options: ["5kq²/d² to the right", "3kq²/d² to the right", "kq²/d² to the left", "3kq²/d² to the left"],
+                ans: "3kq²/d² to the right", 
+                hint: "Calculate the force from each charge and add them as vectors."
+            }
+        ],
+        extreme: [
+            { 
+                q: "A charge q is placed at a corner of a cube. What is the electric flux through one face of the cube?", 
+                options: ["q/24ε₀", "q/6ε₀", "q/8ε₀", "q/12ε₀"],
+                ans: "q/24ε₀", 
+                hint: "Total flux through the cube is q/ε₀. By symmetry, each face gets 1/6 of the total flux."
+            },
+            { 
+                q: "Two charges +q and -q are placed at (0,0) and (d,0) respectively. What is the work done in bringing a charge +q from infinity to (d/2, d/2)?", 
+                options: ["kq²/d(1+√2)", "kq²/d", "kq²/d√2", "Zero"],
+                ans: "kq²/d(1+√2)", 
+                hint: "Calculate the potential energy due to both charges at the point (d/2, d/2)."
+            },
+            { 
+                q: "A charge Q is uniformly distributed on a ring of radius R. What is the electric field at a distance x along the axis of the ring?", 
+                options: ["kQx/(x²+R²)^(3/2)", "kQ/(x²+R²)", "kQx/(x²+R²)", "kQ/(x²+R²)^(3/2)"],
+                ans: "kQx/(x²+R²)^(3/2)", 
+                hint: "The field components perpendicular to the axis cancel out due to symmetry."
+            },
+            { 
+                q: "A charge q is placed at the center of a cube. What is the electric flux through one face of the cube?", 
+                options: ["q/6ε₀", "q/24ε₀", "q/8ε₀", "q/12ε₀"],
+                ans: "q/6ε₀", 
+                hint: "Total flux through the cube is q/ε₀. By symmetry, each face gets 1/6 of the total flux."
+            },
+            { 
+                q: "Two charges +q and -q are placed at (0,0) and (0,d) respectively. What is the electric field at (d,0)?", 
+                options: ["kq/d²(√2î - ĵ)", "kq/d²(î - √2ĵ)", "kq/d²(î + ĵ)", "kq/d²(î - ĵ)"],
+                ans: "kq/d²(√2î - ĵ)", 
+                hint: "Calculate the field from each charge and add them as vectors."
+            }
+        ]
+    },
+    Field: {
+        basic: [
+            { 
+                q: "Electric field lines originate from ______ charges and terminate at ______ charges.", 
+                options: ["positive, negative", "negative, positive", "positive, positive", "negative, negative"],
+                ans: "positive, negative", 
+                hint: "By convention, electric field lines start from positive charges and end at negative charges."
+            },
+            { 
+                q: "What is the direction of the electric field at a point?", 
+                options: ["Direction of force on a positive charge", "Direction of force on a negative charge", "Perpendicular to the force", "Opposite to the force"],
+                ans: "Direction of force on a positive charge", 
+                hint: "The electric field at a point is defined as the force per unit positive charge."
+            },
+            { 
+                q: "What happens to the electric field strength if the distance from a point charge is doubled?", 
+                options: ["It doubles", "It halves", "It becomes one-fourth", "It becomes four times"],
+                ans: "It becomes one-fourth", 
+                hint: "Electric field strength is inversely proportional to the square of the distance."
+            },
+            { 
+                q: "What is the SI unit of electric field?", 
+                options: ["N/C", "N·m/C", "C/N", "N/C²"],
+                ans: "N/C", 
+                hint: "Electric field is force per unit charge, so its unit is N/C."
+            },
+            { 
+                q: "Two equal positive charges are placed near each other. What is the electric field at the midpoint between them?", 
+                options: ["Zero", "Maximum", "Minimum", "Equal to the field of one charge"],
+                ans: "Zero", 
+                hint: "The fields from the two charges are equal in magnitude but opposite in direction at the midpoint."
+            }
+        ],
+        medium: [
+            { 
+                q: "An electron is placed in a uniform electric field. What is the direction of its acceleration?", 
+                options: ["Same as the field", "Opposite to the field", "Perpendicular to the field", "No acceleration"],
+                ans: "Opposite to the field", 
+                hint: "Electrons have negative charge, so they accelerate opposite to the field direction."
+            },
+            { 
+                q: "A point charge +q is placed at the origin. What is the electric field at (x,0)?", 
+                options: ["kq/x² along +x", "kq/x² along -x", "kq/x along +x", "kq/x along -x"],
+                ans: "kq/x² along +x", 
+                hint: "Electric field due to a point charge is E = kq/r² in the radial direction."
+            },
+            { 
+                q: "Two charges +q and -q are placed at (d,0) and (-d,0) respectively. What is the electric field at (0,y)?", 
+                options: ["kqd/(d²+y²)^(3/2) along -x", "kqd/(d²+y²)^(3/2) along +x", "kqy/(d²+y²)^(3/2) along +y", "kqy/(d²+y²)^(3/2) along -y"],
+                ans: "kqd/(d²+y²)^(3/2) along +x", 
+                hint: "Calculate the field from each charge and add them as vectors."
+            },
+            { 
+                q: "An electric dipole consists of charges +q and -q separated by distance d. What is the electric field at a point on the perpendicular bisector at distance r from the center (r >> d)?", 
+                options: ["kp/r²", "kp/r³", "2kp/r³", "kp/2r³"],
+                ans: "kp/r³", 
+                hint: "For a dipole, E = kp/r³ on the perpendicular bisector, where p = qd."
+            },
+            { 
+                q: "A uniform electric field exists in a region. What is the work done in moving a charge q along a closed path in this field?", 
+                options: ["Zero", "qEd", "2qEd", "qE/2"],
+                ans: "Zero", 
+                hint: "Electric field is conservative, so the work done in a closed path is zero."
+            }
+        ],
+        hard: [
+            { 
+                q: "A charge Q is uniformly distributed on a ring of radius R. What is the electric field at the center of the ring?", 
+                options: ["kQ/R²", "kQ/R", "Zero", "kQ/2R²"],
+                ans: "Zero", 
+                hint: "Due to symmetry, the electric field contributions from all parts of the ring cancel out."
+            },
+            { 
+                q: "An electric dipole is placed in a uniform electric field. What is the net force on the dipole?", 
+                options: ["Zero", "pE", "2pE", "pE/2"],
+                ans: "Zero", 
+                hint: "The forces on the two charges of the dipole are equal and opposite."
+            },
+            { 
+                q: "A charge q is placed at a distance d from an infinite conducting plane. What is the electric field at a point midway between the charge and the plane?", 
+                options: ["kq/d²", "2kq/d²", "kq/2d²", "4kq/d²"],
+                ans: "2kq/d²", 
+                hint: "The field is due to the charge and its image charge on the other side of the plane."
+            },
+            { 
+                q: "Two charges +q and +3q are placed at a distance d apart. Where is the electric field zero?", 
+                options: ["d/2 from +q", "d/√3 from +q", "d/2 from +3q", "d/√3 from +3q"],
+                ans: "d/√3 from +q", 
+                hint: "Set the fields equal: kq/x² = k(3q)/(d-x)²"
+            },
+            { 
+                q: "A charge Q is uniformly distributed on a spherical shell of radius R. What is the electric field inside the shell?", 
+                options: ["kQ/R²", "kQ/r²", "Zero", "kQ/2R²"],
+                ans: "Zero", 
+                hint: "By Gauss's law, the electric field inside a uniformly charged spherical shell is zero."
+            }
+        ],
+        extreme: [
+            { 
+                q: "A charge Q is uniformly distributed on a ring of radius R. What is the electric field at a distance x along the axis of the ring?", 
+                options: ["kQx/(x²+R²)^(3/2)", "kQ/(x²+R²)", "kQx/(x²+R²)", "kQ/(x²+R²)^(3/2)"],
+                ans: "kQx/(x²+R²)^(3/2)", 
+                hint: "The field components perpendicular to the axis cancel out due to symmetry."
+            },
+            { 
+                q: "An electric dipole with moment p is placed in a non-uniform electric field. What is the net force on the dipole?", 
+                options: ["Zero", "p(dE/dx)", "pE", "p(dE/dx)/2"],
+                ans: "p(dE/dx)", 
+                hint: "In a non-uniform field, there is a net force on the dipole proportional to the field gradient."
+            },
+            { 
+                q: "A charge q is placed at a distance d from an infinite conducting plane. What is the total induced charge on the plane?", 
+                options: ["-q", "q", "-q/2", "q/2"],
+                ans: "-q", 
+                hint: "By Gauss's law, the total induced charge on the plane must be -q."
+            },
+            { 
+                q: "Two infinite parallel plates with uniform surface charge densities +σ and -σ are separated by distance d. What is the electric field between the plates?", 
+                options: ["σ/ε₀", "σ/2ε₀", "2σ/ε₀", "Zero"],
+                ans: "σ/ε₀", 
+                hint: "The fields from both plates add up between them."
+            },
+            { 
+                q: "A charge Q is uniformly distributed throughout a sphere of radius R. What is the electric field at a distance r from the center (r < R)?", 
+                options: ["kQr/R³", "kQ/r²", "kQ/R²", "kQr²/R³"],
+                ans: "kQr/R³", 
+                hint: "By Gauss's law, E(4πr²) = Q(r³/R³)/ε₀"
+            }
+        ]
+    },
+    Gauss: {
+        basic: [
+            { 
+                q: "Gauss's law relates the electric flux through a closed surface to the ______ enclosed by that surface.", 
+                options: ["Electric field", "Charge", "Potential", "Force"],
+                ans: "Charge", 
+                hint: "Gauss's law states that the flux through a closed surface is proportional to the enclosed charge."
+            },
+            { 
+                q: "What is the electric flux through a closed surface that encloses no charge?", 
+                options: ["Zero", "Infinite", "Depends on the shape", "Depends on the size"],
+                ans: "Zero", 
+                hint: "By Gauss's law, if no charge is enclosed, the flux is zero."
+            },
+            { 
+                q: "For a spherical symmetric charge distribution, what is the best Gaussian surface to use?", 
+                options: ["Sphere", "Cube", "Cylinder", "Plane"],
+                ans: "Sphere", 
+                hint: "A spherical Gaussian surface matches the symmetry of the charge distribution."
+            },
+            { 
+                q: "What is the electric field inside a uniformly charged spherical shell?", 
+                options: ["Zero", "kQ/R²", "kQ/r²", "kQ/2R²"],
+                ans: "Zero", 
+                hint: "By Gauss's law, the electric field inside a uniformly charged spherical shell is zero."
+            },
+            { 
+                q: "What is the electric field outside a uniformly charged spherical shell?", 
+                options: ["Zero", "kQ/R²", "kQ/r²", "kQ/2r²"],
+                ans: "kQ/r²", 
+                hint: "Outside the shell, the field is the same as that of a point charge at the center."
+            }
+        ],
+        medium: [
+            { 
+                q: "A point charge +q is placed at the center of a cube. What is the electric flux through one face of the cube?", 
+                options: ["q/6ε₀", "q/24ε₀", "q/8ε₀", "q/12ε₀"],
+                ans: "q/6ε₀", 
+                hint: "Total flux through the cube is q/ε₀. By symmetry, each face gets 1/6 of the total flux."
+            },
+            { 
+                q: "An infinite line charge has linear charge density λ. What is the electric field at a distance r from the line?", 
+                options: ["λ/2πε₀r", "λ/4πε₀r", "2λ/πε₀r", "λ/πε₀r"],
+                ans: "λ/2πε₀r", 
+                hint: "Use a cylindrical Gaussian surface of radius r and length L."
+            },
+            { 
+                q: "An infinite plane has uniform surface charge density σ. What is the electric field at a distance r from the plane?", 
+                options: ["σ/2ε₀", "σ/ε₀", "2σ/ε₀", "σ/4ε₀"],
+                ans: "σ/2ε₀", 
+                hint: "Use a cylindrical Gaussian surface perpendicular to the plane."
+            },
+            { 
+                q: "A charge Q is uniformly distributed throughout a sphere of radius R. What is the electric field at a distance r from the center (r < R)?", 
+                options: ["kQr/R³", "kQ/r²", "kQ/R²", "kQr²/R³"],
+                ans: "kQr/R³", 
+                hint: "By Gauss's law, E(4πr²) = Q(r³/R³)/ε₀"
+            },
+            { 
+                q: "A charge Q is uniformly distributed throughout a sphere of radius R. What is the electric field at a distance r from the center (r > R)?", 
+                options: ["kQr/R³", "kQ/r²", "kQ/R²", "kQr²/R³"],
+                ans: "kQ/r²", 
+                hint: "Outside the sphere, the field is the same as that of a point charge at the center."
+            }
+        ],
+        hard: [
+            { 
+                q: "A spherical shell has charge Q uniformly distributed on its surface. What is the electric field just outside the shell?", 
+                options: ["Q/4πε₀R²", "Q/4πε₀r²", "Q/2πε₀R²", "Q/2πε₀r²"],
+                ans: "Q/4πε₀R²", 
+                hint: "Just outside the shell, r ≈ R, so E = Q/4πε₀R²"
+            },
+            { 
+                q: "A cylindrical conductor of radius R has a uniform surface charge density σ. What is the electric field just outside the cylinder?", 
+                options: ["σ/ε₀", "σ/2ε₀", "2σ/ε₀", "σ/4ε₀"],
+                ans: "σ/ε₀", 
+                hint: "For a cylindrical conductor, E = σ/ε₀ just outside the surface."
+            },
+            { 
+                q: "A spherical cavity is carved out from a uniformly charged sphere of radius R and charge density ρ. The cavity has radius R/2 and is centered at R/2 from the center of the sphere. What is the electric field at the center of the cavity?", 
+                options: ["ρR/9ε₀", "ρR/6ε₀", "ρR/3ε₀", "Zero"],
+                ans: "ρR/9ε₀", 
+                hint: "Use the principle of superposition: field due to the whole sphere minus field due to the cavity."
+            },
+            { 
+                q: "An infinite slab of thickness d has uniform volume charge density ρ. What is the electric field at a distance x from the center plane (x < d/2)?", 
+                options: ["ρx/ε₀", "ρd/2ε₀", "ρx/2ε₀", "ρd/ε₀"],
+                ans: "ρx/ε₀", 
+                hint: "Use a Gaussian surface that is a rectangular box centered on the slab."
+            },
+            { 
+                q: "Two concentric spherical shells have radii R and 2R, and charges +Q and -Q respectively. What is the electric field at r = 3R?", 
+                options: ["Zero", "Q/4πε₀(3R)²", "Q/4πε₀R²", "2Q/4πε₀(3R)²"],
+                ans: "Zero", 
+                hint: "The total charge enclosed by a Gaussian surface at r = 3R is Q + (-Q) = 0."
+            }
+        ],
+        extreme: [
+            { 
+                q: "A sphere of radius R has a charge density ρ = ρ₀r/R, where r is the distance from the center. What is the electric field at a distance r from the center (r < R)?", 
+                options: ["ρ₀r²/4ε₀R", "ρ₀r²/3ε₀R", "ρ₀r/4ε₀", "ρ₀r/3ε₀"],
+                ans: "ρ₀r²/4ε₀R", 
+                hint: "Use Gauss's law with the enclosed charge Q_enc = ∫ρdV = ∫(ρ₀r'/R)(4πr'²dr')"
+            },
+            { 
+                q: "An infinite cylinder of radius R has a charge density ρ = ρ₀r/R, where r is the distance from the axis. What is the electric field at a distance r from the axis (r < R)?", 
+                options: ["ρ₀r²/3ε₀R", "ρ₀r²/4ε₀R", "ρ₀r/3ε₀", "ρ₀r/4ε₀"],
+                ans: "ρ₀r²/3ε₀R", 
+                hint: "Use Gauss's law with the enclosed charge per unit length λ_enc = ∫ρ(2πr'dr')"
+            },
+            { 
+                q: "A spherical shell of radius R has a surface charge density σ = σ₀cosθ, where θ is the polar angle. What is the electric field at the center of the sphere?", 
+                options: ["σ₀/3ε₀", "σ₀/4ε₀", "σ₀/2ε₀", "Zero"],
+                ans: "σ₀/3ε₀", 
+                hint: "Integrate the contributions from each surface element."
+            },
+            { 
+                q: "A cube of side a has a uniform charge density ρ. What is the electric flux through one face of the cube?", 
+                options: ["ρa³/6ε₀", "ρa³/8ε₀", "ρa³/12ε₀", "ρa³/24ε₀"],
+                ans: "ρa³/6ε₀", 
+                hint: "Total charge is ρa³, so total flux is ρa³/ε₀. By symmetry, each face gets 1/6 of the total flux."
+            },
+            { 
+                q: "An infinite slab of thickness d has a charge density ρ = ρ₀x/d, where x is the distance from the center plane. What is the electric field at the surface of the slab (x = d/2)?", 
+                options: ["ρ₀d/8ε₀", "ρ₀d/4ε₀", "ρ₀d/2ε₀", "ρ₀d/ε₀"],
+                ans: "ρ₀d/8ε₀", 
+                hint: "Use Gauss's law with the enclosed charge Q_enc = ∫ρdA = ∫(ρ₀x'/d)(Adx')"
+            }
+        ]
+    },
+    Dipole: {
+        basic: [
+            { 
+                q: "An electric dipole consists of:", 
+                options: ["Two equal positive charges", "Two equal negative charges", "Two equal and opposite charges", "Any two charges"],
+                ans: "Two equal and opposite charges", 
+                hint: "An electric dipole is formed by two equal and opposite charges separated by a small distance."
+            },
+            { 
+                q: "What is the direction of the electric dipole moment?", 
+                options: ["From negative to positive charge", "From positive to negative charge", "Perpendicular to the line joining the charges", "It has no specific direction"],
+                ans: "From negative to positive charge", 
+                hint: "The dipole moment points from the negative charge to the positive charge."
+            },
+            { 
+                q: "What happens to an electric dipole in a uniform electric field?", 
+                options: ["It experiences a net force", "It experiences a torque but no net force", "It experiences no force or torque", "It experiences both force and torque"],
+                ans: "It experiences a torque but no net force", 
+                hint: "The forces on the two charges are equal and opposite, so there's no net force, but they create a torque."
+            },
+            { 
+                q: "What is the SI unit of electric dipole moment?", 
+                options: ["C·m", "C/m", "C/m²", "C²/m"],
+                ans: "C·m", 
+                hint: "Dipole moment p = qd, where q is charge and d is distance."
+            },
+            { 
+                q: "When is the torque on an electric dipole in a uniform electric field maximum?", 
+                options: ["When the dipole is parallel to the field", "When the dipole is perpendicular to the field", "When the dipole is at 45° to the field", "The torque is constant"],
+                ans: "When the dipole is perpendicular to the field", 
+                hint: "Torque τ = pE sinθ, which is maximum when θ = 90°."
+            }
+        ],
+        medium: [
+            { 
+                q: "An electric dipole with moment p is placed in a uniform electric field E. What is the magnitude of the torque when the dipole makes an angle θ with the field?", 
+                options: ["pE", "pE sinθ", "pE cosθ", "pE tanθ"],
+                ans: "pE sinθ", 
+                hint: "The torque on a dipole is given by τ = pE sinθ."
+            },
+            { 
+                q: "What is the potential energy of an electric dipole with moment p in a uniform electric field E when the dipole is aligned with the field?", 
+                options: ["-pE", "0", "pE", "2pE"],
+                ans: "-pE", 
+                hint: "The potential energy U = -p·E = -pE cosθ. When aligned, θ = 0°, so U = -pE."
+            },
+            { 
+                q: "An electric dipole is placed in a non-uniform electric field. What happens to the dipole?", 
+                options: ["It experiences only torque", "It experiences only force", "It experiences both torque and force", "It experiences neither force nor torque"],
+                ans: "It experiences both torque and force", 
+                hint: "In a non-uniform field, the forces on the two charges are not equal, so there's both a net force and a torque."
+            },
+            { 
+                q: "What is the electric field at a point on the axial line of an electric dipole at a distance r from its center (r >> d, where d is the separation between charges)?", 
+                options: ["kp/r³", "2kp/r³", "kp/r²", "2kp/r²"],
+                ans: "2kp/r³", 
+                hint: "On the axial line, E = 2kp/r³ for r >> d."
+            },
+            { 
+                q: "What is the electric field at a point on the equatorial line of an electric dipole at a distance r from its center (r >> d)?", 
+                options: ["kp/r³", "2kp/r³", "kp/r²", "2kp/r²"],
+                ans: "kp/r³", 
+                hint: "On the equatorial line, E = kp/r³ for r >> d."
+            }
+        ],
+        hard: [
+            { 
+                q: "Two electric dipoles with moments p₁ and p₂ are placed at right angles to each other. What is the resultant dipole moment?", 
+                options: ["p₁ + p₂", "|p₁ - p₂|", "√(p₁² + p₂²)", "p₁p₂/√(p₁² + p₂²)"],
+                ans: "√(p₁² + p₂²)", 
+                hint: "Dipole moments are vectors, so add them using vector addition."
+            },
+            { 
+                q: "An electric dipole with moment p is placed in a uniform electric field E. What is the work done in rotating the dipole from an angle θ₁ to θ₂?", 
+                options: ["pE(cosθ₂ - cosθ₁)", "pE(sinθ₂ - sinθ₁)", "pE(cosθ₁ - cosθ₂)", "pE(sinθ₁ - sinθ₂)"],
+                ans: "pE(cosθ₁ - cosθ₂)", 
+                hint: "Work done = change in potential energy = pE(cosθ₁ - cosθ₂)."
+            },
+            { 
+                q: "What is the torque on an electric dipole with moment p in a uniform electric field E when the dipole is at an unstable equilibrium?", 
+                options: ["pE", "0", "2pE", "pE/2"],
+                ans: "0", 
+                hint: "At equilibrium (stable or unstable), the torque is zero."
+            },
+            { 
+                q: "An electric dipole with moment p is placed in a non-uniform electric field E that varies as E = E₀xî. What is the force on the dipole if it is oriented along the x-axis?", 
+                options: ["p(dE/dx)", "pE₀", "pE₀x", "Zero"],
+                ans: "p(dE/dx)", 
+                hint: "In a non-uniform field, the force on a dipole is F = p(dE/dx)."
+            },
+            { 
+                q: "What is the electric field due to a dipole at a point making an angle θ with the dipole axis?", 
+                options: ["kp/r³√(1+3cos²θ)", "kp/r³√(3+cos²θ)", "kp/r³√(1+3sin²θ)", "kp/r³√(3+sin²θ)"],
+                ans: "kp/r³√(1+3cos²θ)", 
+                hint: "The field at an angle θ is given by E = kp/r³√(1+3cos²θ)."
+            }
+        ],
+        extreme: [
+            { 
+                q: "A charge q is placed at a distance d from an infinite conducting plane. What is the force on the charge?", 
+                options: ["kq²/4d²", "kq²/d²", "kq²/2d²", "kq²/8d²"],
+                ans: "kq²/4d²", 
+                hint: "The force is due to the image charge -q at distance d behind the plane."
+            },
+            { 
+                q: "An electric dipole with moment p is placed at a distance d from an infinite conducting plane with its moment perpendicular to the plane. What is the torque on the dipole?", 
+                options: ["p²/4πε₀d³", "p²/2πε₀d³", "p²/8πε₀d³", "p²/16πε₀d³"],
+                ans: "p²/4πε₀d³", 
+                hint: "The torque is due to the field of the image dipole."
+            },
+            { 
+                q: "Two electric dipoles with moments p₁ and p₂ are placed along the same line at a distance d apart. What is the force of attraction between them if they are oriented along the line joining them?", 
+                options: ["6p₁p₂/4πε₀d⁴", "3p₁p₂/4πε₀d⁴", "12p₁p₂/4πε₀d⁴", "p₁p₂/4πε₀d⁴"],
+                ans: "6p₁p₂/4πε₀d⁴", 
+                hint: "The force between two coaxial dipoles is F = 6p₁p₂/4πε₀d⁴."
+            },
+            { 
+                q: "An electric dipole with moment p is placed in a non-uniform electric field E = E₀(1 + αx)î. What is the force on the dipole if it is oriented along the x-axis?", 
+                options: ["pE₀α", "pE₀", "pE₀αx", "pE₀(1+αx)"],
+                ans: "pE₀α", 
+                hint: "The force on a dipole in a non-uniform field is F = p(dE/dx) = pE₀α."
+            },
+            { 
+                q: "A point charge q is placed at a distance d from the center of an uncharged conducting sphere of radius R (d > R). What is the force on the charge?", 
+                options: ["kq²R³/d³(d²-R²)²", "kq²R/d²(d²-R²)", "kq²R/d(d²-R²)", "kq²R²/d²(d²-R²)²"],
+                ans: "kq²R³/d³(d²-R²)²", 
+                hint: "This is a method of images problem with a sphere."
+            }
+        ]
+    }
+};
+
+// ===== Game Flow =====
+function enterLevel(level) {
+    gameState.currentLevel = level;
+    gameState.currentTopicIndex = 0;
+    gameState.questionIndex = 0;
+    gameState.incorrectStreak = 0;
+    gameState.correctAnswers = 0;
+    gameState.xp = 0;
+    saveGameState();
+
+    updateXP();
+    updateProgress();
+    dom.menu.style.display = 'none';
+    dom.stage.style.display = 'flex';
+    dom.levelMessage.innerText = '';
+    prepareTopic();
+}
+
+function backToMenu() {
+    dom.stage.style.display = 'none';
+    dom.menu.style.display = 'block';
+    dom.levelMessage.innerText = '';
+    saveGameState();
+}
+
+function prepareTopic() {
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+
+    const currTopicKey = topicList[gameState.currentTopicIndex];
+    const lvl = gameState.currentLevel;
+    dom.levelTitle.innerText = `${lvl.toUpperCase()} - ${currTopicKey}`;
+    
+    let topicQuestions = [];
+    if (questionBank[currTopicKey] && questionBank[currTopicKey][lvl]) {
+        topicQuestions = [...questionBank[currTopicKey][lvl]];
+    } else {
+        topicQuestions = [];
+    }
+
+    shuffleArray(topicQuestions);
+    currentQuestions = topicQuestions.slice(0, QUESTIONS_PER_TOPIC);
+    gameState.questionIndex = 0;
+    saveGameState();
+    renderQuestion();
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function skipQuestion() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function nextStep() {
+    if (gameState.questionIndex < QUESTIONS_PER_TOPIC - 1) {
+        gameState.questionIndex++;
+        saveGameState();
+        renderQuestion();
+    } else {
+        finishTopic();
+    }
+}
+
+function finishTopic() {
+    dom.levelMessage.innerText = `Topic Complete! ✨`;
+    dom.levelMessage.style.animation = 'pulse 1s';
+    
+    if (gameState.currentTopicIndex < topicList.length - 1) {
+        gameState.currentTopicIndex++;
+        gameState.questionIndex = 0;
+        saveGameState();
+        setTimeout(() => {
+            dom.levelMessage.innerText = '';
+            prepareTopic();
+        }, 900);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    dom.centerStage.innerHTML = `<div class="quest">🚀 Mission Complete! 🚀</div><div style="font-size: 1.2rem; color: var(--xp-glow);">Total XP: ${gameState.xp}</div><div style="margin-top:10px;font-weight:700;color:#bdf;">Correct answers: ${gameState.correctAnswers} / ${topicList.length * QUESTIONS_PER_TOPIC}</div>`;
+    dom.levelMessage.innerText = `Great job! You've completed all topics for this level.`;
+    dom.controls.innerHTML = `
+        <button class="action-btn" onclick="location.reload()">🎉 Play Again</button>
+        <button class="action-btn secondary" onclick="backToMenu()">↩️ Back to Menu</button>
+        <button class="action-btn next-btn" onclick="window.location.href='../gr12-ncert-physics-conc.html'">✓ Finish</button>
+    `;
+    saveGameState();
+}
+
+// ===== Rendering Interactive Questions =====
+function renderQuestion() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) {
+        dom.centerStage.innerHTML = `<div class="quest">No question available.</div>`;
+        return;
+    }
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase();
+    
+    dom.centerStage.style.opacity = 0;
+    setTimeout(() => {
+        let html = '';
+        switch (qtype) {
+            case 'charge':
+                html = `<div class="quest">${q.q}</div><div class="charge-game"><div class="charge-options">`;
+                q.options.forEach(option => {
+                    html += `<div class="charge-option" data-answer="${option}">${option}</div>`;
+                });
+                html += `</div></div>`;
+                break;
+            case 'coulomb':
+                html = `<div class="quest">${q.q}</div><div class="coulomb-game"><div class="coulomb-visual"><div class="charge-particle q1">+q</div><div class="charge-particle q2">-q</div><div class="force-arrow" style="width: 100px; left: 90px; top: 100px; transform: rotate(0deg);"></div></div><div class="coulomb-inputs"><input type="number" id="coulombAnswer" class="coulomb-input" placeholder="Answer"></div></div>`;
+                break;
+            case 'field':
+                html = `<div class="quest">${q.q}</div><div class="field-game"><canvas id="fieldCanvas" class="field-canvas" width="300" height="200"></canvas><div class="field-options">`;
+                if (q.options) {
+                    q.options.forEach(option => {
+                        html += `<div class="field-option" data-answer="${option}">${option}</div>`;
+                    });
+                } else {
+                    html += `<input type="number" id="fieldAnswer" class="coulomb-input" placeholder="Answer">`;
+                }
+                html += `</div></div>`;
+                break;
+            case 'gauss':
+                html = `<div class="quest">${q.q}</div><div class="gauss-game"><div class="gauss-visual">`;
+                if (q.surface === 'sphere') {
+                    html += `<div class="gauss-surface sphere"></div>`;
+                } else if (q.surface === 'cylinder') {
+                    html += `<div class="gauss-surface cylinder"></div>`;
+                } else {
+                    html += `<div class="gauss-surface plane"></div>`;
+                }
+                html += `<div class="gauss-charge positive" style="left: 140px; top: 90px;">+q</div></div><div class="gauss-inputs"><input type="number" id="gaussAnswer" class="gauss-input" placeholder="Answer"></div></div>`;
+                break;
+            case 'dipole':
+                html = `<div class="quest">${q.q}</div><div class="dipole-game"><div class="dipole-visual"><div class="dipole"><div class="dipole-charge positive">+q</div><div class="dipole-charge negative">-q</div></div><canvas id="dipoleCanvas" class="dipole-field" width="300" height="200"></canvas></div><div class="dipole-inputs"><input type="number" id="dipoleAnswer" class="dipole-input" placeholder="Answer"></div></div>`;
+                break;
+        }
+
+        dom.centerStage.innerHTML = html;
+        attachEventListeners(qtype);
+        resetUIState();
+        dom.centerStage.style.opacity = 1;
+    }, 250);
+}
+
+function attachEventListeners(type) {
+    if (type === 'charge') {
+        document.querySelectorAll('.charge-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.charge-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'field') {
+        const canvas = document.getElementById('fieldCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawFieldLines(ctx, canvas.width, canvas.height);
+        }
+        
+        document.querySelectorAll('.field-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.field-option').forEach(opt => opt.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+            });
+        });
+    } else if (type === 'dipole') {
+        const canvas = document.getElementById('dipoleCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            drawDipoleField(ctx, canvas.width, canvas.height);
+        }
+    }
+
+    const firstInput = dom.centerStage.querySelector('input');
+    if (firstInput) firstInput.focus();
+}
+
+function drawFieldLines(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw a positive charge
+    ctx.beginPath();
+    ctx.arc(width/2 - 50, height/2, 15, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 82, 82, 0.7)';
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', width/2 - 50, height/2);
+    
+    // Draw field lines
+    ctx.strokeStyle = 'rgba(156, 39, 176, 0.6)';
+    ctx.lineWidth = 1;
+    
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 6) {
+        ctx.beginPath();
+        ctx.moveTo(width/2 - 50 + 15 * Math.cos(angle), height/2 + 15 * Math.sin(angle));
+        
+        let x = width/2 - 50 + 15 * Math.cos(angle);
+        let y = height/2 + 15 * Math.sin(angle);
+        
+        for (let r = 15; r < 100; r += 2) {
+            x = width/2 - 50 + r * Math.cos(angle);
+            y = height/2 + r * Math.sin(angle);
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.stroke();
+    }
+}
+
+function drawDipoleField(ctx, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw dipole charges
+    ctx.beginPath();
+    ctx.arc(width/2 - 30, height/2, 15, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 82, 82, 0.7)';
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', width/2 - 30, height/2);
+    
+    ctx.beginPath();
+    ctx.arc(width/2 + 30, height/2, 15, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(68, 138, 255, 0.7)';
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.fillText('-', width/2 + 30, height/2);
+    
+    // Draw field lines
+    ctx.strokeStyle = 'rgba(156, 39, 176, 0.6)';
+    ctx.lineWidth = 1;
+    
+    // Field lines from positive to negative
+    for (let angle = Math.PI/4; angle < Math.PI * 3/4; angle += Math.PI/8) {
+        ctx.beginPath();
+        ctx.moveTo(width/2 - 30 + 15 * Math.cos(angle), height/2 + 15 * Math.sin(angle));
+        
+        let x = width/2 - 30 + 15 * Math.cos(angle);
+        let y = height/2 + 15 * Math.sin(angle);
+        
+        for (let t = 0; t < 1; t += 0.02) {
+            // Bezier curve for field line
+            const cx = width/2;
+            const cy = height/2 + 30 * Math.sin(angle);
+            x = (1-t)*(1-t)*(width/2 - 30 + 15 * Math.cos(angle)) + 
+                2*(1-t)*t*cx + 
+                t*t*(width/2 + 30 - 15 * Math.cos(angle));
+            y = (1-t)*(1-t)*(height/2 + 15 * Math.sin(angle)) + 
+                2*(1-t)*t*cy + 
+                t*t*(height/2 - 15 * Math.sin(angle));
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.stroke();
+    }
+    
+    // Field lines going out
+    for (let angle = -Math.PI/3; angle < Math.PI/3; angle += Math.PI/6) {
+        ctx.beginPath();
+        ctx.moveTo(width/2 - 30 + 15 * Math.cos(angle), height/2 + 15 * Math.sin(angle));
+        
+        let x = width/2 - 30 + 15 * Math.cos(angle);
+        let y = height/2 + 15 * Math.sin(angle);
+        
+        for (let r = 15; r < 100; r += 2) {
+            x = width/2 - 30 + r * Math.cos(angle);
+            y = height/2 + r * Math.sin(angle);
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.stroke();
+    }
+    
+    // Field lines coming in
+    for (let angle = Math.PI * 2/3; angle < Math.PI * 4/3; angle += Math.PI/6) {
+        ctx.beginPath();
+        ctx.moveTo(width/2 + 30 + 15 * Math.cos(angle), height/2 + 15 * Math.sin(angle));
+        
+        let x = width/2 + 30 + 15 * Math.cos(angle);
+        let y = height/2 + 15 * Math.sin(angle);
+        
+        for (let r = 15; r < 100; r += 2) {
+            x = width/2 + 30 + r * Math.cos(angle);
+            y = height/2 + r * Math.sin(angle);
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.stroke();
+    }
+}
+
+function resetUIState() {
+    dom.qIndex.innerText = gameState.questionIndex + 1;
+    dom.qTotal.innerText = QUESTIONS_PER_TOPIC;
+    dom.feedback.classList.remove('visible', 'correct', 'incorrect');
+    dom.hintBox.classList.remove('visible');
+    dom.checkBtn.style.display = 'inline-block'; 
+    dom.checkBtn.disabled = false;
+    dom.nextBtn.style.display = 'none';
+    dom.levelMessage.style.animation = '';
+    dom.levelMessage.innerText = '';
+}
+
+// ===== Answer Checking Logic =====
+function checkAnswer() {
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    if (!q) return;
+    let isCorrect = false; 
+    let userAnswer;
+
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase();
+
+    switch (qtype) {
+        case 'charge':
+            const selectedOption = document.querySelector('.charge-option.selected');
+            userAnswer = selectedOption ? selectedOption.dataset.answer : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'coulomb':
+            const coulombInput = document.getElementById('coulombAnswer');
+            userAnswer = coulombInput ? coulombInput.value.trim() : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'field':
+            if (q.options) {
+                const selectedFieldOption = document.querySelector('.field-option.selected');
+                userAnswer = selectedFieldOption ? selectedFieldOption.dataset.answer : '';
+                isCorrect = (userAnswer === q.ans);
+            } else {
+                const fieldInput = document.getElementById('fieldAnswer');
+                userAnswer = fieldInput ? fieldInput.value.trim() : '';
+                isCorrect = (userAnswer === q.ans);
+            }
+            break;
+        case 'gauss':
+            const gaussInput = document.getElementById('gaussAnswer');
+            userAnswer = gaussInput ? gaussInput.value.trim() : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+        case 'dipole':
+            const dipoleInput = document.getElementById('dipoleAnswer');
+            userAnswer = dipoleInput ? dipoleInput.value.trim() : '';
+            isCorrect = (userAnswer === q.ans);
+            break;
+    }
+
+    dom.checkBtn.disabled = true;
+    if (isCorrect) handleCorrect();
+    else handleIncorrect();
+}
+
+function handleCorrect() {
+    gameState.xp += 10;
+    gameState.correctAnswers++;
+    gameState.incorrectStreak = 0;
+    dom.hintBtn.classList.remove('highlight-hint');
+    updateXP();
+    updateProgress();
+    dom.feedback.innerText = "✅ Correct!";
+    dom.feedback.className = 'feedback visible correct';
+    particleEffect(dom.checkBtn, true);
+    saveGameState();
+    setTimeout(() => {
+        nextStep();
+    }, 900);
+}
+
+function handleIncorrect() {
+    gameState.incorrectStreak++;
+    if (gameState.incorrectStreak >= 3) {
+        dom.hintBtn.classList.add('highlight-hint');
+    }
+
+    const idx = gameState.questionIndex;
+    const q = currentQuestions[idx];
+    let correctAnswerText = q.ans;
+    const topicKey = topicList[gameState.currentTopicIndex];
+    let qtype = topicKey.toLowerCase();
+
+    if (qtype === 'charge') {
+        document.querySelectorAll('.charge-option').forEach(option => {
+            if (option.dataset.answer === q.ans) {
+                option.classList.add('selected');
+            }
+        });
+    } else if (qtype === 'coulomb') {
+        const coulombInput = document.getElementById('coulombAnswer');
+        if (coulombInput) coulombInput.value = q.ans;
+    } else if (qtype === 'field') {
+        if (q.options) {
+            document.querySelectorAll('.field-option').forEach(option => {
+                if (option.dataset.answer === q.ans) {
+                    option.classList.add('selected');
+                }
+            });
+        } else {
+            const fieldInput = document.getElementById('fieldAnswer');
+            if (fieldInput) fieldInput.value = q.ans;
+        }
+    } else if (qtype === 'gauss') {
+        const gaussInput = document.getElementById('gaussAnswer');
+        if (gaussInput) gaussInput.value = q.ans;
+    } else if (qtype === 'dipole') {
+        const dipoleInput = document.getElementById('dipoleAnswer');
+        if (dipoleInput) dipoleInput.value = q.ans;
+    }
+
+    dom.feedback.innerText = `❌ The answer is ${correctAnswerText}.`;
+    dom.feedback.className = 'feedback visible incorrect';
+    particleEffect(dom.checkBtn, false);
+    dom.nextBtn.style.display = 'inline-block';
+    saveGameState();
+}
+
+// ===== UI Updates & Effects =====
+function updateProgress() {
+    const totalQuestionsInGame = topicList.length * QUESTIONS_PER_TOPIC;
+    const totalProgress = (gameState.correctAnswers / totalQuestionsInGame) * 100;
+    const dash = 276.46;
+    dom.progressCircle.style.strokeDashoffset = dash - (dash * totalProgress / 100);
+    dom.progressPercent.innerText = `${Math.round(totalProgress)}%`;
+}
+
+function updateXP() {
+    dom.xpValue.innerText = gameState.xp;
+    dom.xpDisplay.classList.add('updated');
+    setTimeout(() => dom.xpDisplay.classList.remove('updated'), 300);
+}
+
+function showHint() {
+    const q = currentQuestions[gameState.questionIndex];
+    if (!q) return;
+    dom.hintBox.innerText = q.hint || 'No hint available';
+    dom.hintBox.classList.add('visible');
+}
+
+// ===== Visual Particle Effect (small) =====
+function particleEffect(elm, correct) {
+    try {
+        const rect = elm.getBoundingClientRect();
+        const c = document.createElement('canvas');
+        c.width = rect.width * 3; c.height = rect.height * 3;
+        c.style.cssText = `position: fixed; left: ${rect.left - rect.width}px; top: ${rect.top - rect.height}px; pointer-events: none; z-index: 30;`;
+        document.body.appendChild(c);
+
+        const pCtx = c.getContext('2d');
+        let particles = Array.from({ length: 40 }, () => ({
+            x: c.width / 2, y: c.height / 2,
+            vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+            r: Math.random() * 3 + 2, alpha: 1
+        }));
+
+        const anim = setInterval(() => {
+            pCtx.clearRect(0, 0, c.width, c.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pCtx.fillStyle = correct ? `rgba(0, 255, 200, ${p.alpha})` : `rgba(255, 100, 100, ${p.alpha})`;
+                pCtx.fill();
+            });
+            particles = particles.filter(p => p.alpha > 0);
+            if (particles.length === 0) {
+                clearInterval(anim);
+                if (c.parentNode) c.parentNode.removeChild(c);
+            }
+        }, 20);
+    } catch (e) {
+        console.warn('Particle effect failed', e);
+    }
+}
+
+// ===== Init =====
+loadGameState();
+</script>
+<button id="finishBtn" class="action-btn" style="position:fixed;right:20px;bottom:20px;z-index:40;padding:12px 16px;border-radius:12px;">Finish ✓</button>
+<script>
+document.getElementById('finishBtn').addEventListener('click', function () {
+    try {
+        localStorage.setItem('aurraa:grade12:chem:chapter1:progress', JSON.stringify({ visited_quiz: true, ts: Date.now() }));
+    } catch (e) {
+        // ignore storage errors
+    }
+    // small UX: disable button briefly to avoid double-click
+    this.disabled = true;
+    this.style.opacity = 0.85;
+    // navigate to the chemistry syllabus at site root
+    window.location.href = '/ncert-g12-physics-syllabus.html';
+});
+</script>
+</body>
+</html>

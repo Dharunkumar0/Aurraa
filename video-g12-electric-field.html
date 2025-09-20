@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Electric Field & Field Lines — Animation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+  overflow: hidden;
+  text-align: center;
+}
+
+.stars {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+}
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: twinkle 3s infinite ease-in-out;
+}
+@keyframes twinkle {
+  0%,100% {opacity:0.2;}
+  50% {opacity:1;}
+}
+
+h2, h3 { margin: 6px 0; }
+.card {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  max-width: 900px;
+  width: 90%;
+}
+.animationBox {
+  position: relative;
+  height: 60vh;
+  width: 100%;
+  margin: 10px auto;
+  opacity: 0;
+}
+svg { width: 100%; height: 100%; }
+
+button, select {
+  margin: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#pauseBtn { background: #4CAF50; color: white; }
+#replayBtn { background: #ff7b54; color: white; display: none; }
+select {
+  border: 1px solid white;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 6px 10px;
+}
+.caption {
+  font-size: 1rem;
+  margin-top: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.5);
+  display: inline-block;
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<h2>Electric Field & Field Lines</h2>
+<h3>Physics — Electrostatics</h3>
+
+<label for="langSelect">🌐 Choose Language:</label>
+<select id="langSelect">
+  <option value="en">English</option>
+  <option value="hi">हिन्दी</option>
+  <option value="ta">தமிழ்</option>
+  <option value="te">తెలుగు</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+</select>
+
+<div class="card">
+  <div class="animationBox" id="animBox">
+    <svg viewBox="0 0 500 400">
+      <!-- Positive charge -->
+      <circle cx="250" cy="200" r="15" fill="#ff5252" />
+      <!-- Field lines -->
+      <line x1="250" y1="200" x2="250" y2="50" stroke="white" stroke-width="2" opacity="0" />
+      <line x1="250" y1="200" x2="400" y2="200" stroke="white" stroke-width="2" opacity="0" />
+      <line x1="250" y1="200" x2="100" y2="200" stroke="white" stroke-width="2" opacity="0" />
+      <line x1="250" y1="200" x2="350" y2="300" stroke="white" stroke-width="2" opacity="0" />
+      <line x1="250" y1="200" x2="150" y2="300" stroke="white" stroke-width="2" opacity="0" />
+      <!-- Test charge -->
+      <circle id="testCharge" cx="250" cy="80" r="8" fill="#00e5ff" opacity="0" />
+    </svg>
+  </div>
+
+  <div id="caption" class="caption">Electric field is the region around a charge where its influence can be felt.</div>
+  <br>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="replayBtn">🔄 Replay</button>
+</div>
+
+<script>
+/* === Starry background generation === */
+const starsContainer = document.getElementById("stars");
+for(let i=0;i<60;i++){
+  const s=document.createElement("div");
+  s.classList.add("star");
+  let size=Math.random()*2+1;
+  s.style.width=s.style.height=size+"px";
+  s.style.left=Math.random()*100+"%";
+  s.style.top=Math.random()*100+"%";
+  s.style.animationDelay=Math.random()*3+"s";
+  starsContainer.appendChild(s);
+}
+
+const caption = document.getElementById("caption");
+const animBox = document.getElementById("animBox");
+const replayBtn = document.getElementById("replayBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const langSelect = document.getElementById("langSelect");
+const testCharge = document.getElementById("testCharge");
+
+let paused = false, stepIndex = 0, currentLang = "en";
+
+const captions = {
+  en: [
+    "Electric field is the region around a charge where its influence can be felt.",
+    "It is a vector quantity having both magnitude and direction.",
+    "Electric field lines represent the direction of force on a positive test charge.",
+    "They start from positive charges and go outward to infinity or negative charges.",
+    "The density of lines shows the strength of the field.",
+    "Field lines never intersect each other.",
+    "Placing a positive test charge shows the direction of force at that point.",
+    "The charge moves along the field line, visualizing the path of force."
+  ],
+  hi: [
+    "विद्युत क्षेत्र वह क्षेत्र है जहां चार्ज का प्रभाव महसूस किया जा सकता है।",
+    "यह एक सदिश राशि है जिसमें परिमाण और दिशा दोनों होते हैं।",
+    "विद्युत क्षेत्र रेखाएं सकारात्मक परीक्षण चार्ज पर बल की दिशा को दर्शाती हैं।",
+    "वे धनात्मक आवेश से शुरू होकर ऋणात्मक आवेश या अनंत तक जाती हैं।",
+    "रेखाओं की सघनता क्षेत्र की तीव्रता को दर्शाती है।",
+    "क्षेत्र रेखाएं कभी एक-दूसरे को नहीं काटती।",
+    "सकारात्मक परीक्षण चार्ज रखने पर बल की दिशा का पता चलता है।",
+    "चार्ज क्षेत्र रेखा के साथ बल के मार्ग का अनुसरण करता है।"
+  ],
+  ta: [
+    "மின்னியல் புலம் என்பது சார்ஜின் தாக்கம் இருக்கும் பகுதி.",
+    "இது அளவு மற்றும் திசை கொண்ட ஒரு வெக்டர் அளவு.",
+    "மின்னியல் புல வரிகள் நேர்ம சார்ஜின் மீதான வலுவின் திசையை காட்டுகின்றன.",
+    "அவை நேர்ம சார்ஜில் இருந்து தொடங்கி எதிர்ம சார்ஜிற்கு அல்லது வெளியில் செல்கின்றன.",
+    "வரிகளின் அடர்த்தி புலத்தின் வலிமையை காட்டுகிறது.",
+    "புல வரிகள் ஒருபோதும் ஒன்றை ஒன்று கடக்காது.",
+    "ஒரு நேர்ம சோதனை சார்ஜை வைப்பது அந்த இடத்தில் உள்ள வலுவின் திசையை காட்டுகிறது.",
+    "சார்ஜ் புல வரி வழியாக நகர்ந்து வலுவின் பாதையை காட்டுகிறது."
+  ],
+  te: [
+    "విద్యుత్ క్షేత్రం అనేది చార్జ్ ప్రభావం ఉండే ప్రాంతం.",
+    "ఇది పరిమాణం మరియు దిశ కలిగిన వెక్టర్ రాశి.",
+    "విద్యుత్ క్షేత్ర రేఖలు ధనాత్మక చార్జ్ పై బల దిశను చూపుతాయి.",
+    "అవి ధనాత్మక చార్జ్ నుండి ప్రారంభమై ప్రతికూల చార్జ్ లేదా అనంతం వరకు వెళ్తాయి.",
+    "రేఖల సాంద్రత క్షేత్ర బలాన్ని సూచిస్తుంది.",
+    "క్షేత్ర రేఖలు ఎప్పుడూ ఒకదానిని మరొకటి దాటవు.",
+    "ధనాత్మక పరీక్ష చార్జ్ పెట్టడం వల్ల ఆ బల దిశ తెలుస్తుంది.",
+    "చార్జ్ క్షేత్ర రేఖల వెంట కదలుతుంది."
+  ],
+  or: [
+    "ବିଦ୍ୟୁତ କ୍ଷେତ୍ର ହେଉଛି ସେହି ଅଞ୍ଚଳ, ଯେଉଁଠାରେ ଚାର୍ଜର ପ୍ରଭାବ ଅନୁଭବ କରାଯାଏ।",
+    "ଏହା ଏକ ସଦିଶ ରାଶି ଯାହାର ମାପ ଏବଂ ଦିଗ ଉଭୟ ଥାଏ।",
+    "ବିଦ୍ୟୁତ କ୍ଷେତ୍ର ରେଖାଗୁଡିକ ସକାରାତ୍ମକ ପରୀକ୍ଷଣ ଚାର୍ଜରେ ବଳର ଦିଗକୁ ଦର୍ଶାଏ।",
+    "ସେଗୁଡିକ ସକାରାତ୍ମକ ଚାର୍ଜରୁ ଆରମ୍ଭ ହୋଇ ଋଣାତ୍ମକ ଚାର୍ଜ କିମ୍ବା ଅନନ୍ତ ପର୍ଯ୍ୟନ୍ତ ଯାଆନ୍ତି।",
+    "ରେଖାଗୁଡିକର ସଂଘନ କ୍ଷେତ୍ରର ଶକ୍ତିକୁ ସୂଚାଏ।",
+    "କ୍ଷେତ୍ର ରେଖାଗୁଡିକ କେବେ ଏକାପରେ ଏକଟି କଟନ୍ତି ନାହିଁ।",
+    "ସକାରାତ୍ମକ ପରୀକ୍ଷଣ ଚାର୍ଜ ରଖିବାରୁ ବଳର ଦିଗ ଜଣାପଡେ।",
+    "ଚାର୍ଜ କ୍ଷେତ୍ର ରେଖା ଦିଗରେ ଗତି କରେ।"
+  ]
+};
+
+const voicesMap = { en:"en-IN", hi:"hi-IN", ta:"ta-IN", te:"te-IN", or:"or-IN" };
+
+function speak(text,lang,callback){
+  if(paused) return;
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang=voicesMap[lang]||"en-IN";
+  utter.rate=1.05;
+  utter.onend=()=>{ if(!paused) callback(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function resetAnimation(){
+  gsap.set("line",{opacity:0});
+  gsap.set(testCharge,{opacity:0, x:0, y:0});
+  stepIndex=0;
+}
+
+function runStep(){
+  if(stepIndex >= captions[currentLang].length){
+    replayBtn.style.display="inline-block";
+    return;
+  }
+
+  caption.textContent=captions[currentLang][stepIndex];
+  gsap.fromTo(caption,{opacity:0,scale:0.8},{opacity:1,scale:1,duration:0.6});
+  gsap.to(animBox,{opacity:1,duration:1});
+
+  if(stepIndex===2){ gsap.to("line",{opacity:1,stagger:0.3,duration:0.8}); }
+  if(stepIndex===6){ gsap.to(testCharge,{opacity:1,duration:0.6}); }
+  if(stepIndex===7){ gsap.to(testCharge,{y:80,duration:2,ease:"power1.inOut"}); }
+
+  speak(captions[currentLang][stepIndex],currentLang,()=>{
+    stepIndex++;
+    if(!paused) runStep();
+  });
+}
+
+pauseBtn.addEventListener("click",()=>{
+  paused=!paused;
+  if(paused) window.speechSynthesis.cancel();
+  else runStep();
+  pauseBtn.textContent=paused?"▶ Resume":"⏸ Pause";
+});
+
+replayBtn.addEventListener("click",()=>{
+  resetAnimation();
+  replayBtn.style.display="none";
+  paused=false;
+  runStep();
+});
+
+langSelect.addEventListener("change",()=>{
+  currentLang=langSelect.value;
+  resetAnimation();
+  window.speechSynthesis.cancel();
+  replayBtn.style.display="none";
+  runStep();
+});
+
+resetAnimation();
+runStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Types of Solids: Crystalline & Amorphous</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: black; /* space background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      color: white;
+    }
+
+    /* SVG space background */
+    #space-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1; /* card above background */
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      width: 70%;
+      max-width: 850px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    svg { width: 100%; height: auto; }
+
+    .caption {
+      font-size: 1rem;
+      margin-top: 12px;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      color: #fff;
+    }
+
+    button, select {
+      margin: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #replayBtn { background: #ff7b54; color: #fff; display: none; }
+    #pauseBtn { background: #4CAF50; color: #fff; }
+    #replayBtn:hover { background: #ff5722; }
+    #pauseBtn:hover { background: #2e7d32; }
+    select { border: 1px solid #ccc; font-weight: normal; padding: 6px 12px; }
+
+    .numText { font-weight: bold; font-size: 22px; fill: #111; }
+    .comma { font-size: 22px; font-weight: bold; fill: #666; }
+    .highlight { fill: red !important; font-weight: bold; }
+    .solid-title { font-size: 18px; font-weight: bold; fill: #fff; }
+    .particle { fill: #4D96FF; }
+    .amorphous-particle { fill: #FF6B6B; }
+
+    /* Finish button styling */
+    .nav-btn, .finish-btn {
+      background: linear-gradient(90deg,#ff7b54,#ff5a9e);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .finish-btn { position: fixed; right: 18px; bottom: 18px; z-index: 1200; }
+  </style>
+</head>
+<body>
+
+  <!-- SVG animated space background -->
+  <svg id="space-bg">
+    <defs>
+      <radialGradient id="star-gradient" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <div class="card">
+    <h2>Types of Solids</h2>
+    <h3>Crystalline & Amorphous Solids</h3>
+
+    <!-- Language selector -->
+    <label for="langSelect">🌐 Choose Language: </label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    </select>
+
+    <!-- SVG solids -->
+    <svg viewBox="0 0 950 400">
+      <!-- Crystalline solid -->
+      <g id="crystalline">
+        <rect x="80" y="100" width="250" height="180" rx="15" fill="#E3F2FD"/>
+        <text class="solid-title" x="205" y="130" text-anchor="middle">Crystalline Solid</text>
+        <circle class="particle" cx="120" cy="170" r="8"/>
+        <circle class="particle" cx="160" cy="170" r="8"/>
+        <circle class="particle" cx="200" cy="170" r="8"/>
+        <circle class="particle" cx="240" cy="170" r="8"/>
+        <circle class="particle" cx="280" cy="170" r="8"/>
+        <circle class="particle" cx="120" cy="210" r="8"/>
+        <circle class="particle" cx="160" cy="210" r="8"/>
+        <circle class="particle" cx="200" cy="210" r="8"/>
+        <circle class="particle" cx="240" cy="210" r="8"/>
+        <circle class="particle" cx="280" cy="210" r="8"/>
+        <circle class="particle" cx="120" cy="250" r="8"/>
+        <circle class="particle" cx="160" cy="250" r="8"/>
+        <circle class="particle" cx="200" cy="250" r="8"/>
+        <circle class="particle" cx="240" cy="250" r="8"/>
+        <circle class="particle" cx="280" cy="250" r="8"/>
+      </g>
+
+      <!-- Amorphous solid -->
+      <g id="amorphous">
+        <rect x="480" y="100" width="270" height="180" rx="15" fill="#FFEBEE"/>
+        <text class="solid-title" x="615" y="130" text-anchor="middle">Amorphous Solid</text>
+        <circle class="amorphous-particle" cx="520" cy="170" r="8"/>
+        <circle class="amorphous-particle" cx="560" cy="165" r="8"/>
+        <circle class="amorphous-particle" cx="600" cy="175" r="8"/>
+        <circle class="amorphous-particle" cx="640" cy="168" r="8"/>
+        <circle class="amorphous-particle" cx="680" cy="172" r="8"/>
+        <circle class="amorphous-particle" cx="525" cy="210" r="8"/>
+        <circle class="amorphous-particle" cx="565" cy="215" r="8"/>
+        <circle class="amorphous-particle" cx="605" cy="205" r="8"/>
+        <circle class="amorphous-particle" cx="645" cy="218" r="8"/>
+        <circle class="amorphous-particle" cx="685" cy="208" r="8"/>
+        <circle class="amorphous-particle" cx="530" cy="250" r="8"/>
+        <circle class="amorphous-particle" cx="570" cy="245" r="8"/>
+        <circle class="amorphous-particle" cx="610" cy="255" r="8"/>
+        <circle class="amorphous-particle" cx="650" cy="248" r="8"/>
+        <circle class="amorphous-particle" cx="690" cy="252" r="8"/>
+      </g>
+    </svg>
+
+    <div id="caption" class="caption">Let's explore the different types of solids!</div>
+    <br>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="replayBtn">🔄 Replay</button>
+    <button id="videoFinishBtn" class="nav-btn finish-btn">Finish</button>
+  </div>
+
+  <button id="finishBtn" class="finish-btn">Finish</button>
+
+  <script>
+    /* === STAR BACKGROUND === */
+    const svgBg = document.getElementById('space-bg');
+    const starCount = 200;
+
+    function createStars() {
+      svgBg.innerHTML = '<defs><radialGradient id="star-gradient" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" stop-opacity="1"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>';
+      for (let i=0;i<starCount;i++){
+        const star = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        star.setAttribute("cx", Math.random()*window.innerWidth);
+        star.setAttribute("cy", Math.random()*window.innerHeight);
+        star.setAttribute("r", Math.random()*2+0.5);
+        star.setAttribute("fill","url(#star-gradient)");
+        svgBg.appendChild(star);
+      }
+    }
+    createStars();
+    setInterval(()=> {
+      svgBg.querySelectorAll('circle').forEach(star=> {
+        star.setAttribute("r", Math.random()*2+0.5);
+      });
+    },500);
+    window.addEventListener('resize', createStars);
+
+    /* === CAPTIONS AND ANIMATIONS === */
+    const caption = document.getElementById("caption");
+    const replayBtn = document.getElementById("replayBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const langSelect = document.getElementById("langSelect");
+
+    let paused = false;
+    let currentStepIndex = 0;
+    let currentLang = "en";
+
+    const captions = {
+      en: [
+        "Let's explore the different types of solids!",
+        "Solids can be classified into two main types: Crystalline and Amorphous.",
+        "Crystalline solids have a highly ordered arrangement of particles.",
+        "They have a definite melting point and are anisotropic in nature.",
+        "Amorphous solids have a disordered arrangement of particles.",
+        "They have no definite melting point and are isotropic in nature."
+      ],
+      hi: [
+        "आइए ठोस पदार्थों के विभिन्न प्रकारों को जानें!",
+        "ठोस पदार्थों को दो मुख्य प्रकारों में वर्गीकृत किया जाता है: क्रिस्टलीय और अक्रिस्टलीय।",
+        "क्रिस्टलीय ठोस में कणों की अत्यधिक क्रमबद्ध व्यवस्था होती है।",
+        "इनका एक निश्चित गलनांक होता है और ये असमदिशीय होते हैं।",
+        "अक्रिस्टलीय ठोस में कणों की अव्यवस्थित व्यवस्था होती है।",
+        "इनका कोई निश्चित गलनांक नहीं होता और ये समदिशीय होते हैं।"
+      ],
+      ta: [
+        "திண்மங்களின் வெவ்வேறு வகைகளை ஆராய்வோம்!",
+        "திண்மங்கள் இரண்டு முக்கிய வகைகளாக பிரிக்கப்படுகின்றன: படிக மற்றும் படிகமற்ற.",
+        "படிக திண்மங்களில் துகள்கள் மிகவும் ஒழுங்காக அமைந்துள்ளன.",
+        "அவற்றிற்கு ஒரு குறிப்பிட்ட உருகுநிலை உள்ளது மற்றும் அவை அனிசோட்ரோபிக் தன்மை கொண்டவை.",
+        "படிகமற்ற திண்மங்களில் துகள்கள் ஒழுங்கற்ற முறையில் அமைந்துள்ளன.",
+        "அவற்றிற்கு குறிப்பிட்ட உருகுநிலை இல்லை மற்றும் அவை ஐசோட்ரோபிக் தன்மை கொண்டவை."
+      ],
+      te: [
+        "ఘన పదార్థాల వివిధ రకాలను అన్వేషిద్దాం!",
+        "ఘన పదార్థాలు రెండు ప్రధాన రకాలుగా వర్గీకరించబడ్డాయి: స్ఫటిక మరియు అస్ఫటిక.",
+        "స్ఫటిక ఘన పదార్థాలలో కణాలు అత్యంత క్రమబద్ధంగా అమరి ఉంటాయి.",
+        "వాటికి నిర్దిష్ట ద్రవీభవన బిందువు ఉంటుంది మరియు అవి అనిసోట్రోపిక్ స్వభావం కలిగి ఉంటాయి.",
+        "అస్ఫటిక ఘన పదార్థాలలో కణాలు క్రమరహితంగా అమరి ఉంటాయి.",
+        "వాటికి నిర్దిష్ట ద్రవీభవన బిందువు ఉండదు మరియు అవి ఐసోట్రోపిక్ స్వభావం కలిగి ఉంటాయి."
+      ],
+      or: [
+        "ଆସନ୍ତୁ, ଘନ ପଦାର୍ଥର ବିଭିନ୍ନ ପ୍ରକାର ବିଷୟରେ ଜାଣିବା!",
+        "ଘନ ପଦାର୍ଥଗୁଡ଼ିକ ଦୁଇଟି ମୁଖ୍ୟ ପ୍ରକାରରେ ବିଭକ୍ତ: କ୍ରିସ୍ଟାଲିନ୍ ଏବଂ ଆମର୍ଫସ୍।",
+        "କ୍ରିସ୍ଟାଲିନ୍ ଘନ ପଦାର୍ଥରେ କଣଗୁଡ଼ିକ ଅତ୍ୟଧିକ କ୍ରମାନୁସାରେ ସଜ୍ଜିତ ହୋଇଥାଏ।",
+        "ସେମାନଙ୍କର ଏକ ନିର୍ଦ୍ଦିଷ୍ଟ ଗଲନ ବିନ୍ଦୁ ଅଛି ଏବଂ ସେମାନେ ଆନାଇସୋଟ୍ରୋପିକ୍ ପ୍ରକୃତିର।",
+        "ଆମର୍ଫସ୍ ଘନ ପଦାର୍ଥରେ କଣଗୁଡ଼ିକ ଅବ୍ୟବସ୍ଥିତ ଭାବରେ ସଜ୍ଜିତ ହୋଇଥାଏ।",
+        "ସେମାନଙ୍କର କୌଣସି ନିର୍ଦ୍ଦିଷ୍ଟ ଗଲନ ବିନ୍ଦୁ ନାହିଁ ଏବଂ ସେମାନେ ଆଇସୋଟ୍ରୋପିକ୍ ପ୍ରକୃତିର।"
+      ]
+    };
+
+    const voicesMap = { en: "en-IN", hi: "hi-IN", ta: "ta-IN", te: "te-IN", or: "or-IN" };
+
+    function speak(text, lang, callback) {
+      if (paused) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voicesMap[lang] || "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => { if (!paused) callback(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function runStep() {
+      if (currentStepIndex >= captions[currentLang].length) {
+        replayBtn.style.display = "inline-block";
+        return;
+      }
+      caption.textContent = captions[currentLang][currentStepIndex];
+
+      if (currentStepIndex === 1) {
+        gsap.to("#crystalline", {duration: 1, scale: 1.05, yoyo: true, repeat: 1});
+        gsap.to("#amorphous", {duration: 1, scale: 1.05, yoyo: true, repeat: 1, delay: 0.5});
+      }
+      if (currentStepIndex === 2) {
+        gsap.to("#crystalline", {duration: 1, scale: 1.2, yoyo: true, repeat: 1});
+        gsap.to(".particle", {duration: 0.8, fill: "#1565C0", repeat: 1, yoyo: true});
+      }
+      if (currentStepIndex === 3) {
+        gsap.to("#crystalline", {duration: 1, y: -10, yoyo: true, repeat: 1});
+      }
+      if (currentStepIndex === 4) {
+        gsap.to("#amorphous", {duration: 1, scale: 1.2, yoyo: true, repeat: 1});
+        gsap.to(".amorphous-particle", {duration: 0.8, fill: "#D32F2F", repeat: 1, yoyo: true});
+      }
+      if (currentStepIndex === 5) {
+        gsap.to("#amorphous", {duration: 1, y: -10, yoyo: true, repeat: 1});
+      }
+
+      speak(captions[currentLang][currentStepIndex], currentLang, () => {
+        currentStepIndex++;
+        if (!paused) runStep();
+      });
+    }
+
+    function playAnimation() {
+      replayBtn.style.display = "none";
+      paused = false;
+      currentStepIndex = 0;
+      currentLang = langSelect.value;
+
+      gsap.set("#crystalline", {x: 0, y: 0, scale:1});
+      gsap.set("#amorphous", {x: 0, y: 0, scale:1});
+      gsap.set(".particle", {fill: "#4D96FF"});
+      gsap.set(".amorphous-particle", {fill: "#FF6B6B"});
+
+      runStep();
+    }
+
+    pauseBtn.addEventListener("click", () => {
+      if (!paused) {
+        paused = true;
+        window.speechSynthesis.cancel();
+        pauseBtn.textContent = "▶ Play";
+      } else {
+        paused = false;
+        pauseBtn.textContent = "⏸ Pause";
+        runStep();
+      }
+    });
+
+    replayBtn.addEventListener("click", playAnimation);
+
+    langSelect.addEventListener("change", () => {
+      currentLang = langSelect.value;
+      if (!paused) playAnimation();
+      else caption.textContent = captions[currentLang][currentStepIndex] || captions[currentLang][0];
+    });
+
+    playAnimation();
+
+    const videoFinishBtn = document.getElementById('videoFinishBtn');
+    videoFinishBtn?.addEventListener('click', ()=>{
+      try {
+        const key = 'aurraa:chapter1:progress';
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        data['crystalline-amorphous'] = true;
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch(e) { }
+
+      if (window.confetti) {
+        confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 } });
+      }
+
+      setTimeout(()=> window.location.href = 'game-g6-science-solids.html?open=crystalline-amorphous', 700);
+    });
+    document.getElementById('finishBtn')?.addEventListener('click', function(){
+      try { const key='aurraa:chapter1:progress'; const data=JSON.parse(localStorage.getItem(key)||'{}'); data['crystalline-amorphous']=true; localStorage.setItem(key, JSON.stringify(data)); } catch(e){}
+      if(window.confetti) confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 } });
+      setTimeout(()=> window.location.href = '/gr12-ncert-chem-ch-1-concept.html', 300);
+    });
+  </script>
+</body>
+</html>
